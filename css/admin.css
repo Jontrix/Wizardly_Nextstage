@@ -389,6 +389,12 @@
     font-size: 0.8rem;
     transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
+.btn-icono.ver { color: #3b82f6; }
+.btn-icono.ver:hover {
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.4);
+    color: #60a5fa;
+}
 .btn-icono.editar   { color: var(--gold); }
 .btn-icono.editar:hover {
     background: rgba(246,213,122,0.12);
@@ -521,6 +527,21 @@
 .campo-modal textarea:focus {
     border-color: var(--gold-dim);
     box-shadow: 0 0 14px rgba(184,137,45,0.2);
+}
+
+.info-lectura {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text-main);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    margin: 0;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
 }
 .campo-modal select option { background: var(--bg-card); }
 

@@ -97,6 +97,7 @@
                             <th>Email</th>
                             <th>Facción / Organización</th>
                             <th>Rango Alquímico</th>
+                            <th>Rango de Etapa</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -146,12 +147,61 @@
                         <option value="Muggle">Muggle</option>
                     </select>
                 </div>
+                <div class="campo-modal">
+                    <label>Rango de Etapa</label>
+                    <select id="mc-etapa">
+                        <option value="Activo">Activo</option>
+                        <option value="Frecuente">Frecuente</option>
+                        <option value="Inactivo">Inactivo</option>
+                        <option value="Prospecto">Prospecto</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-modal-cancelar" onclick="cerrarModalCliente()">Cancelar</button>
                 <button class="btn-modal-guardar" onclick="guardarCliente()">
                     <i class="fa-solid fa-floppy-disk"></i> Guardar
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="visualizar-cliente-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Información del Cliente</h3>
+                <button class="modal-cerrar" onclick="cerrarVisualizarCliente()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="campo-modal">
+                    <label>ID del Cliente</label>
+                    <p class="info-lectura" id="vc-id">-</p>
+                </div>
+                <div class="campo-modal">
+                    <label>Nombre Completo</label>
+                    <p class="info-lectura" id="vc-nombre">-</p>
+                </div>
+                <div class="campo-modal">
+                    <label>Correo Electrónico</label>
+                    <p class="info-lectura" id="vc-email">-</p>
+                </div>
+                <div class="campo-modal">
+                    <label>Facción / Organización</label>
+                    <p class="info-lectura" id="vc-faccion">-</p>
+                </div>
+                <div class="campo-modal">
+                    <label>Rango Alquímico</label>
+                    <p class="info-lectura" id="vc-rango">-</p>
+                </div>
+                <div class="campo-modal">
+                    <label>Rango de Etapa</label>
+                    <p class="info-lectura" id="vc-etapa">-</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-cancelar" onclick="cerrarVisualizarCliente()">Cerrar</button>
             </div>
         </div>
     </div>
@@ -184,9 +234,9 @@
     <script>
         // ── Datos de clientes iniciales ─────────────────────────
         var clientes = [
-            { id: 1, nombre: "Hermione Granger", email: "h.granger@ministry.magic", faccion: "Ministerio de Magia", rango: "Archimago" },
-            { id: 2, nombre: "Harry Potter", email: "h.potter@auror.magic", faccion: "Oficina de Aurors", rango: "Maestro" },
-            { id: 3, nombre: "Ron Weasley", email: "r.weasley@sortilegios.magic", faccion: "Sortilegios Weasley", rango: "Iniciado" }
+            { id: 1, nombre: "Hermione Granger", email: "h.granger@ministry.magic", faccion: "Ministerio de Magia", rango: "Archimago", etapa: "Activo" },
+            { id: 2, nombre: "Harry Potter", email: "h.potter@auror.magic", faccion: "Oficina de Aurors", rango: "Maestro", etapa: "Frecuente" },
+            { id: 3, nombre: "Ron Weasley", email: "r.weasley@sortilegios.magic", faccion: "Sortilegios Weasley", rango: "Iniciado", etapa: "Inactivo" }
         ];
 
         var editandoClienteId = null;
@@ -203,8 +253,10 @@
         var mcEmail = document.getElementById('mc-email');
         var mcFaccion = document.getElementById('mc-faccion');
         var mcRango = document.getElementById('mc-rango');
+        var mcEtapa = document.getElementById('mc-etapa');
         var confirmClienteOverlay = document.getElementById('confirm-cliente-overlay');
         var confirmClienteNombre = document.getElementById('confirm-cliente-nombre');
+        var visualizarClienteOverlay = document.getElementById('visualizar-cliente-overlay');
         var toastCliente = document.getElementById('toast-cliente');
         var countBadgeCliente = document.getElementById('clientes-count');
 
@@ -220,6 +272,12 @@
                 if (c.rango === 'Iniciado') rangoClase = 'badge-initiated';
                 if (c.rango === 'Muggle') rangoClase = 'badge-muggle'; // por si acaso
 
+                // Asignar clase de insignia según la etapa
+                var etapaClase = 'badge-activo';
+                if (c.etapa === 'Frecuente') etapaClase = 'badge-frecuente';
+                if (c.etapa === 'Inactivo') etapaClase = 'badge-inactivo';
+                if (c.etapa === 'Prospecto') etapaClase = 'badge-prospecto';
+
                 var tr = document.createElement('tr');
                 tr.innerHTML =
                     '<td class="td-id">#MAG-' + String(c.id).padStart(3, '0') + '</td>' +
@@ -227,7 +285,9 @@
                     '<td>' + c.email + '</td>' +
                     '<td>' + c.faccion + '</td>' +
                     '<td><span class="badge ' + rangoClase + '">' + c.rango + '</span></td>' +
+                    '<td><span class="badge ' + etapaClase + '">' + c.etapa + '</span></td>' +
                     '<td><div class="acciones-wrap">' +
+                        '<button class="btn-icono ver" onclick="abrirVisualizarCliente(' + c.id + ')"><i class="fa-solid fa-eye"></i></button>' +
                         '<button class="btn-icono editar" onclick="abrirEditarCliente(' + c.id + ')"><i class="fa-solid fa-pen"></i></button>' +
                         '<button class="btn-icono eliminar" onclick="abrirConfirmCliente(' + c.id + ')"><i class="fa-solid fa-trash"></i></button>' +
                     '</div></td>';
@@ -263,7 +323,25 @@
             mcEmail.value = '';
             mcFaccion.value = '';
             mcRango.value = 'Iniciado';
+            mcEtapa.value = 'Activo';
             modalClienteOverlay.classList.add('visible');
+        }
+
+        // ── Modal VISUALIZAR ────────────────────────────────────
+        function abrirVisualizarCliente(id) {
+            var c = clientes.find(function(x) { return x.id === id; });
+            if (!c) return;
+            document.getElementById('vc-id').textContent = '#MAG-' + String(c.id).padStart(3, '0');
+            document.getElementById('vc-nombre').textContent = c.nombre;
+            document.getElementById('vc-email').textContent = c.email;
+            document.getElementById('vc-faccion').textContent = c.faccion;
+            document.getElementById('vc-rango').textContent = c.rango;
+            document.getElementById('vc-etapa').textContent = c.etapa;
+            visualizarClienteOverlay.classList.add('visible');
+        }
+
+        function cerrarVisualizarCliente() {
+            visualizarClienteOverlay.classList.remove('visible');
         }
 
         // ── Modal EDITAR ────────────────────────────────────────
@@ -276,6 +354,7 @@
             mcEmail.value = c.email;
             mcFaccion.value = c.faccion;
             mcRango.value = c.rango;
+            mcEtapa.value = c.etapa;
             modalClienteOverlay.classList.add('visible');
         }
 
@@ -289,6 +368,7 @@
             var email = mcEmail.value.trim();
             var faccion = mcFaccion.value.trim() || "Independiente";
             var rango = mcRango.value;
+            var etapa = mcEtapa.value;
 
             if (!nombre || !email) {
                 mostrarToastCliente('⚠️ Nombre y Correo son obligatorios.', 'error');
@@ -302,7 +382,8 @@
                     nombre: nombre,
                     email: email,
                     faccion: faccion,
-                    rango: rango
+                    rango: rango,
+                    etapa: etapa
                 };
                 mostrarToastCliente('✦ Datos de cliente actualizados.', 'ok');
             } else {
@@ -314,7 +395,8 @@
                     nombre: nombre,
                     email: email,
                     faccion: faccion,
-                    rango: rango
+                    rango: rango,
+                    etapa: etapa
                 });
                 mostrarToastCliente('✦ Nuevo mago registrado.', 'ok');
             }
@@ -421,6 +503,11 @@
         .badge-master { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
         .badge-initiated { background: rgba(234, 179, 8, 0.15); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.3); }
         .badge-muggle { background: rgba(107, 114, 128, 0.15); color: #9ca3af; border: 1px solid rgba(107, 114, 128, 0.3); }
+        
+        .badge-activo { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+        .badge-frecuente { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-inactivo { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-prospecto { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.3); }
 
         .admin-filtros {
             display: flex;
