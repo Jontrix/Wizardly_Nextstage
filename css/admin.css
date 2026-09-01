@@ -251,6 +251,17 @@
     font-weight: 400;
 }
 
+.admin-graficas-container {
+    display: flex;
+    gap: 40px;
+    margin: 32px 40px 0;
+}
+
+.admin-graficas-container .admin-bloque {
+    flex: 1;
+    margin: 0;
+}
+
 /* ══════════════════════════════════════
    TABLA
 ══════════════════════════════════════ */

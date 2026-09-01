@@ -108,21 +108,23 @@
             </div>
         </div>
 
-        <div class="admin-bloque" style="margin-top:32px;">
-            <div class="bloque-header">
-                <h2>Distribución de Rangos</h2>
+        <div class="admin-graficas-container">
+            <div class="admin-bloque">
+                <div class="bloque-header">
+                    <h2>Distribución de Rangos</h2>
+                </div>
+                <div style="padding:20px 24px; display:flex; justify-content:center;">
+                    <canvas id="chart-clientes" width="300" height="300" style="max-width:300px; max-height:300px;"></canvas>
+                </div>
             </div>
-            <div style="padding:20px 24px; display:flex; justify-content:center;">
-                <canvas id="chart-clientes" width="300" height="300" style="max-width:300px; max-height:300px;"></canvas>
-            </div>
-        </div>
 
-        <div class="admin-bloque" style="margin-top:32px;">
-            <div class="bloque-header">
-                <h2>Distribución de Rango de Etapa</h2>
-            </div>
-            <div style="padding:20px 24px; display:flex; justify-content:center;">
-                <canvas id="chart-etapas" width="300" height="300" style="max-width:300px; max-height:300px;"></canvas>
+            <div class="admin-bloque">
+                <div class="bloque-header">
+                    <h2>Distribución de Rango de Etapa</h2>
+                </div>
+                <div style="padding:20px 24px; display:flex; justify-content:center;">
+                    <canvas id="chart-etapas" width="300" height="300" style="max-width:300px; max-height:300px;"></canvas>
+                </div>
             </div>
         </div>
 
@@ -139,20 +141,20 @@
             </div>
             <div class="modal-body">
                 <div class="campo-modal">
-                    <label>Nombre Completo</label>
-                    <input type="text" id="mc-nombre" placeholder="Ej. Hermione Granger" />
+                    <label>Nombre Completo <span style="color: var(--alert);">*</span></label>
+                    <input type="text" id="mc-nombre" placeholder="Ej. Hermione Granger" required />
                 </div>
                 <div class="campo-modal">
-                    <label>Correo Electrónico</label>
-                    <input type="email" id="mc-email" placeholder="ejemplo@magic.com" />
+                    <label>Correo Electrónico <span style="color: var(--alert);">*</span></label>
+                    <input type="email" id="mc-email" placeholder="ejemplo@magic.com" required />
                 </div>
                 <div class="campo-modal">
-                    <label>Teléfono Mágico</label>
-                    <input type="tel" id="mc-telefono" placeholder="Ej. 555-123-4567" />
+                    <label>Teléfono Mágico <span style="color: var(--alert);">*</span></label>
+                    <input type="text" id="mc-telefono" placeholder="Ej. 5551234567" inputmode="numeric" pattern="[0-9\-\s]*" maxlength="20" required />
                 </div>
                 <div class="campo-modal">
-                    <label>Facción / Organización</label>
-                    <input type="text" id="mc-faccion" placeholder="Ej. Ministerio de Magia o Independiente" />
+                    <label>Facción / Organización <span style="color: var(--alert);">*</span></label>
+                    <input type="text" id="mc-faccion" placeholder="Ej. Ministerio de Magia o Independiente" required />
                 </div>
                 <div class="campo-modal">
                     <label>Rango Alquímico</label>
@@ -424,13 +426,44 @@
         window.guardarCliente = async function() {
             var nombre = mcNombre.value.trim();
             var correo = mcEmail.value.trim();
-            var telefono = mcTelefono.value.trim() || "-";
-            var empresa = mcFaccion.value.trim() || "Independiente";
+            var telefono = mcTelefono.value.trim();
+            var empresa = mcFaccion.value.trim();
             var rango = mcRango.value;
             var etapa = mcEtapa.value;
 
-            if (!nombre || !correo) {
-                window.mostrarToastCliente('⚠️ Nombre y Correo son obligatorios.', 'error');
+            // Validar que todos los campos requeridos estén completos
+            if (!nombre) {
+                window.mostrarToastCliente('⚠️ El nombre completo es obligatorio.', 'error');
+                return;
+            }
+            if (!correo) {
+                window.mostrarToastCliente('⚠️ El correo electrónico es obligatorio.', 'error');
+                return;
+            }
+            if (!telefono) {
+                window.mostrarToastCliente('⚠️ El teléfono es obligatorio.', 'error');
+                return;
+            }
+            if (!empresa) {
+                window.mostrarToastCliente('⚠️ La facción/organización es obligatoria.', 'error');
+                return;
+            }
+
+            // Validar formato de email
+            var regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!regexEmail.test(correo)) {
+                window.mostrarToastCliente('⚠️ El correo electrónico no es válido.', 'error');
+                return;
+            }
+
+            // Validar que el teléfono solo contenga números, espacios y guiones
+            var regexTelefono = /^[0-9\s\-\+\(\)]*$/;
+            if (!regexTelefono.test(telefono)) {
+                window.mostrarToastCliente('⚠️ El teléfono solo debe contener números, espacios y símbolos de formato.', 'error');
+                return;
+            }
+            if (telefono.replace(/[^0-9]/g, '').length < 7) {
+                window.mostrarToastCliente('⚠️ El teléfono debe tener al menos 7 dígitos.', 'error');
                 return;
             }
 
