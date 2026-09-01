@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
-    <!-- Asegúrate de que las rutas a tus CSS sean correctas -->
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
@@ -118,9 +117,18 @@
             </div>
         </div>
 
+        <div class="admin-bloque" style="margin-top:32px;">
+            <div class="bloque-header">
+                <h2>Distribución de Rango de Etapa</h2>
+            </div>
+            <div style="padding:20px 24px; display:flex; justify-content:center;">
+                <canvas id="chart-etapas" width="300" height="300" style="max-width:300px; max-height:300px;"></canvas>
+            </div>
+        </div>
+
     </main>
 
-    <!-- ── MODAL AGREGAR CLIENTE ── -->
+    <!-- ── MODAL AGREGAR / EDITAR CLIENTE ── -->
     <div class="modal-overlay" id="modal-cliente-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -138,7 +146,6 @@
                     <label>Correo Electrónico</label>
                     <input type="email" id="mc-email" placeholder="ejemplo@magic.com" />
                 </div>
-                <!-- Campo de Teléfono obligatorio según rúbrica -->
                 <div class="campo-modal">
                     <label>Teléfono Mágico</label>
                     <input type="tel" id="mc-telefono" placeholder="Ej. 555-123-4567" />
@@ -249,26 +256,28 @@
     <!-- ── LÓGICA DE FIREBASE Y JS ── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+        // TUS CREDENCIALES REALES DE FIREBASE
         const firebaseConfig = {
-          apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
-          authDomain: "wizardly-nextstage.firebaseapp.com",
-          projectId: "wizardly-nextstage",
-          storageBucket: "wizardly-nextstage.firebasestorage.app",
-          messagingSenderId: "336735978219",
-          appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
-          measurementId: "G-FE1XKG7BFF"
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
         };
-        
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         // Variables Globales
         window.clientes = []; 
+        window.editandoClienteId = null;
         var eliminandoClienteId = null;
         var chartInstanceClientes = null;
+        var chartInstanceEtapas = null;
 
         // Referencias DOM
         var tbodyClientes = document.getElementById('tbody-clientes');
@@ -333,12 +342,14 @@
                     '<td><span class="badge ' + etapaClase + '">' + c.etapa_crm + '</span></td>' +
                     '<td><div class="acciones-wrap">' +
                         '<button class="btn-icono ver" onclick="abrirVisualizarCliente(\'' + c.id + '\')"><i class="fa-solid fa-eye"></i></button>' +
+                        '<button class="btn-icono editar" onclick="abrirEditarCliente(\'' + c.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
                         '<button class="btn-icono eliminar" onclick="abrirConfirmCliente(\'' + c.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
                     '</div></td>';
                 tbodyClientes.appendChild(tr);
             });
             window.actualizarContadorCliente();
             window.actualizarGraficaClientes();
+            window.actualizarGraficaEtapas();
         };
 
         window.actualizarContadorCliente = function() {
@@ -360,6 +371,7 @@
 
         // Funciones de Modales
         window.abrirModalCliente = function() {
+            window.editandoClienteId = null;
             modalClienteTitulo.textContent = 'Agregar Cliente';
             mcNombre.value = '';
             mcEmail.value = '';
@@ -367,6 +379,23 @@
             mcFaccion.value = '';
             mcRango.value = 'Iniciado';
             mcEtapa.value = 'Activo';
+            modalClienteOverlay.classList.add('visible');
+        };
+
+        window.abrirEditarCliente = function(id) {
+            var c = window.clientes.find(function(x) { return x.id === id; });
+            if (!c) return;
+            
+            window.editandoClienteId = id; 
+            modalClienteTitulo.textContent = 'Editar Cliente';
+            
+            mcNombre.value = c.nombre;
+            mcEmail.value = c.correo;
+            mcTelefono.value = c.telefono || "";
+            mcFaccion.value = c.empresa || "";
+            mcRango.value = c.rango;
+            mcEtapa.value = c.etapa_crm;
+            
             modalClienteOverlay.classList.add('visible');
         };
 
@@ -391,7 +420,7 @@
             visualizarClienteOverlay.classList.remove('visible');
         };
 
-        // Guardar Cliente en Firebase
+        // Guardar o Actualizar Cliente en Firebase
         window.guardarCliente = async function() {
             var nombre = mcNombre.value.trim();
             var correo = mcEmail.value.trim();
@@ -406,20 +435,35 @@
             }
 
             try {
-                await addDoc(collection(db, "clientes"), {
-                    nombre: nombre,
-                    correo: correo,
-                    telefono: telefono,
-                    empresa: empresa,
-                    rango: rango, 
-                    etapa_crm: etapa, 
-                    estado: "Activo",
-                    fecha_registro: Timestamp.now()
-                });
+                if (window.editandoClienteId) {
+                    // MODO EDICIÓN
+                    const clienteRef = doc(db, "clientes", window.editandoClienteId);
+                    await updateDoc(clienteRef, {
+                        nombre: nombre,
+                        correo: correo,
+                        telefono: telefono,
+                        empresa: empresa,
+                        rango: rango,
+                        etapa_crm: etapa
+                    });
+                    window.mostrarToastCliente('✦ Datos del mago actualizados.', 'ok');
+                } else {
+                    // MODO CREACIÓN
+                    await addDoc(collection(db, "clientes"), {
+                        nombre: nombre,
+                        correo: correo,
+                        telefono: telefono,
+                        empresa: empresa,
+                        rango: rango, 
+                        etapa_crm: etapa, 
+                        estado: "Activo",
+                        fecha_registro: Timestamp.now()
+                    });
+                    window.mostrarToastCliente('✦ Nuevo mago registrado en la nube.', 'ok');
+                }
 
-                window.mostrarToastCliente('✦ Nuevo mago registrado en la nube.', 'ok');
                 window.cerrarModalCliente();
-                window.cargarClientesFirebase();
+                window.cargarClientesFirebase(); // Recargamos la tabla
             } catch (error) {
                 console.error("Error al guardar: ", error);
                 window.mostrarToastCliente('⚠️ Error al lanzar el hechizo.', 'error');
@@ -480,6 +524,34 @@
                     datasets: [{
                         data: [archimagos, maestros, iniciados, muggles],
                         backgroundColor: ['#a855f7', '#3b82f6', '#eab308', '#6b7280'],
+                        borderColor: '#0a0412',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#ddd', font: { family: 'Cinzel' } } } }
+                }
+            });
+        };
+
+        // Gráfica de Etapas
+        window.actualizarGraficaEtapas = function() {
+            var activos = window.clientes.filter(function(c) { return c.etapa_crm === 'Activo'; }).length;
+            var frecuentes = window.clientes.filter(function(c) { return c.etapa_crm === 'Frecuente'; }).length;
+            var inactivos = window.clientes.filter(function(c) { return c.etapa_crm === 'Inactivo'; }).length;
+            var prospectos = window.clientes.filter(function(c) { return c.etapa_crm === 'Prospecto'; }).length;
+            
+            var ctx = document.getElementById('chart-etapas').getContext('2d');
+            if (chartInstanceEtapas) { chartInstanceEtapas.destroy(); }
+
+            chartInstanceEtapas = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Activos', 'Frecuentes', 'Inactivos', 'Prospectos'],
+                    datasets: [{
+                        data: [activos, frecuentes, inactivos, prospectos],
+                        backgroundColor: ['#4ade80', '#60a5fa', '#f87171', '#fb923c'],
                         borderColor: '#0a0412',
                         borderWidth: 2
                     }]
