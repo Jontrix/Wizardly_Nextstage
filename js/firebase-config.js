@@ -1,50 +1,31 @@
-import { initializeApp } from
-"https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+import { getFirestore } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 
-import { getFirestore } from
-"https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
-
-import { getAuth } from
-"https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
-
-// CONFIGURACIÓN
 const firebaseConfig = {
-
-    apiKey: "TU_API_KEY",
-
-    authDomain: "TU_AUTH_DOMAIN",
-
-    projectId: "TU_PROJECT_ID",
-
-    storageBucket: "TU_STORAGE_BUCKET",
-
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
-
-    appId: "TU_APP_ID"
-
+    apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+    authDomain: "wizardly-nextstage.firebaseapp.com",
+    projectId: "wizardly-nextstage",
+    storageBucket: "wizardly-nextstage.firebasestorage.app",
+    messagingSenderId: "336735978219",
+    appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+    measurementId: "G-FE1XKG7BFF"
 };
 
 
-// INICIALIZAR
-const app =
-    initializeApp(firebaseConfig);
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
 
 
-// FIRESTORE
-const db =
-    getFirestore(app);
+// Authentication
+const auth = getAuth(app);
 
 
-// AUTHENTICATION
-const auth =
-    getAuth(app);
+// Firestore
+const db = getFirestore(app);
 
 
-// EXPORTAR
-export {
-    db,
-    auth
-};
+export { auth, db };
