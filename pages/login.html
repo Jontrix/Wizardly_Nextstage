@@ -244,40 +244,114 @@
     </div>
 
 
-    <script>
-        const formulario = document.getElementById("loginForm");
-        const mensaje = document.getElementById("mensaje-login");
+   <script type="module">
 
-        formulario.addEventListener("submit", function (e) {
-            e.preventDefault();
+    import {
+        auth
+    } from "../js/firebase-config.js";
 
-            const correoInput = document.getElementById("correo").value.trim();
-            const passwordInput = document.getElementById("password").value.trim();
-            const hayDatosCompletos = correoInput && passwordInput;
+    import {
+        signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
-            let nombre = "Mago Invitado";
-            let correo = "invitado@wizardly.mx";
-            let usuario = "@WizardGuest";
+    const formulario = document.getElementById("loginForm");
+    const mensaje = document.getElementById("mensaje-login");
 
-            if (hayDatosCompletos) {
-                const baseNombre = correoInput.split("@")[0] || "Mago";
-                nombre = baseNombre.charAt(0).toUpperCase() + baseNombre.slice(1);
-                correo = correoInput;
-                usuario = "@" + baseNombre.replace(/[^a-zA-Z0-9]/g, "");
-            }
+    formulario.addEventListener("submit", async (e) => {
 
-            localStorage.setItem("usuarioDatos", JSON.stringify({ nombre, correo, usuario }));
-            localStorage.setItem("usuarioLogueado", "true");
+        e.preventDefault();
 
-            if (mensaje) {
-                mensaje.classList.add("mostrar");
-            }
+        const correo = document
+            .getElementById("correo")
+            .value
+            .trim();
+
+        const password = document
+            .getElementById("password")
+            .value;
+
+        if (!correo || !password) {
+
+            alert("Ingresa tu correo y contraseña.");
+
+            return;
+        }
+
+        try {
+
+            const userCredential =
+                await signInWithEmailAndPassword(
+                    auth,
+                    correo,
+                    password
+                );
+
+            const usuario = userCredential.user;
+
+            console.log(
+                "Usuario autenticado:",
+                usuario.uid
+            );
+
+            localStorage.setItem(
+                "usuarioDatos",
+                JSON.stringify({
+                    nombre: usuario.displayName || "Usuario",
+                    correo: usuario.email,
+                    usuario: "@" + usuario.email.split("@")[0]
+                })
+            );
+
+            localStorage.setItem(
+                "usuarioLogueado",
+                "true"
+            );
+
+            mensaje.classList.add("mostrar");
 
             setTimeout(() => {
+
                 window.location.href = "perfil.html";
+
             }, 1200);
-        });
-    </script>
+
+        } catch (error) {
+
+            console.error(
+                "Error al iniciar sesión:",
+                error
+            );
+
+            if (
+                error.code ===
+                "auth/invalid-credential"
+            ) {
+
+                alert(
+                    "Correo o contraseña incorrectos."
+                );
+
+            } else if (
+                error.code ===
+                "auth/user-disabled"
+            ) {
+
+                alert(
+                    "Esta cuenta está deshabilitada."
+                );
+
+            } else {
+
+                alert(
+                    "No se pudo iniciar sesión: " +
+                    error.message
+                );
+            }
+        }
+
+    });
+
+</script>
 
     <script src="../js/script.js"></script>
     <div id="mensaje-login" class="mensaje-login">

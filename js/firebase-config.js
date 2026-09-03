@@ -6,13 +6,13 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/12.18.0/firebas
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
-    authDomain: "wizardly-nextstage.firebaseapp.com",
-    projectId: "wizardly-nextstage",
-    storageBucket: "wizardly-nextstage.firebasestorage.app",
-    messagingSenderId: "336735978219",
-    appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
-    measurementId: "G-FE1XKG7BFF"
+  apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+  authDomain: "wizardly-nextstage.firebaseapp.com",
+  projectId: "wizardly-nextstage",
+  storageBucket: "wizardly-nextstage.firebasestorage.app",
+  messagingSenderId: "336735978219",
+  appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+  measurementId: "G-FE1XKG7BFF"
 };
 
 

@@ -189,6 +189,44 @@
     </script>
 
 </head>
+<script type="module">
+    import { registrarUsuario } from "../js/auth.js";
+
+    const formulario = document.getElementById("registroForm");
+
+    formulario.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const nombre = document.getElementById("nombre").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        try {
+            await registrarUsuario(nombre, email, password);
+
+            alert("✨ Registro exitoso. Bienvenido al Mercado Arcano ✨");
+
+            window.location.href = "login.html";
+
+        } catch (error) {
+
+            console.error(error);
+
+            if (error.code === "auth/email-already-in-use") {
+                alert("Ese correo ya está registrado.");
+            } 
+            else if (error.code === "auth/invalid-email") {
+                alert("El correo no es válido.");
+            } 
+            else if (error.code === "auth/weak-password") {
+                alert("La contraseña es demasiado débil.");
+            } 
+            else {
+                alert("No se pudo crear la cuenta: " + error.message);
+            }
+        }
+    });
+</script>
 
 <body>
 
@@ -200,27 +238,33 @@
 
         <h2>Crear Cuenta</h2>
 
-        <form onsubmit="registrar(event)" novalidate>
+        <form id="registroForm" novalidate>
 
             <div class="input-group">
                 <i class="fa-solid fa-user"></i>
                 <input
-                    type="text"
-                    placeholder="Nombre completo">
+                      type="text"
+                      id="nombre"
+                      placeholder="Nombre completo"
+                      required>
             </div>
 
             <div class="input-group">
                 <i class="fa-solid fa-envelope"></i>
                 <input
                     type="email"
-                    placeholder="Correo electrónico">
+                    id="email"
+                    placeholder="Correo electrónico"
+                    required>
             </div>
 
             <div class="input-group">
                 <i class="fa-solid fa-lock"></i>
                 <input
                     type="password"
-                    placeholder="Contraseña secreta">
+                    id="password"
+                    placeholder="Contraseña secreta"
+                    required>
             </div>
 
             <button class="btn btn-registro">
