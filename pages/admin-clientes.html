@@ -88,6 +88,15 @@
                         <option value="Muggle">Muggle</option>
                     </select>
                 </div>
+                <div class="admin-filtro-select">
+                    <select id="filtro-etapa-cliente">
+                        <option value="">Todas las etapas</option>
+                        <option value="Prospecto">Prospecto</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Frecuente">Frecuente</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
             </div>
 
             <div class="admin-tabla-wrap">
@@ -285,6 +294,7 @@
         var tbodyClientes = document.getElementById('tbody-clientes');
         var inputBuscarCliente = document.getElementById('buscar-cliente');
         var filtroRangoCliente = document.getElementById('filtro-rango-cliente');
+        var filtroEtapaCliente = document.getElementById('filtro-etapa-cliente');
         var modalClienteOverlay = document.getElementById('modal-cliente-overlay');
         var modalClienteTitulo = document.getElementById('modal-cliente-titulo');
         var mcNombre = document.getElementById('mc-nombre');
@@ -343,7 +353,7 @@
                     '<td><span class="badge ' + rangoClase + '">' + c.rango + '</span></td>' +
                     '<td><span class="badge ' + etapaClase + '">' + c.etapa_crm + '</span></td>' +
                     '<td><div class="acciones-wrap">' +
-                        '<button class="btn-icono ver" onclick="abrirVisualizarCliente(\'' + c.id + '\')"><i class="fa-solid fa-eye"></i></button>' +
+                        '<button class="btn-icono ver" onclick="window.location.href=\'admin-cliente-detalle.html?id=' + c.id + '\'"><i class="fa-solid fa-eye"></i></button>' +
                         '<button class="btn-icono editar" onclick="abrirEditarCliente(\'' + c.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
                         '<button class="btn-icono eliminar" onclick="abrirConfirmCliente(\'' + c.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
                     '</div></td>';
@@ -363,10 +373,12 @@
         window.aplicarFiltrosCliente = function() {
             var texto = inputBuscarCliente.value.toLowerCase();
             var rangoSel = filtroRangoCliente.value;
+            var etapaSel = filtroEtapaCliente.value;
             var filtrados = window.clientes.filter(function(c) {
                 var coincideTexto = c.nombre.toLowerCase().includes(texto) || c.correo.toLowerCase().includes(texto);
                 var coincideRango = (rangoSel === '' || c.rango === rangoSel);
-                return coincideTexto && coincideRango;
+                var coincideEtapa = (etapaSel === '' || c.etapa_crm === etapaSel);
+                return coincideTexto && coincideRango && coincideEtapa;
             });
             window.renderTablaClientes(filtrados);
         };
@@ -605,6 +617,7 @@
         });
         inputBuscarCliente.addEventListener('input', window.aplicarFiltrosCliente);
         filtroRangoCliente.addEventListener('change', window.aplicarFiltrosCliente);
+        filtroEtapaCliente.addEventListener('change', window.aplicarFiltrosCliente);
 
         // Arrancar
         window.cargarClientesFirebase();
