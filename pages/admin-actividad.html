@@ -418,94 +418,96 @@
            CARGAR ACTIVIDAD
         =========================================== */
 
-        async function cargarActividad(uid) {
+async function cargarActividad() {
 
-            try {
+    const lista = document.getElementById("actividadLista");
 
-                const referencia =
-                    collection(db, "actividad");
+    lista.innerHTML = `
+        <p>Cargando actividad...</p>
+    `;
 
+    try {
 
-                const consulta = query(
+        const q = query(
+            collection(db, "actividad"),
+            orderBy("fecha", "desc")
+        );
 
-                    referencia,
+        const snapshot = await getDocs(q);
 
-                    where("adminUid", "==", uid)
+        lista.innerHTML = "";
 
-                );
+        if (snapshot.empty) {
 
+            lista.innerHTML = `
+                <p>No hay actividad registrada todavía.</p>
+            `;
 
-                const resultado =
-                    await getDocs(consulta);
-
-
-                actividades = [];
-
-
-                resultado.forEach((documento) => {
-
-                    const data =
-                        documento.data();
-
-
-                    actividades.push({
-
-                        id: documento.id,
-
-                        ...data
-
-                    });
-
-                });
-
-
-                /* Ordenar por fecha */
-
-                actividades.sort((a, b) => {
-
-                    const fechaA =
-                        obtenerFecha(a.fecha);
-
-                    const fechaB =
-                        obtenerFecha(b.fecha);
-
-
-                    return fechaB - fechaA;
-
-                });
-
-
-                renderizarActividad();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Error cargando actividad:",
-                    error
-                );
-
-
-                tbody.innerHTML = `
-
-                    <tr>
-
-                        <td colspan="4"
-                            class="actividad-error">
-
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-
-                            No se pudo cargar la actividad.
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-
+            return;
         }
+
+        snapshot.forEach((doc) => {
+
+            const actividad = doc.data();
+
+            const fecha = actividad.fecha?.toDate
+                ? actividad.fecha.toDate().toLocaleString("es-MX")
+                : "Fecha pendiente";
+
+            lista.innerHTML += `
+                <div class="actividad-item">
+
+                    <div class="actividad-icono">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </div>
+
+                    <div class="actividad-info">
+
+                        <strong>
+                            ${actividad.descripcion || "Actividad"}
+                        </strong>
+
+                        <span>
+                            Cliente:
+                            ${actividad.cliente || "Cliente Wizardly"}
+                        </span>
+
+                        <span>
+                            Pedido:
+                            ${actividad.folio || "Sin folio"}
+                        </span>
+
+                        <span>
+                            Total:
+                            $${Number(actividad.total || 0).toFixed(2)} MXN
+                        </span>
+
+                        <small>
+                            ${fecha}
+                        </small>
+
+                    </div>
+
+                </div>
+            `;
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        lista.innerHTML = `
+            <p>
+                No se pudo cargar la actividad.
+            </p>
+        `;
+    }
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    cargarActividad
+);
 
 
         /* ==========================================
