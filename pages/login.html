@@ -6,283 +6,242 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wizardly — Iniciar Sesión</title>
 
+    <!-- Favicon -->
     <link rel="icon" href="../images/logo/favicon/favicon.png" type="image/png">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap"
-        rel="stylesheet">
-
-    <!-- CSS general -->
+    <!-- CSS General -->
     <link rel="stylesheet" href="../css/styles.css">
-
+    
     <!-- Font Awesome -->
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     <style>
-
-        body{
-            min-height:100vh;
-
-            display:flex;
-            justify-content:center;
-            align-items:center;
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             flex-direction: column;
             gap: 24px;
             padding: 40px 20px 60px;
             box-sizing: border-box;
-
-            background:
-            linear-gradient(rgba(0,0,0,.75),rgba(0,0,0,.75)),
-            url('../images/banner/banner-principal.jpg')
-            center/cover no-repeat;
+            background: linear-gradient(rgba(0, 0, 0, .75), rgba(0, 0, 0, .75)), url('../images/banner/banner-principal.jpg') center/cover no-repeat;
         }
 
-        .login-card{
-
-            width:100%;
-            max-width:550px;
-
-            background:rgba(20,10,35,.85);
-
+        .login-card {
+            width: 100%;
+            max-width: 550px;
+            background: rgba(20, 10, 35, 0.85);
             backdrop-filter: blur(12px);
-
-            border:1px solid rgba(246,213,122,.2);
-
-            border-radius:25px;
-
-            padding:50px;
-
-            box-shadow:
-            0 0 40px rgba(192,132,252,.15),
-            0 0 80px rgba(246,213,122,.08);
-
+            border: 1px solid rgba(246, 213, 122, .2);
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 0 40px rgba(192, 132, 252, .15), 0 0 80px rgba(246, 213, 122, .08);
             animation: aparecer 1s ease;
         }
 
-        @keyframes aparecer{
-
-            from{
-                opacity:0;
-                transform:translateY(40px);
-            }
-
-            to{
-                opacity:1;
-                transform:translateY(0);
-            }
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .login-card h2{
-            text-align:center;
-            color:var(--gold);
-            font-family:'Cinzel Decorative', serif;
-            font-size:2.2rem;
-            margin-bottom:10px;
-        }
+        .login-card h2 { text-align: center; color: var(--gold); font-family: 'Cinzel Decorative', serif; font-size: 2.2rem; margin-bottom: 10px; }
+        .subtitulo { text-align: center; color: var(--lilac); font-family: 'Cinzel', serif; letter-spacing: 3px; margin-bottom: 40px; }
+        .input-group { position: relative; margin-bottom: 25px; }
+        .input-group i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--gold); }
+        .input-group input { width: 100%; padding: 16px 16px 16px 50px; border: none; border-radius: 15px; background: rgba(255, 255, 255, .06); color: white; border: 1px solid transparent; transition: .3s; }
+        .input-group input:focus { outline: none; border: 1px solid var(--gold); box-shadow: 0 0 20px rgba(246, 213, 122, .25); }
+        
+        .btn-login-magico { width: 100%; padding: 15px; border-radius: 12px; background: var(--gold); color: #000; font-family: 'Cinzel', serif; font-weight: bold; font-size: 1.1rem; border: none; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn-login-magico:hover { box-shadow: 0 0 20px rgba(246, 213, 122, .5); }
+        
+        .texto-extra { text-align: center; margin-top: 30px; color: var(--text-muted); }
+        .texto-extra a { color: var(--gold); text-decoration: none; }
+        .texto-extra a:hover { text-decoration: underline; }
+        
+        .recordar-grupo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: -10px; }
+        .link-recuperar { color: var(--lilac); font-family: 'Lato', sans-serif; font-size: 0.85rem; text-decoration: none; transition: .3s; }
+        .link-recuperar:hover { color: var(--gold); text-decoration: underline; }
 
-        .subtitulo{
-            text-align:center;
-            color:var(--lilac);
-            font-family:'Cinzel', serif;
-            letter-spacing:3px;
-            margin-bottom:40px;
-        }
-
-        .input-group{
-            position:relative;
-            margin-bottom:25px;
-        }
-
-        .input-group i{
-            position:absolute;
-            left:18px;
-            top:50%;
-            transform:translateY(-50%);
-            color:var(--gold);
-        }
-
-        .input-group input{
-
-            width:100%;
-            padding:16px 16px 16px 50px;
-
-            border:none;
-            border-radius:15px;
-
-            background:rgba(255,255,255,.06);
-
-            color:white;
-
-            border:1px solid transparent;
-
-            transition:.3s;
-        }
-
-        .input-group input:focus{
-
-            outline:none;
-
-            border:1px solid var(--gold);
-
-            box-shadow:0 0 20px rgba(246,213,122,.25);
-        }
-
-        .btn-login-magico{
-            width:100%;
-            border:none;
-            cursor:pointer;
-            margin-top:10px;
-        }
-
-        .texto-extra{
-            text-align:center;
-            margin-top:30px;
-            color:var(--text-muted);
-        }
-
-        .texto-extra a{
-            color:var(--gold);
-            text-decoration:none;
-        }
-
-        .texto-extra a:hover{
-            text-decoration:underline;
-        }
-        .recordar-grupo {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    margin-top: -10px;
-}
-
-.link-recuperar {
-    color: var(--lilac);
-    font-family: 'Lato', sans-serif;
-    font-size: 0.85rem;
-    text-decoration: none;
-    transition: .3s;
-}
-
-.link-recuperar:hover {
-    color: var(--gold);
-    text-decoration: underline;
-}
-
+        .mensaje-login { position: fixed; top: 100px; right: 20px; background: rgba(35, 10, 60, 0.95); color: #f4d58d; padding: 20px 35px; border: 2px solid #d4a017; border-radius: 15px; font-size: 1.1rem; box-shadow: 0 0 20px rgba(212, 160, 23, .5); opacity: 0; visibility: hidden; transition: .5s; z-index: 9999; }
+        .mensaje-login.mostrar { opacity: 1; visibility: visible; }
     </style>
-
 </head>
 
 <body>
 
     <div class="login-card">
-
-        <div class="subtitulo">
-            ✦ Accede al Mercado Arcano ✦
-        </div>
-
+        <div class="subtitulo">✦ Accede al Mercado Arcano ✦</div>
         <h2>Iniciar Sesión</h2>
 
-        <form id="loginForm" novalidate>
-
+        <form id="loginForm">
             <div class="input-group">
-
                 <i class="fa-solid fa-envelope"></i>
-
-                <input
-                    type="email"
-                    id="correo"
-                    placeholder="Correo Electrónico">
-
+                <input type="email" id="correo" required placeholder="Correo Electrónico">
             </div>
-
             <div class="input-group">
-
                 <i class="fa-solid fa-key"></i>
-
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="Contraseña Secreta">
-
+                <input type="password" id="password" required placeholder="Contraseña Secreta">
+            </div>
+            <div class="recordar-grupo">
+                <label class="recordar-label" style="color: var(--text-muted); font-family: 'Lato', sans-serif; font-size: 0.85rem;">
+                    <input type="checkbox" id="recordar"> Recordar
+                </label>
+                <a href="recuperar-contrasena.html" class="link-recuperar">¿Olvidaste tu contraseña?</a>
             </div>
 
-            <div class="recordar-grupo">
-    <label class="recordar-label">
-        <input type="checkbox" id="recordar">
-        <span class="checkmark"></span>
-        Recordar contraseña
-    </label>
-    <a href="recuperar-contrasena.html" class="link-recuperar">
-        ¿Olvidaste tu contraseña?
-    </a>
-</div>
-
-
-            <button type="submit" class="btn btn-login-magico">
-                Entrar al Mercado
-            </button>
-
+            <button type="submit" class="btn-login-magico">Entrar al Mercado</button>
         </form>
 
         <div class="texto-extra">
-
-            ¿Aún no eres miembro del gremio?
-
-            <br><br>
-
-            <a href="registro.html">
-                Crear una cuenta
-            </a>
-
+            ¿Aún no eres miembro del gremio?<br><br>
+            <a href="registro.html">Crear una cuenta</a>
         </div>
-
     </div>
 
+    <div id="mensaje-login" class="mensaje-login">
+        ✨ Abriendo el Portal... ✨
+    </div>
 
-    <script>
+    <!-- MAGIA DE FIREBASE Y LOGIN -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // TUS CREDENCIALES REALES
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
         const formulario = document.getElementById("loginForm");
-        const mensaje = document.getElementById("mensaje-login");
 
-        formulario.addEventListener("submit", function (e) {
+        formulario.addEventListener("submit", async function (e) {
             e.preventDefault();
+            
+            const correoInput = document.getElementById("correo").value.trim().toLowerCase();
+            const passwordInput = document.getElementById("password").value;
+            const mensaje = document.getElementById("mensaje-login");
+            const btn = document.querySelector(".btn-login-magico");
 
-            const correoInput = document.getElementById("correo").value.trim();
-            const passwordInput = document.getElementById("password").value.trim();
-            const hayDatosCompletos = correoInput && passwordInput;
-
-            let nombre = "Mago Invitado";
-            let correo = "invitado@wizardly.mx";
-            let usuario = "@WizardGuest";
-
-            if (hayDatosCompletos) {
-                const baseNombre = correoInput.split("@")[0] || "Mago";
-                nombre = baseNombre.charAt(0).toUpperCase() + baseNombre.slice(1);
-                correo = correoInput;
-                usuario = "@" + baseNombre.replace(/[^a-zA-Z0-9]/g, "");
-            }
-
-            localStorage.setItem("usuarioDatos", JSON.stringify({ nombre, correo, usuario }));
-            localStorage.setItem("usuarioLogueado", "true");
-
-            if (mensaje) {
+            if (!correoInput || !passwordInput) {
+                mensaje.textContent = "Escribe tus credenciales arcanas completas.";
                 mensaje.classList.add("mostrar");
+                setTimeout(() => mensaje.classList.remove("mostrar"), 3000);
+                return;
             }
 
-            setTimeout(() => {
-                window.location.href = "perfil.html";
-            }, 1200);
+            // ==========================================================
+            // 1. VERIFICACIÓN DEL ADMINISTRADOR SUPREMO LOCAL (ATAJO)
+            // ==========================================================
+            const adminCorreo = localStorage.getItem("adminCorreo") || "correoadmin@wizardly.com";
+            // Respeté tu cambio a 123456
+            const adminPassword = localStorage.getItem("adminPassword") || "123456"; 
+
+            if (correoInput === adminCorreo && passwordInput === adminPassword) {
+                mensaje.textContent = "✨ Bienvenido Archimago. Abriendo el Panel... ✨";
+                mensaje.classList.add("mostrar");
+                
+                // 🔑 ENTREGAMOS LA LLAVE Y LOS DATOS DE PERFIL PARA NO SER RECHAZADOS
+                localStorage.setItem("usuarioLogueado", "true");
+                localStorage.setItem("usuarioDatos", JSON.stringify({
+                    nombre: "Archimago Seraphina",
+                    correo: adminCorreo,
+                    rol: "Administrador" 
+                }));
+                
+                setTimeout(() => { window.location.href = "admin.html"; }, 1200);
+                return; 
+            }
+
+            // ==========================================================
+            // 2. VERIFICACIÓN EN FIREBASE (NUEVOS ADMINS Y CLIENTES)
+            // ==========================================================
+            try {
+                btn.textContent = "Consultando el Grimorio...";
+                btn.disabled = true;
+
+                const userCredential = await signInWithEmailAndPassword(auth, correoInput, passwordInput);
+                const user = userCredential.user;
+
+                if (correoInput === "admin@wizardly.com") {
+                    mensaje.textContent = "✨ Bienvenido Archimago. Abriendo el Panel... ✨";
+                    mensaje.classList.add("mostrar");
+                    localStorage.setItem("usuarioLogueado", "true");
+                    localStorage.setItem("usuarioDatos", JSON.stringify({
+                        nombre: "Archimago Seraphina",
+                        correo: correoInput,
+                        rol: "Administrador"
+                    }));
+
+                    setTimeout(() => { window.location.href = "admin.html"; }, 1200);
+                    return;
+                }
+
+                // Buscamos primero en la tabla de ADMINISTRADORES
+                const adminRef = doc(db, "administradores", user.uid);
+                const adminSnap = await getDoc(adminRef);
+
+                if (adminSnap.exists()) {
+                    mensaje.textContent = "✨ Bienvenido de vuelta, Archimago ✨";
+                    mensaje.classList.add("mostrar");
+                    
+                    // 🔑 ENTREGAMOS LA LLAVE Y LOS DATOS QUE ENCONTRÓ FIREBASE
+                    localStorage.setItem("usuarioLogueado", "true");
+                    localStorage.setItem("usuarioDatos", JSON.stringify(adminSnap.data()));
+                    
+                    setTimeout(() => { window.location.href = "admin.html"; }, 1200);
+                    return; 
+                }
+
+                // Si no es admin, buscamos en la tabla de CLIENTES
+                const clienteRef = doc(db, "clientes", user.uid);
+                const clienteSnap = await getDoc(clienteRef);
+
+                if (clienteSnap.exists()) {
+                    mensaje.textContent = "✨ Autenticación exitosa ✨";
+                    mensaje.classList.add("mostrar");
+                    
+                    // 🔑 ENTREGAMOS LA LLAVE Y LOS DATOS QUE ENCONTRÓ FIREBASE
+                    localStorage.setItem("usuarioLogueado", "true");
+                    localStorage.setItem("usuarioDatos", JSON.stringify(clienteSnap.data()));
+                    
+                    setTimeout(() => { window.location.href = "perfil.html"; }, 1200);
+                    return;
+                }
+
+                mensaje.textContent = "Magia inestable. Usuario sin tabla asignada.";
+                mensaje.classList.add("mostrar");
+
+            } catch (error) {
+                console.error("Error en login:", error);
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    mensaje.textContent = "El correo o la contraseña son incorrectos.";
+                } else {
+                    mensaje.textContent = "Magia oscura detectada. Intenta de nuevo.";
+                }
+                mensaje.classList.add("mostrar");
+            } finally {
+                btn.textContent = "Entrar al Mercado";
+                btn.disabled = false;
+                setTimeout(() => mensaje.classList.remove("mostrar"), 3000);
+            }
         });
     </script>
-
-    <script src="../js/script.js"></script>
-    <div id="mensaje-login" class="mensaje-login">
-        ✨ Bienvenido al Mercado Arcano ✨
-    </div>
 </body>
-
 </html>

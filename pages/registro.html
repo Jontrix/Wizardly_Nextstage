@@ -9,12 +9,16 @@
     <!-- Favicon -->
     <link rel="icon" href="../images/logo/favicon/favicon.png" type="image/png">
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
     <!-- CSS General -->
     <link rel="stylesheet" href="../css/styles.css">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     <style>
         body {
@@ -36,33 +40,20 @@
         .registro-card {
             width: 100%;
             max-width: 550px;
-
             background: rgba(20, 10, 35, 0.85);
             backdrop-filter: blur(12px);
-
             border: 1px solid rgba(246, 213, 122, .2);
-
             border-radius: 25px;
-
             padding: 50px;
-
             box-shadow:
                 0 0 40px rgba(192, 132, 252, .15),
                 0 0 80px rgba(246, 213, 122, .08);
-
             animation: aparecer 1s ease;
         }
 
         @keyframes aparecer {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .registro-card h2 {
@@ -97,24 +88,17 @@
         .input-group input {
             width: 100%;
             padding: 16px 16px 16px 50px;
-
             border: none;
             border-radius: 15px;
-
             background: rgba(255, 255, 255, .06);
-
             color: white;
-
             border: 1px solid transparent;
-
             transition: .3s;
         }
 
         .input-group input:focus {
             outline: none;
-
             border: 1px solid var(--gold);
-
             box-shadow: 0 0 20px rgba(246, 213, 122, .25);
         }
 
@@ -141,29 +125,20 @@
         }
 
         /* MENSAJE DE REGISTRO */
-
         .mensaje-registro {
             position: fixed;
             top: 100px;
             right: 20px;
-
             background: rgba(35, 10, 60, 0.95);
             color: #f4d58d;
-
             padding: 20px 35px;
-
             border: 2px solid #d4a017;
             border-radius: 15px;
-
             font-size: 1.1rem;
-
             box-shadow: 0 0 20px rgba(212, 160, 23, .5);
-
             opacity: 0;
             visibility: hidden;
-
             transition: .5s;
-
             z-index: 9999;
         }
 
@@ -172,22 +147,6 @@
             visibility: visible;
         }
     </style>
-
-    <script>
-        function registrar(event) {
-
-            event.preventDefault();
-
-            const mensaje = document.getElementById('mensaje-registro');
-
-            mensaje.classList.add('mostrar');
-
-            setTimeout(() => {
-                window.location.href = "login.html";
-            }, 2000);
-        }
-    </script>
-
 </head>
 
 <body>
@@ -200,58 +159,134 @@
 
         <h2>Crear Cuenta</h2>
 
-        <form onsubmit="registrar(event)" novalidate>
+        <form onsubmit="registrar(event)">
 
             <div class="input-group">
                 <i class="fa-solid fa-user"></i>
-                <input
-                    type="text"
-                    placeholder="Nombre completo">
+                <input type="text" id="nombre" required placeholder="Nombre completo">
             </div>
 
             <div class="input-group">
                 <i class="fa-solid fa-envelope"></i>
-                <input
-                    type="email"
-                    placeholder="Correo electrónico">
+                <input type="email" id="correo" required placeholder="Correo electrónico">
             </div>
 
             <div class="input-group">
                 <i class="fa-solid fa-lock"></i>
-                <input
-                    type="password"
-                    placeholder="Contraseña secreta">
+                <input type="password" id="password" required placeholder="Contraseña secreta (mínimo 6 letras)">
             </div>
 
-            <button class="btn btn-registro">
+            <button type="submit" class="btn btn-registro" id="btn-registro">
                 Registrarme
             </button>
 
         </form>
 
         <div class="extra-texto">
-
             ¿Ya posees una cuenta mágica?
-
             <br><br>
-
             <a href="login.html">
                 Iniciar Sesión
             </a>
-
         </div>
 
     </div>
 
     <!-- MENSAJE EMERGENTE -->
-
     <div id="mensaje-registro" class="mensaje-registro">
         ✨ Registro exitoso. Bienvenido al Mercado Arcano ✨
     </div>
 
-
     <script src="../js/script.js"></script>
 
-</body>
+    <!-- MAGIA DE FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+        // Tus credenciales maestras
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Convertimos tu función en global para el formulario
+        window.registrar = async function(event) {
+            event.preventDefault();
+
+            const formulario = event.target;
+            const nombre = formulario.querySelector('#nombre').value.trim();
+            const correo = formulario.querySelector('#correo').value.trim().toLowerCase();
+            const password = formulario.querySelector('#password').value;
+            const mensaje = document.getElementById('mensaje-registro');
+            const btn = document.getElementById('btn-registro');
+
+            // Validaciones
+            if (!nombre || !correo || !password || !formulario.querySelector('#correo').checkValidity()) {
+                mensaje.textContent = 'Completa todos los pergaminos con datos válidos.';
+                mensaje.classList.add('mostrar');
+                setTimeout(() => mensaje.classList.remove('mostrar'), 3000);
+                return;
+            }
+
+            try {
+                // Deshabilitamos el botón mientras se crea la cuenta
+                btn.textContent = "Forjando credenciales...";
+                btn.disabled = true;
+
+                // 1. Crear usuario seguro en Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, correo, password);
+                const user = userCredential.user;
+
+                // 2. Guardar sus datos en tu tabla "clientes"
+                await setDoc(doc(db, "clientes", user.uid), {
+                    nombre: nombre,
+                    correo: correo,
+                    telefono: "-",                 // Default para la rúbrica
+                    empresa: "Independiente",
+                    rango: "Muggle",
+                    etapa_crm: "Prospecto",        // Siempre inician como Prospecto
+                    estado: "Activo",
+                    rol: "cliente",                // Su permiso en el sistema
+                    fecha_registro: Timestamp.now()
+                });
+
+                mensaje.textContent = '✨ Registro exitoso. Abriendo el portal... ✨';
+                mensaje.classList.add('mostrar');
+
+                // Enviarlo directo a Iniciar Sesión
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error("Error al registrar: ", error);
+                if (error.code === 'auth/email-already-in-use') {
+                    mensaje.textContent = 'Ese correo ya está registrado por otro mago.';
+                } else if (error.code === 'auth/weak-password') {
+                    mensaje.textContent = 'La contraseña secreta debe tener al menos 6 caracteres.';
+                } else {
+                    mensaje.textContent = 'Error arcano al registrar. Revisa los datos.';
+                }
+                mensaje.classList.add('mostrar');
+                setTimeout(() => mensaje.classList.remove('mostrar'), 3500);
+            } finally {
+                // Volvemos el botón a la normalidad
+                btn.textContent = "Registrarme";
+                btn.disabled = false;
+            }
+        }
+    </script>
+
+</body>
 </html>

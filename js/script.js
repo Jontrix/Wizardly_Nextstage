@@ -51,6 +51,7 @@ if (canvas) {
     });
 }
 
+// ── Rutas ──
 function obtenerRutaPerfil() {
     return window.location.pathname.includes('/pages/') ? 'perfil.html' : 'pages/perfil.html';
 }
@@ -59,6 +60,33 @@ function obtenerRutaLogin() {
     return window.location.pathname.includes('/pages/') ? 'login.html' : 'pages/login.html';
 }
 
+// ── Validación común de formularios ──
+function configurarValidacionFormularios() {
+    document.querySelectorAll('form').forEach((formulario) => {
+        formulario.removeAttribute('novalidate');
+    });
+}
+
+document.addEventListener('submit', (evento) => {
+    const formulario = evento.target;
+    if (!(formulario instanceof HTMLFormElement)) return;
+
+    formulario.removeAttribute('novalidate');
+    formulario.querySelectorAll('input, select, textarea').forEach((campo) => {
+        const estilos = window.getComputedStyle(campo);
+        const visible = estilos.display !== 'none' && estilos.visibility !== 'hidden';
+        const tipoOpcional = ['hidden', 'button', 'submit', 'reset', 'checkbox', 'radio'].includes(campo.type);
+        campo.required = visible && !tipoOpcional;
+    });
+
+    if (!formulario.checkValidity()) {
+        evento.preventDefault();
+        evento.stopImmediatePropagation();
+        formulario.reportValidity();
+    }
+}, true);
+
+// ── Actualizar Navbar ──
 function actualizarNavbarUsuario() {
     const btnLogin = document.querySelector('.btn-login');
     if (!btnLogin) return;
@@ -87,6 +115,60 @@ function actualizarNavbarUsuario() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', actualizarNavbarUsuario);
-document.addEventListener('navbarCargado', actualizarNavbarUsuario);
-window.addEventListener('storage', actualizarNavbarUsuario);
+// ========================================================
+// 🛡️ GUARDIÁN DE SEGURIDAD UNIVERSAL 🛡️
+// ========================================================
+function verificarAccesoMagico() {
+    const paginaActual = window.location.pathname.toLowerCase();
+    const estaLogueado = localStorage.getItem('usuarioLogueado') === 'true';
+    let usuario = null;
+
+    try {
+        usuario = JSON.parse(localStorage.getItem('usuarioDatos'));
+    } catch (e) {
+        usuario = null;
+    }
+
+    // 1. Proteger el Panel Arcano (Cualquier archivo que se llame admin...)
+    if (paginaActual.includes("admin")) {
+        if (!estaLogueado || !usuario) {
+            // No ha iniciado sesión, se va al login
+            window.location.href = "login.html"; 
+            return;
+        } else if (usuario.rol !== "Administrador" && usuario.rol !== "admin" && usuario.rol !== "Admin_Supremo") {
+            // Inició sesión pero ES CLIENTE, lo mandamos a su perfil para que no vea la base de datos
+            window.location.href = "perfil.html"; 
+            return;
+        }
+    }
+
+    // 2. Proteger el Perfil del Cliente
+    if (paginaActual.includes("perfil.html")) {
+        if (!estaLogueado || !usuario) {
+            window.location.href = "login.html";
+            return;
+        }
+    }
+
+    // 3. Escribir el nombre del usuario en la barra superior del Admin
+    const nombreTopBar = document.querySelector(".topbar-usuario span");
+    if (nombreTopBar && usuario) {
+        nombreTopBar.textContent = usuario.nombre || "Mago Supremo";
+    }
+}
+
+// ── Iniciar Funciones al Cargar ──
+document.addEventListener('DOMContentLoaded', () => {
+    configurarValidacionFormularios();
+    actualizarNavbarUsuario();
+    verificarAccesoMagico(); // Agregamos al guardián
+});
+
+document.addEventListener('navbarCargado', () => {
+    actualizarNavbarUsuario();
+});
+
+window.addEventListener('storage', () => {
+    actualizarNavbarUsuario();
+    verificarAccesoMagico(); // Agregamos al guardián
+});

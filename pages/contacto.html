@@ -46,7 +46,7 @@
                     <label for="nombre">Nombre</label>
                     <div class="input-wrap">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <input type="text" id="nombre" placeholder="Tu nombre arcano">
+                        <input type="text" id="nombre" placeholder="Tu nombre arcano" required>
                     </div>
                 </div>
 
@@ -54,7 +54,7 @@
                     <label for="correo">Correo</label>
                     <div class="input-wrap">
                         <i class="fa-solid fa-envelope"></i>
-                        <input type="email" id="correo" placeholder="tu@correo.com">
+                        <input type="email" id="correo" placeholder="tu@correo.com" required>
                     </div>
                 </div>
 
@@ -62,7 +62,7 @@
                     <label for="mensaje">Mensaje</label>
                     <div class="input-wrap textarea-wrap">
                         <i class="fa-solid fa-scroll"></i>
-                        <textarea id="mensaje" rows="5" placeholder="Escribe tu consulta mágica..."></textarea>
+                        <textarea id="mensaje" rows="5" placeholder="Escribe tu consulta mágica..." required></textarea>
                     </div>
                 </div>
 
@@ -155,9 +155,19 @@
     <script src="../js/script.js"></script>
     <script>
         function enviarMensaje() {
-            const nombre = document.getElementById('nombre').value.trim();
-            const correo = document.getElementById('correo').value.trim();
-            const mensaje = document.getElementById('mensaje').value.trim();
+            const nombreInput = document.getElementById('nombre');
+            const correoInput = document.getElementById('correo');
+            const mensajeInput = document.getElementById('mensaje');
+            const nombre = nombreInput.value.trim();
+            const correo = correoInput.value.trim();
+            const mensaje = mensajeInput.value.trim();
+
+            if (!nombre || !mensaje || !correoInput.checkValidity()) {
+                nombreInput.reportValidity();
+                correoInput.reportValidity();
+                mensajeInput.reportValidity();
+                return;
+            }
 
             const toast = document.getElementById('toast');
             if (toast) {
