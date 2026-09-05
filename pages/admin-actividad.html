@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Wizardly — Actividad</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+
+<body class="admin-body">
+
+    <!-- ==========================================
+         SIDEBAR
+    =========================================== -->
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-logo">
+
+            <img src="../images/logo/Logo.png" alt="Wizardly">
+
+            <div>
+                <span class="brand">Wizardly</span>
+                <span class="sidebar-sub">Panel Arcano</span>
+            </div>
+
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i>
+                Dashboard
+            </a>
+
+            <a href="admin-productos.html" class="nav-item">
+                <i class="fa-solid fa-hat-wizard"></i>
+                Productos
+            </a>
+
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i>
+                Pedidos
+            </a>
+
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i>
+                Promociones
+            </a>
+
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                Clientes
+            </a>
+
+            <a href="admin-actividad.html" class="nav-item active">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Actividad
+            </a>
+
+            <a href="admin-reportes.html" class="nav-item">
+                <i class="fa-solid fa-chart-simple"></i>
+                Reportes
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i>
+                Volver al sitio
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ==========================================
+         CONTENIDO
+    =========================================== -->
+
+    <main class="admin-main">
+
+        <!-- TOPBAR -->
+
+        <div class="admin-topbar">
+
+            <h1>Actividad</h1>
+
+            <div class="topbar-usuario">
+
+                <i class="fa-solid fa-circle-user"></i>
+
+                <span id="nombre-administrador">
+                    Cargando...
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             CONTROLES
+        =========================================== -->
+
+        <section class="actividad-controles">
+
+            <div class="actividad-tabs">
+
+                <button class="actividad-tab activo"
+                    data-tipo="todos">
+
+                    <i class="fa-solid fa-gauge-high"></i>
+                    Dashboard
+
+                </button>
+
+                <button class="actividad-tab"
+                    data-tipo="cliente">
+
+                    <i class="fa-solid fa-users"></i>
+                    Clientes
+
+                </button>
+
+                <button class="actividad-tab"
+                    data-tipo="interaccion">
+
+                    <i class="fa-solid fa-comments"></i>
+                    Interacciones
+
+                </button>
+
+                <button class="actividad-tab"
+                    data-tipo="reporte">
+
+                    <i class="fa-solid fa-chart-simple"></i>
+                    Reportes
+
+                </button>
+
+            </div>
+
+
+            <div class="actividad-herramientas">
+
+                <!-- BUSCADOR -->
+
+                <div class="actividad-buscador">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input
+                        type="text"
+                        id="buscar-actividad"
+                        placeholder="Buscar actividad...">
+
+                </div>
+
+
+                <!-- CALENDARIO -->
+
+                <div class="actividad-calendario">
+
+                    <i class="fa-regular fa-calendar"></i>
+
+                    <input
+                        type="date"
+                        id="fecha-actividad">
+
+                </div>
+
+                <button
+                    id="btn-limpiar-filtros"
+                    class="btn-filtro-limpiar">
+
+                    <i class="fa-solid fa-filter-circle-xmark"></i>
+
+                    Limpiar
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==========================================
+             TABLA
+        =========================================== -->
+
+        <section class="admin-bloque actividad-bloque">
+
+            <div class="bloque-header">
+
+                <h2>
+
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+
+                    Registro de actividad
+
+                    <span
+                        id="contador-actividad"
+                        class="count-badge">
+
+                        0 registros
+
+                    </span>
+
+                </h2>
+
+            </div>
+
+
+            <div class="admin-tabla-wrap">
+
+                <table class="admin-tabla actividad-tabla">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Fecha</th>
+
+                            <th>Cliente</th>
+
+                            <th>Tipo</th>
+
+                            <th>Descripción</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tbody-actividad">
+
+                        <tr>
+
+                            <td colspan="4"
+                                class="actividad-cargando">
+
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+
+                                Cargando actividad...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==========================================
+             MENSAJE VACÍO
+        =========================================== -->
+
+        <div
+            id="actividad-vacia"
+            class="actividad-vacia"
+            style="display:none;">
+
+            <i class="fa-solid fa-moon"></i>
+
+            <h3>No hay actividad registrada</h3>
+
+            <p>
+                No existen registros que coincidan
+                con los filtros seleccionados.
+            </p>
+
+        </div>
+
+    </main>
+
+
+    <!-- ==========================================
+         FIREBASE + ACTIVIDAD
+    =========================================== -->
+
+    <script type="module">
+
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            getDocs,
+            query,
+            where,
+            orderBy,
+            Timestamp
+        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        import {
+            getAuth,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+
+        /* ==========================================
+           CONFIGURACIÓN FIREBASE
+        =========================================== */
+
+        const firebaseConfig = {
+
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+
+            authDomain:
+                "wizardly-nextstage.firebaseapp.com",
+
+            projectId:
+                "wizardly-nextstage",
+
+            storageBucket:
+                "wizardly-nextstage.firebasestorage.app",
+
+            messagingSenderId:
+                "336735978219",
+
+            appId:
+                "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+
+            measurementId:
+                "G-FE1XKG7BFF"
+
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+
+        const db = getFirestore(app);
+
+        const auth = getAuth(app);
+
+
+        /* ==========================================
+           VARIABLES
+        =========================================== */
+
+        let actividades = [];
+
+        let filtroTipo = "todos";
+
+
+        const tbody =
+            document.getElementById("tbody-actividad");
+
+        const buscador =
+            document.getElementById("buscar-actividad");
+
+        const fecha =
+            document.getElementById("fecha-actividad");
+
+        const contador =
+            document.getElementById("contador-actividad");
+
+        const nombreAdministrador =
+            document.getElementById("nombre-administrador");
+
+        const actividadVacia =
+            document.getElementById("actividad-vacia");
+
+
+        /* ==========================================
+           AUTENTICACIÓN
+        =========================================== */
+
+        onAuthStateChanged(auth, async (usuario) => {
+
+            if (!usuario) {
+
+                window.location.href = "login.html";
+
+                return;
+
+            }
+
+
+            nombreAdministrador.textContent =
+                usuario.displayName ||
+                usuario.email ||
+                "Administrador";
+
+
+            await cargarActividad(usuario.uid);
+
+        });
+
+
+        /* ==========================================
+           CARGAR ACTIVIDAD
+        =========================================== */
+
+        async function cargarActividad(uid) {
+
+            try {
+
+                const referencia =
+                    collection(db, "actividad");
+
+
+                const consulta = query(
+
+                    referencia,
+
+                    where("adminUid", "==", uid)
+
+                );
+
+
+                const resultado =
+                    await getDocs(consulta);
+
+
+                actividades = [];
+
+
+                resultado.forEach((documento) => {
+
+                    const data =
+                        documento.data();
+
+
+                    actividades.push({
+
+                        id: documento.id,
+
+                        ...data
+
+                    });
+
+                });
+
+
+                /* Ordenar por fecha */
+
+                actividades.sort((a, b) => {
+
+                    const fechaA =
+                        obtenerFecha(a.fecha);
+
+                    const fechaB =
+                        obtenerFecha(b.fecha);
+
+
+                    return fechaB - fechaA;
+
+                });
+
+
+                renderizarActividad();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Error cargando actividad:",
+                    error
+                );
+
+
+                tbody.innerHTML = `
+
+                    <tr>
+
+                        <td colspan="4"
+                            class="actividad-error">
+
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+
+                            No se pudo cargar la actividad.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+
+        }
+
+
+        /* ==========================================
+           OBTENER FECHA
+        =========================================== */
+
+        function obtenerFecha(valor) {
+
+            if (!valor) {
+
+                return new Date(0);
+
+            }
+
+
+            if (
+                typeof valor.toDate === "function"
+            ) {
+
+                return valor.toDate();
+
+            }
+
+
+            return new Date(valor);
+
+        }
+
+
+        /* ==========================================
+           RENDERIZAR TABLA
+        =========================================== */
+
+        function renderizarActividad() {
+
+            const texto =
+                buscador.value
+                    .trim()
+                    .toLowerCase();
+
+
+            const fechaSeleccionada =
+                fecha.value;
+
+
+            const filtradas =
+                actividades.filter((actividad) => {
+
+
+                    /* FILTRO TIPO */
+
+                    let coincideTipo = true;
+
+
+                    if (filtroTipo !== "todos") {
+
+                        coincideTipo =
+                            actividad.tipo === filtroTipo;
+
+                    }
+
+
+                    /* BUSCADOR */
+
+                    const cliente =
+                        String(
+                            actividad.cliente || ""
+                        ).toLowerCase();
+
+
+                    const descripcion =
+                        String(
+                            actividad.descripcion || ""
+                        ).toLowerCase();
+
+
+                    const tipo =
+                        String(
+                            actividad.tipo || ""
+                        ).toLowerCase();
+
+
+                    const coincideTexto =
+                        !texto ||
+
+                        cliente.includes(texto) ||
+
+                        descripcion.includes(texto) ||
+
+                        tipo.includes(texto);
+
+
+                    /* FECHA */
+
+                    let coincideFecha = true;
+
+
+                    if (fechaSeleccionada) {
+
+                        const fechaActividad =
+                            obtenerFecha(
+                                actividad.fecha
+                            );
+
+
+                        const yyyy =
+                            fechaActividad
+                                .getFullYear()
+                                .toString()
+                                .padStart(4, "0");
+
+
+                        const mm =
+                            (fechaActividad
+                                .getMonth() + 1)
+                                .toString()
+                                .padStart(2, "0");
+
+
+                        const dd =
+                            fechaActividad
+                                .getDate()
+                                .toString()
+                                .padStart(2, "0");
+
+
+                        const fechaFormateada =
+                            `${yyyy}-${mm}-${dd}`;
+
+
+                        coincideFecha =
+                            fechaFormateada ===
+                            fechaSeleccionada;
+
+                    }
+
+
+                    return (
+
+                        coincideTipo &&
+
+                        coincideTexto &&
+
+                        coincideFecha
+
+                    );
+
+                });
+
+
+            tbody.innerHTML = "";
+
+
+            contador.textContent =
+                filtradas.length +
+                (
+                    filtradas.length === 1
+                        ? " registro"
+                        : " registros"
+                );
+
+
+            if (filtradas.length === 0) {
+
+                actividadVacia.style.display =
+                    "flex";
+
+                return;
+
+            }
+
+
+            actividadVacia.style.display =
+                "none";
+
+
+            filtradas.forEach((actividad) => {
+
+                const tr =
+                    document.createElement("tr");
+
+
+                const fechaActividad =
+                    obtenerFecha(
+                        actividad.fecha
+                    );
+
+
+                tr.innerHTML = `
+
+                    <td>
+
+                        <div class="actividad-fecha">
+
+                            <strong>
+                                ${formatearFecha(
+                                    fechaActividad
+                                )}
+                            </strong>
+
+                            <small>
+                                ${formatearHora(
+                                    fechaActividad
+                                )}
+                            </small>
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="actividad-cliente">
+
+                            ${escaparHTML(
+                                actividad.cliente ||
+                                "Sin cliente"
+                            )}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="actividad-tipo ${obtenerClaseTipo(
+                            actividad.tipo
+                        )}">
+
+                            ${obtenerTextoTipo(
+                                actividad.tipo
+                            )}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="actividad-descripcion">
+
+                            ${escaparHTML(
+                                actividad.descripcion ||
+                                "Sin descripción"
+                            )}
+
+                        </span>
+
+                    </td>
+
+                `;
+
+
+                tbody.appendChild(tr);
+
+            });
+
+        }
+
+
+        /* ==========================================
+           TIPO
+        =========================================== */
+
+        function obtenerTextoTipo(tipo) {
+
+            const tipos = {
+
+                dashboard: "Dashboard",
+
+                cliente: "Cliente",
+
+                interaccion: "Interacción",
+
+                reporte: "Reporte",
+
+                producto: "Producto",
+
+                pedido: "Pedido",
+
+                promocion: "Promoción"
+
+            };
+
+
+            return tipos[tipo] || tipo || "Actividad";
+
+        }
+
+
+        function obtenerClaseTipo(tipo) {
+
+            return "tipo-" +
+                String(tipo || "general")
+                    .toLowerCase();
+
+        }
+
+
+        /* ==========================================
+           FORMATEAR FECHA
+        =========================================== */
+
+        function formatearFecha(fecha) {
+
+            return fecha.toLocaleDateString(
+                "es-MX",
+                {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                }
+            );
+
+        }
+
+
+        function formatearHora(fecha) {
+
+            return fecha.toLocaleTimeString(
+                "es-MX",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+        }
+
+
+        /* ==========================================
+           EVITAR HTML INYECTADO
+        =========================================== */
+
+        function escaparHTML(texto) {
+
+            return String(texto)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+
+        }
+
+
+        /* ==========================================
+           TABS
+        =========================================== */
+
+        document
+            .querySelectorAll(".actividad-tab")
+            .forEach((boton) => {
+
+                boton.addEventListener(
+                    "click",
+                    () => {
+
+                        document
+                            .querySelectorAll(
+                                ".actividad-tab"
+                            )
+                            .forEach((b) => {
+
+                                b.classList.remove(
+                                    "activo"
+                                );
+
+                            });
+
+
+                        boton.classList.add(
+                            "activo"
+                        );
+
+
+                        filtroTipo =
+                            boton.dataset.tipo;
+
+
+                        renderizarActividad();
+
+                    }
+
+                );
+
+            });
+
+
+        /* ==========================================
+           BUSCADOR
+        =========================================== */
+
+        buscador.addEventListener(
+            "input",
+            renderizarActividad
+        );
+
+
+        /* ==========================================
+           CALENDARIO
+        =========================================== */
+
+        fecha.addEventListener(
+            "change",
+            renderizarActividad
+        );
+
+
+        /* ==========================================
+           LIMPIAR FILTROS
+        =========================================== */
+
+        document
+            .getElementById(
+                "btn-limpiar-filtros"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    buscador.value = "";
+
+                    fecha.value = "";
+
+                    filtroTipo = "todos";
+
+
+                    document
+                        .querySelectorAll(
+                            ".actividad-tab"
+                        )
+                        .forEach((b) => {
+
+                            b.classList.remove(
+                                "activo"
+                            );
+
+                        });
+
+
+                    document
+                        .querySelector(
+                            '.actividad-tab[data-tipo="todos"]'
+                        )
+                        .classList.add(
+                            "activo"
+                        );
+
+
+                    renderizarActividad();
+
+                }
+            );
+
+
+        /* ==========================================
+           FUNCIÓN PARA REGISTRAR ACTIVIDAD
+        =========================================== */
+
+        window.registrarActividad =
+            async function({
+
+                cliente = "Sin cliente",
+
+                tipo = "dashboard",
+
+                descripcion = "",
+
+                modulo = "dashboard"
+
+            }) {
+
+
+                const usuario =
+                    auth.currentUser;
+
+
+                if (!usuario) {
+
+                    console.warn(
+                        "No hay administrador autenticado."
+                    );
+
+                    return;
+
+                }
+
+
+                try {
+
+                    await addDoc(
+                        collection(
+                            db,
+                            "actividad"
+                        ),
+                        {
+
+                            adminUid:
+                                usuario.uid,
+
+                            adminNombre:
+                                usuario.displayName ||
+                                usuario.email ||
+                                "Administrador",
+
+                            cliente:
+                                cliente,
+
+                            tipo:
+                                tipo,
+
+                            descripcion:
+                                descripcion,
+
+                            modulo:
+                                modulo,
+
+                            fecha:
+                                Timestamp.now()
+
+                        }
+
+                    );
+
+
+                    console.log(
+                        "Actividad registrada correctamente."
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Error registrando actividad:",
+                        error
+                    );
+
+                }
+
+            };
+
+
+    </script>
+
+
+    <!-- ==========================================
+         ESTILOS ESPECÍFICOS
+    =========================================== -->
+
+    <style>
+
+        /* CONTROLES */
+
+        .actividad-controles {
+
+            margin: 32px 40px 0;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 20px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        /* TABS */
+
+        .actividad-tabs {
+
+            display: flex;
+
+            gap: 8px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .actividad-tab {
+
+            border: 1px solid var(--border);
+
+            background: var(--bg-card);
+
+            color: var(--text-muted);
+
+            padding: 10px 18px;
+
+            border-radius: 30px;
+
+            font-family: 'Cinzel', serif;
+
+            font-size: 0.72rem;
+
+            letter-spacing: 0.06em;
+
+            cursor: pointer;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            transition: 0.2s;
+
+        }
+
+
+        .actividad-tab:hover {
+
+            color: var(--gold);
+
+            border-color: var(--gold);
+
+        }
+
+
+        .actividad-tab.activo {
+
+            background: rgba(246,213,122,0.13);
+
+            color: var(--gold);
+
+            border-color: var(--gold);
+
+        }
+
+
+        /* HERRAMIENTAS */
+
+        .actividad-herramientas {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .actividad-buscador {
+
+            min-width: 230px;
+
+            height: 42px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 0 14px;
+
+            background: var(--bg-card);
+
+            border: 1px solid var(--border);
+
+            border-radius: 30px;
+
+        }
+
+
+        .actividad-buscador i {
+
+            color: var(--text-muted);
+
+        }
+
+
+        .actividad-buscador input {
+
+            background: transparent;
+
+            border: none;
+
+            outline: none;
+
+            color: var(--text-main);
+
+            width: 100%;
+
+            font-family: 'Lato', sans-serif;
+
+        }
+
+
+        .actividad-calendario {
+
+            height: 42px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 0 12px;
+
+            background: var(--bg-card);
+
+            border: 1px solid var(--border);
+
+            border-radius: 30px;
+
+        }
+
+
+        .actividad-calendario i {
+
+            color: var(--gold);
+
+        }
+
+
+        .actividad-calendario input {
+
+            background: transparent;
+
+            border: none;
+
+            outline: none;
+
+            color: var(--text-main);
+
+            font-family: 'Lato', sans-serif;
+
+            color-scheme: dark;
+
+        }
+
+
+        .btn-filtro-limpiar {
+
+            height: 42px;
+
+            padding: 0 16px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 30px;
+
+            background: transparent;
+
+            color: var(--text-muted);
+
+            cursor: pointer;
+
+            font-family: 'Lato', sans-serif;
+
+            transition: 0.2s;
+
+        }
+
+
+        .btn-filtro-limpiar:hover {
+
+            color: var(--gold);
+
+            border-color: var(--gold);
+
+        }
+
+
+        /* BLOQUE */
+
+        .actividad-bloque {
+
+            margin-top: 24px;
+
+        }
+
+
+        /* FECHA */
+
+        .actividad-fecha {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 3px;
+
+        }
+
+
+        .actividad-fecha strong {
+
+            color: var(--text-main);
+
+        }
+
+
+        .actividad-fecha small {
+
+            color: var(--text-muted);
+
+            font-size: 0.72rem;
+
+        }
+
+
+        /* CLIENTE */
+
+        .actividad-cliente {
+
+            font-weight: 700;
+
+            color: var(--text-main);
+
+        }
+
+
+        /* TIPOS */
+
+        .actividad-tipo {
+
+            display: inline-block;
+
+            padding: 5px 11px;
+
+            border-radius: 20px;
+
+            font-size: 0.68rem;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+
+        }
+
+
+        .tipo-dashboard {
+
+            background: rgba(246,213,122,0.14);
+
+            color: var(--gold);
+
+        }
+
+
+        .tipo-cliente {
+
+            background: rgba(192,132,252,0.16);
+
+            color: var(--lilac);
+
+        }
+
+
+        .tipo-interaccion {
+
+            background: rgba(74,222,128,0.14);
+
+            color: #4ade80;
+
+        }
+
+
+        .tipo-reporte {
+
+            background: rgba(251,146,60,0.15);
+
+            color: #fb923c;
+
+        }
+
+
+        .tipo-producto {
+
+            background: rgba(96,165,250,0.15);
+
+            color: #60a5fa;
+
+        }
+
+
+        .tipo-pedido {
+
+            background: rgba(244,114,182,0.15);
+
+            color: #f472b6;
+
+        }
+
+
+        .tipo-promocion {
+
+            background: rgba(168,85,247,0.15);
+
+            color: #a855f7;
+
+        }
+
+
+        /* DESCRIPCIÓN */
+
+        .actividad-descripcion {
+
+            color: var(--text-muted);
+
+            line-height: 1.5;
+
+        }
+
+
+        /* CARGANDO */
+
+        .actividad-cargando,
+
+        .actividad-error {
+
+            text-align: center;
+
+            padding: 45px !important;
+
+            color: var(--text-muted) !important;
+
+        }
+
+
+        .actividad-error {
+
+            color: #f87171 !important;
+
+        }
+
+
+        /* VACÍO */
+
+        .actividad-vacia {
+
+            margin: 24px 40px;
+
+            padding: 50px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 18px;
+
+            background: var(--bg-card);
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+        }
+
+
+        .actividad-vacia i {
+
+            font-size: 2rem;
+
+            color: var(--lilac);
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .actividad-vacia h3 {
+
+            font-family: 'Cinzel', serif;
+
+            color: var(--gold);
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .actividad-vacia p {
+
+            color: var(--text-muted);
+
+            font-family: 'Lato', sans-serif;
+
+        }
+
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+
+            .actividad-controles {
+
+                margin-left: 20px;
+
+                margin-right: 20px;
+
+            }
+
+            .actividad-herramientas {
+
+                width: 100%;
+
+            }
+
+            .actividad-buscador {
+
+                flex: 1;
+
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .actividad-tabs {
+
+                width: 100%;
+
+            }
+
+            .actividad-tab {
+
+                flex: 1;
+
+                justify-content: center;
+
+            }
+
+            .actividad-herramientas {
+
+                flex-direction: column;
+
+                align-items: stretch;
+
+            }
+
+            .actividad-buscador {
+
+                width: 100%;
+
+            }
+
+            .actividad-calendario,
+
+            .btn-filtro-limpiar {
+
+                justify-content: center;
+
+            }
+
+        }
+
+    </style>
+
+</body>
+
+</html>
