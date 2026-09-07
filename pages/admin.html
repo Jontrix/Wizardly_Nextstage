@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="admin-body">
 
@@ -129,6 +130,52 @@
 
         </div>
 
+        <section class="dashboard-analitica" aria-labelledby="titulo-analitica">
+            <div class="bloque-header dashboard-analitica-titulo">
+                <h2 id="titulo-analitica">Distribución de clientes</h2>
+                <span class="count-badge" id="total-interacciones">0 interacciones</span>
+            </div>
+
+            <div class="dashboard-graficas">
+                <div class="admin-bloque dashboard-grafica">
+                    <div class="bloque-header">
+                        <h2>Distribución de Rangos</h2>
+                    </div>
+                    <div class="dashboard-canvas-wrap">
+                        <canvas id="dashboard-chart-rangos" aria-label="Distribución de rangos de clientes"></canvas>
+                    </div>
+                </div>
+
+                <div class="admin-bloque dashboard-grafica">
+                    <div class="bloque-header">
+                        <h2>Distribución de Rango de Etapa</h2>
+                    </div>
+                    <div class="dashboard-canvas-wrap">
+                        <canvas id="dashboard-chart-etapas" aria-label="Distribución de rangos de etapa"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-bloque dashboard-interacciones">
+                <div class="bloque-header">
+                    <h2>Interacciones registradas</h2>
+                </div>
+                <div class="admin-tabla-wrap">
+                    <table class="admin-tabla">
+                        <thead>
+                            <tr>
+                                <th>Tipo de interacción</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-interacciones-body">
+                            <tr><td colspan="2" class="dashboard-estado">Cargando interacciones...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <div class="admin-bloque acciones-rapidas">
             <div class="bloque-header">
                 <h2>Acciones rápidas</h2>
@@ -149,29 +196,10 @@
         <div class="admin-bloque">
             <div class="bloque-header">
                 <h2>Actividad reciente</h2>
-                <span class="count-badge" style="font-size:0.7rem;">Últimas 24h</span>
+                <span class="count-badge" style="font-size:0.7rem;">Últimas 5</span>
             </div>
-            <ul class="actividad-lista">
-                <li>
-                    <i class="fa-solid fa-box" style="color:var(--gold);"></i>
-                    <span><strong>Pedido #125</strong> recibido — Cliente: Merlín García</span>
-                    <span class="actividad-hora">hace 10 min</span>
-                </li>
-                <li>
-                    <i class="fa-solid fa-user-plus" style="color:var(--lilac);"></i>
-                    <span><strong>Nuevo cliente registrado</strong> — Hermione López</span>
-                    <span class="actividad-hora">hace 45 min</span>
-                </li>
-                <li>
-                    <i class="fa-solid fa-pen-to-square" style="color:#4ade80;"></i>
-                    <span><strong>Producto actualizado</strong> — Varita de Saúco (precio)</span>
-                    <span class="actividad-hora">hace 2 h</span>
-                </li>
-                <li>
-                    <i class="fa-solid fa-tags" style="color:#fb923c;"></i>
-                    <span><strong>Promoción creada</strong> — Descuento de Luna Nueva</span>
-                    <span class="actividad-hora">hace 3 h</span>
-                </li>
+            <ul class="actividad-lista" id="dashboard-actividad-lista">
+                <li class="dashboard-actividad-estado">Cargando actividad...</li>
             </ul>
         </div>
 
@@ -215,6 +243,10 @@
             font-size: 0.72rem;
             white-space: nowrap;
         }
+        .dashboard-actividad-estado {
+            color: var(--text-muted) !important;
+            justify-content: center;
+        }
         .card-badge.negativo {
             background: rgba(239,68,68,0.15);
             color: #f87171;
@@ -228,6 +260,180 @@
             box-shadow: 0 6px 20px rgba(251,146,60,0.35);
         }
     </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { collection, getDocs, getFirestore, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const db = getFirestore(initializeApp(firebaseConfig));
+        let rangosChart;
+        let etapasChart;
+
+        const contarPor = (clientes, campo, valores) => valores.map((valor) =>
+            clientes.filter((cliente) => cliente[campo] === valor).length
+        );
+
+        const opcionesGrafica = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: '#ddd', font: { family: 'Cinzel' } }
+                }
+            }
+        };
+
+        function renderizarGraficas(clientes) {
+            const rangos = ['Archimago', 'Maestro', 'Iniciado', 'Muggle'];
+            const etapas = ['Activo', 'Frecuente', 'Inactivo', 'Prospecto'];
+            const crearGrafica = (id, instancia, labels, data, colores) => {
+                if (instancia) instancia.destroy();
+                return new Chart(document.getElementById(id), {
+                    type: 'doughnut',
+                    data: {
+                        labels,
+                        datasets: [{
+                            data,
+                            backgroundColor: colores,
+                            borderColor: '#0a0412',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: opcionesGrafica
+                });
+            };
+
+            rangosChart = crearGrafica(
+                'dashboard-chart-rangos', rangosChart, rangos,
+                contarPor(clientes, 'rango', rangos),
+                ['#a855f7', '#3b82f6', '#eab308', '#6b7280']
+            );
+            etapasChart = crearGrafica(
+                'dashboard-chart-etapas', etapasChart, etapas,
+                contarPor(clientes, 'etapa_crm', etapas),
+                ['#4ade80', '#60a5fa', '#f87171', '#fb923c']
+            );
+        }
+
+        function renderizarInteracciones(interacciones) {
+            const cuerpo = document.getElementById('dashboard-interacciones-body');
+            const total = interacciones.length;
+            const conteo = interacciones.reduce((resultado, interaccion) => {
+                const tipo = interaccion.tipo || 'Sin especificar';
+                resultado[tipo] = (resultado[tipo] || 0) + 1;
+                return resultado;
+            }, {});
+
+            document.getElementById('total-interacciones').textContent =
+                total + ' interacción' + (total === 1 ? '' : 'es');
+            const filas = Object.entries(conteo).sort((a, b) => b[1] - a[1]);
+            cuerpo.innerHTML = filas.length
+                ? filas.map(([tipo, cantidad]) =>
+                    '<tr><td>' + tipo + '</td><td>' + cantidad + '</td></tr>'
+                ).join('')
+                : '<tr><td colspan="2" class="dashboard-estado">No hay interacciones registradas.</td></tr>';
+        }
+
+        function obtenerFechaActividad(valor) {
+            if (valor && typeof valor.toDate === 'function') return valor.toDate();
+            return valor ? new Date(valor) : new Date(0);
+        }
+
+        function tiempoRelativo(fecha) {
+            const minutos = Math.max(0, Math.floor((Date.now() - fecha.getTime()) / 60000));
+            if (minutos < 1) return 'ahora';
+            if (minutos < 60) return 'hace ' + minutos + ' min';
+            const horas = Math.floor(minutos / 60);
+            if (horas < 24) return 'hace ' + horas + ' h';
+            const dias = Math.floor(horas / 24);
+            return 'hace ' + dias + (dias === 1 ? ' día' : ' días');
+        }
+
+        function configurarIconoActividad(tipo) {
+            const iconos = {
+                pedido: ['fa-box', 'var(--gold)'],
+                cliente: ['fa-user-plus', 'var(--lilac)'],
+                producto: ['fa-pen-to-square', '#4ade80'],
+                promocion: ['fa-tags', '#fb923c'],
+                interaccion: ['fa-comments', '#60a5fa'],
+                reporte: ['fa-chart-simple', '#f87171']
+            };
+            return iconos[tipo] || ['fa-wand-sparkles', 'var(--gold)'];
+        }
+
+        function renderizarActividadReciente(actividades) {
+            const lista = document.getElementById('dashboard-actividad-lista');
+            lista.innerHTML = '';
+            const recientes = actividades
+                .sort((actividadA, actividadB) =>
+                    obtenerFechaActividad(actividadB.fecha) - obtenerFechaActividad(actividadA.fecha)
+                )
+                .slice(0, 5);
+
+            if (!recientes.length) {
+                lista.innerHTML = '<li class="dashboard-actividad-estado">No hay actividad registrada.</li>';
+                return;
+            }
+
+            recientes.forEach((actividad) => {
+                const [claseIcono, colorIcono] = configurarIconoActividad(actividad.tipo);
+                const fecha = obtenerFechaActividad(actividad.fecha);
+                const elemento = document.createElement('li');
+                const icono = document.createElement('i');
+                const descripcion = document.createElement('span');
+                const hora = document.createElement('span');
+
+                icono.className = 'fa-solid ' + claseIcono;
+                icono.style.color = colorIcono;
+                descripcion.textContent = actividad.descripcion || 'Actividad registrada';
+                hora.className = 'actividad-hora';
+                hora.textContent = tiempoRelativo(fecha);
+                elemento.append(icono, descripcion, hora);
+                lista.appendChild(elemento);
+            });
+        }
+
+        function escucharActividadReciente() {
+            onSnapshot(collection(db, 'actividad'), (snapshot) => {
+                const actividades = snapshot.docs.map((documento) => documento.data());
+                renderizarActividadReciente(actividades);
+            }, (error) => {
+                console.error('Error escuchando la actividad del dashboard:', error);
+                document.getElementById('dashboard-actividad-lista').innerHTML =
+                    '<li class="dashboard-actividad-estado">No se pudo cargar la actividad.</li>';
+            });
+        }
+
+        async function cargarAnalitica() {
+            try {
+                const [clientesSnapshot, interaccionesSnapshot] = await Promise.all([
+                    getDocs(collection(db, 'clientes')),
+                    getDocs(collection(db, 'interacciones'))
+                ]);
+                const clientes = clientesSnapshot.docs.map((documento) => documento.data());
+                const interacciones = interaccionesSnapshot.docs.map((documento) => documento.data());
+                renderizarGraficas(clientes);
+                renderizarInteracciones(interacciones);
+            } catch (error) {
+                console.error('Error cargando la analítica del dashboard:', error);
+                document.getElementById('dashboard-interacciones-body').innerHTML =
+                    '<tr><td colspan="2" class="dashboard-estado">No se pudo cargar la analítica.</td></tr>';
+            }
+        }
+
+        escucharActividadReciente();
+        cargarAnalitica();
+    </script>
 
 </body>
 </html>
