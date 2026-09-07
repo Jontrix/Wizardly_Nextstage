@@ -355,6 +355,54 @@
     <script src="../js/carrito.js"></script>
     <script src="../js/cargar-navbar.js"></script>
     <script src="../js/script.js"></script>
+    <script type="module">
+    import { db } from "../js/firebase-config.js";
+    import {
+        collection,
+        addDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    window.registrarCompraEnActividad = async function (pedido) {
+
+        try {
+
+            await addDoc(collection(db, "actividad"), {
+
+                tipo: "pedido",
+
+                cliente: pedido.cliente?.nombre || "Cliente Wizardly",
+
+                descripcion:
+                    `Compra realizada. Pedido ${pedido.folio} por $${Number(pedido.total || 0).toFixed(2)} MXN`,
+
+                folio: pedido.folio,
+
+                total: Number(pedido.total || 0),
+
+                metodoPago: pedido.metodoPago || "",
+
+                estado: pedido.estado || "Completado",
+
+                productos: pedido.productos || [],
+
+                fecha: serverTimestamp()
+
+            });
+
+            console.log("✅ Compra registrada en Actividad");
+
+        } catch (error) {
+
+            console.error(
+                "❌ Error guardando compra en Actividad:",
+                error
+            );
+
+        }
+
+    };
+</script>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -517,6 +565,8 @@
                 localStorage.setItem("wizardly_pedidos", JSON.stringify(pedidos));
             }
 
+
+
             function actualizarPedidoPorFolio(folio, cambios) {
                 const pedidos = JSON.parse(localStorage.getItem("wizardly_pedidos") || "[]");
                 const index = pedidos.findIndex(item => item.folio === folio);
@@ -655,7 +705,7 @@
 
             // --- CONFIRMAR COMPRA (PASO 2 -> PASO 3) ---
             if (formPago) {
-                formPago.addEventListener("submit", (e) => {
+                formPago.addEventListener("submit", async (e) =>  {
                     e.preventDefault();
 
                     if (btnPagar) {
@@ -663,7 +713,7 @@
                         btnPagar.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Invocando hechizo...`;
                     }
 
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         const resumen = cargarResumen();
 
                         const elDireccion = document.getElementById("direccionConfirmada");
@@ -734,6 +784,10 @@
                         };
 
                         guardarPedido(pedido);
+                        if (typeof window.registrarCompraEnActividad === "function") {
+                            await window.registrarCompraEnActividad(pedido);}
+
+                        
                         mostrarComprobante(pedido);
                         renderFacturaResumen(pedido);
 
