@@ -227,6 +227,23 @@
 
                 </h2>
 
+                <button
+                    type="button"
+                    id="btn-registrar-actividad"
+                    class="btn-admin">
+
+                    <i class="fa-solid fa-plus"></i>
+                    Registrar actividad
+
+                </button>
+
+            </div>
+
+            <div
+                id="aviso-acceso-emergencia"
+                style="display: none; margin: 0 24px 16px; padding: 10px 14px; border: 1px solid var(--gold-dim); border-radius: 8px; color: var(--gold); font-size: 0.82rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Estás usando el acceso de emergencia: se muestra la actividad de todo el equipo.
             </div>
 
 
@@ -296,6 +313,89 @@
 
     </main>
 
+    <div class="modal-overlay" id="modal-actividad-overlay">
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+
+                <h3>Registrar actividad</h3>
+
+                <button
+                    type="button"
+                    class="modal-cerrar"
+                    id="btn-cerrar-modal-actividad"
+                    aria-label="Cerrar modal">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="campo-modal">
+
+                    <label for="actividad-tipo-modal">Tipo de actividad</label>
+
+                    <select id="actividad-tipo-modal">
+                        <option value="cliente">Cliente</option>
+                        <option value="interaccion">Interacción</option>
+                        <option value="reporte">Reporte</option>
+                    </select>
+
+                </div>
+
+                <div class="campo-modal">
+
+                    <label for="actividad-cliente-modal">Cliente relacionado</label>
+
+                    <select id="actividad-cliente-modal">
+                        <option value="">Sin cliente asociado</option>
+                    </select>
+
+                </div>
+
+                <div class="campo-modal">
+
+                    <label for="actividad-descripcion-modal">Descripción</label>
+
+                    <textarea
+                        id="actividad-descripcion-modal"
+                        rows="4"
+                        required
+                        placeholder="Describe la actividad realizada..."></textarea>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn-modal-cancelar"
+                    id="btn-cancelar-modal-actividad">
+                    Cancelar
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-modal-guardar"
+                    id="btn-guardar-actividad">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Guardar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
 
     <!-- ==========================================
          FIREBASE + ACTIVIDAD
@@ -314,7 +414,6 @@
             getDocs,
             query,
             where,
-            orderBy,
             Timestamp
         } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
@@ -387,6 +486,38 @@
         const actividadVacia =
             document.getElementById("actividad-vacia");
 
+        const avisoAccesoEmergencia =
+            document.getElementById("aviso-acceso-emergencia");
+
+        const modalActividad =
+            document.getElementById("modal-actividad-overlay");
+
+        const clienteActividad =
+            document.getElementById("actividad-cliente-modal");
+
+        const tipoActividad =
+            document.getElementById("actividad-tipo-modal");
+
+        const descripcionActividad =
+            document.getElementById("actividad-descripcion-modal");
+
+
+        function mostrarToastActividad(msg, tipo) {
+
+            tipo = tipo || "ok";
+
+            const toast =
+                document.getElementById("toast-actividad");
+
+            toast.textContent = msg;
+            toast.className = "toast-admin visible " + tipo;
+            clearTimeout(toast._t);
+            toast._t = setTimeout(function() {
+                toast.classList.remove("visible");
+            }, 3000);
+
+        }
+
 
         /* ==========================================
            AUTENTICACIÓN
@@ -396,7 +527,42 @@
 
             if (!usuario) {
 
-                window.location.href = "login.html";
+                const accesoEmergencia =
+                    localStorage.getItem("usuarioLogueado") === "true";
+
+                if (!accesoEmergencia) {
+
+                    window.location.href = "login.html";
+
+                    return;
+
+                }
+
+                let datosEmergencia = {};
+
+                try {
+
+                    datosEmergencia = JSON.parse(
+                        localStorage.getItem("usuarioDatos") || "{}"
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "No se pudieron leer los datos del acceso de emergencia:",
+                        error
+                    );
+
+                }
+
+                nombreAdministrador.textContent =
+                    datosEmergencia.nombre ||
+                    datosEmergencia.usuario ||
+                    "Administrador Supremo";
+
+                avisoAccesoEmergencia.style.display = "block";
+
+                await cargarActividadDesdeFirestore();
 
                 return;
 
@@ -408,8 +574,118 @@
                 usuario.email ||
                 "Administrador";
 
+            avisoAccesoEmergencia.style.display = "none";
 
-            await cargarActividad(usuario.uid);
+
+            await cargarActividadDesdeFirestore();
+
+        });
+
+
+        async function abrirModalActividad() {
+
+            clienteActividad.innerHTML =
+                '<option value="">Sin cliente asociado</option>';
+
+            try {
+
+                const snapshot = await getDocs(
+                    collection(db, "clientes")
+                );
+
+                snapshot.forEach((documento) => {
+
+                    const cliente = documento.data();
+                    const nombre = String(cliente.nombre || "").trim();
+
+                    if (!nombre) {
+                        return;
+                    }
+
+                    const opcion = document.createElement("option");
+                    opcion.value = nombre;
+                    opcion.textContent = nombre;
+                    clienteActividad.appendChild(opcion);
+
+                });
+
+            } catch (error) {
+
+                console.error("Error cargando clientes:", error);
+                mostrarToastActividad(
+                    "⚠️ No se pudieron cargar los clientes.",
+                    "error"
+                );
+
+            }
+
+            modalActividad.classList.add("visible");
+            descripcionActividad.focus();
+
+        }
+
+
+        function cerrarModalActividad() {
+
+            modalActividad.classList.remove("visible");
+            descripcionActividad.value = "";
+
+        }
+
+
+        async function guardarActividadManual() {
+
+            const descripcion = descripcionActividad.value.trim();
+
+            if (!descripcion) {
+
+                mostrarToastActividad(
+                    "⚠️ La descripción es obligatoria.",
+                    "error"
+                );
+                descripcionActividad.focus();
+                return;
+
+            }
+
+            await window.registrarActividad({
+                cliente: clienteActividad.value,
+                tipo: tipoActividad.value,
+                descripcion,
+                modulo: tipoActividad.value
+            });
+
+            cerrarModalActividad();
+            mostrarToastActividad(
+                "✦ Actividad registrada correctamente.",
+                "ok"
+            );
+            await cargarActividadDesdeFirestore();
+
+        }
+
+
+        document
+            .getElementById("btn-registrar-actividad")
+            .addEventListener("click", abrirModalActividad);
+
+        document
+            .getElementById("btn-cerrar-modal-actividad")
+            .addEventListener("click", cerrarModalActividad);
+
+        document
+            .getElementById("btn-cancelar-modal-actividad")
+            .addEventListener("click", cerrarModalActividad);
+
+        document
+            .getElementById("btn-guardar-actividad")
+            .addEventListener("click", guardarActividadManual);
+
+        modalActividad.addEventListener("click", (evento) => {
+
+            if (evento.target === modalActividad) {
+                cerrarModalActividad();
+            }
 
         });
 
@@ -418,96 +694,46 @@
            CARGAR ACTIVIDAD
         =========================================== */
 
-async function cargarActividad() {
+        async function cargarActividadDesdeFirestore() {
 
-    const lista = document.getElementById("actividadLista");
+            try {
 
-    lista.innerHTML = `
-        <p>Cargando actividad...</p>
-    `;
+                const usuarioActual = auth.currentUser;
+                const referenciaActividad = collection(db, "actividad");
+                const consultaActividad = usuarioActual
+                    ? query(
+                        referenciaActividad,
+                        where("adminUid", "==", usuarioActual.uid)
+                    )
+                    : referenciaActividad;
 
-    try {
+                const snapshot = await getDocs(consultaActividad);
 
-        const q = query(
-            collection(db, "actividad"),
-            orderBy("fecha", "desc")
-        );
+                actividades = snapshot.docs.map((documento) => ({
+                    id: documento.id,
+                    ...documento.data()
+                }));
 
-        const snapshot = await getDocs(q);
+                actividades.sort((actividadA, actividadB) =>
+                    obtenerFecha(actividadB.fecha) -
+                    obtenerFecha(actividadA.fecha)
+                );
 
-        lista.innerHTML = "";
+                renderizarActividad();
 
-        if (snapshot.empty) {
+            } catch (error) {
 
-            lista.innerHTML = `
-                <p>No hay actividad registrada todavía.</p>
-            `;
+                console.error("Error cargando actividad:", error);
+                mostrarToastActividad(
+                    "⚠️ No se pudo cargar la actividad.",
+                    "error"
+                );
 
-            return;
+                actividades = [];
+                renderizarActividad();
+
+            }
         }
-
-        snapshot.forEach((doc) => {
-
-            const actividad = doc.data();
-
-            const fecha = actividad.fecha?.toDate
-                ? actividad.fecha.toDate().toLocaleString("es-MX")
-                : "Fecha pendiente";
-
-            lista.innerHTML += `
-                <div class="actividad-item">
-
-                    <div class="actividad-icono">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                    </div>
-
-                    <div class="actividad-info">
-
-                        <strong>
-                            ${actividad.descripcion || "Actividad"}
-                        </strong>
-
-                        <span>
-                            Cliente:
-                            ${actividad.cliente || "Cliente Wizardly"}
-                        </span>
-
-                        <span>
-                            Pedido:
-                            ${actividad.folio || "Sin folio"}
-                        </span>
-
-                        <span>
-                            Total:
-                            $${Number(actividad.total || 0).toFixed(2)} MXN
-                        </span>
-
-                        <small>
-                            ${fecha}
-                        </small>
-
-                    </div>
-
-                </div>
-            `;
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        lista.innerHTML = `
-            <p>
-                No se pudo cargar la actividad.
-            </p>
-        `;
-    }
-}
-
-document.addEventListener(
-    "DOMContentLoaded",
-    cargarActividad
-);
 
 
         /* ==========================================
@@ -991,8 +1217,9 @@ document.addEventListener(
 
                 if (!usuario) {
 
-                    console.warn(
-                        "No hay administrador autenticado."
+                    mostrarToastActividad(
+                        "⚠️ No se pudo registrar: no hay sesión activa.",
+                        "error"
                     );
 
                     return;
@@ -1037,8 +1264,9 @@ document.addEventListener(
                     );
 
 
-                    console.log(
-                        "Actividad registrada correctamente."
+                    mostrarToastActividad(
+                        "✦ Actividad registrada correctamente.",
+                        "ok"
                     );
 
 
@@ -1047,6 +1275,10 @@ document.addEventListener(
                     console.error(
                         "Error registrando actividad:",
                         error
+                    );
+                    mostrarToastActividad(
+                        "⚠️ Error al registrar la actividad.",
+                        "error"
                     );
 
                 }
@@ -1573,6 +1805,8 @@ document.addEventListener(
         }
 
     </style>
+
+    <div class="toast-admin" id="toast-actividad"></div>
 
 </body>
 
