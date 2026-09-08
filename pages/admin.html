@@ -72,49 +72,37 @@
         </div>
 
         <div class="admin-cards">
-
             <div class="admin-card">
                 <div class="card-icono" style="background:rgba(246,213,122,0.12);color:var(--gold);">
-                    <i class="fa-solid fa-hat-wizard"></i>
+                    <i class="fa-solid fa-users"></i>
                 </div>
                 <div class="card-datos">
-                    <span class="card-numero">12</span>
-                    <span class="card-label">Productos publicados</span>
+                    <span class="card-numero" id="kpi-total-clientes">--</span>
+                    <span class="card-label">Total de clientes</span>
                 </div>
-                <span class="card-badge positivo">+2 nuevos</span>
-            </div>
-
-            <div class="admin-card">
-                <div class="card-icono" style="background:rgba(251,146,60,0.12);color:#fb923c;">
-                    <i class="fa-solid fa-truck"></i>
-                </div>
-                <div class="card-datos">
-                    <span class="card-numero">5</span>
-                    <span class="card-label">Pedidos del día</span>
-                </div>
-                <span class="card-badge neutro">Hoy</span>
+                <span class="card-badge neutro">Base CRM</span>
             </div>
 
             <div class="admin-card">
                 <div class="card-icono" style="background:rgba(74,222,128,0.12);color:#4ade80;">
-                    <i class="fa-solid fa-coins"></i>
+                    <i class="fa-solid fa-user-check"></i>
                 </div>
                 <div class="card-datos">
-                    <span class="card-numero">$12,500</span>
-                    <span class="card-label">Ventas del mes</span>
+                    <span class="card-numero" id="kpi-clientes-activos">--</span>
+                    <span class="card-label">Clientes activos</span>
                 </div>
-                <span class="card-badge positivo">+18%</span>
+                <span class="card-badge positivo" id="kpi-activos-porcentaje">--%</span>
             </div>
 
             <div class="admin-card">
-                <div class="card-icono" style="background:rgba(192,132,252,0.12);color:var(--lilac);">
-                    <i class="fa-solid fa-user-group"></i>
+                <div class="card-icono" style="background:rgba(96,165,250,0.12);color:#60a5fa;">
+                    <i class="fa-solid fa-comments"></i>
                 </div>
                 <div class="card-datos">
-                    <span class="card-numero">38</span>
-                    <span class="card-label">Clientes registrados</span>
+                    <span class="card-numero" id="kpi-interacciones">--</span>
+                    <span class="card-label">Interacciones (últimos 30 días)</span>
                 </div>
-                <span class="card-badge neutro">Total</span>
+                <span class="card-badge neutro">30 días</span>
             </div>
 
             <div class="admin-card">
@@ -122,56 +110,31 @@
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
                 <div class="card-datos">
-                    <span class="card-numero">2</span>
-                    <span class="card-label">Productos agotados</span>
+                    <span class="card-numero" id="kpi-clientes-riesgo">--</span>
+                    <span class="card-label">Clientes sin interacción</span>
                 </div>
-                <span class="card-badge negativo">¡Urgente!</span>
+                <span class="card-badge negativo">+30 días</span>
             </div>
-
         </div>
 
-        <section class="dashboard-analitica" aria-labelledby="titulo-analitica">
-            <div class="bloque-header dashboard-analitica-titulo">
-                <h2 id="titulo-analitica">Distribución de clientes</h2>
-                <span class="count-badge" id="total-interacciones">0 interacciones</span>
-            </div>
-
-            <div class="dashboard-graficas">
-                <div class="admin-bloque dashboard-grafica">
-                    <div class="bloque-header">
-                        <h2>Distribución de Rangos</h2>
-                    </div>
-                    <div class="dashboard-canvas-wrap">
-                        <canvas id="dashboard-chart-rangos" aria-label="Distribución de rangos de clientes"></canvas>
-                    </div>
-                </div>
-
-                <div class="admin-bloque dashboard-grafica">
-                    <div class="bloque-header">
-                        <h2>Distribución de Rango de Etapa</h2>
-                    </div>
-                    <div class="dashboard-canvas-wrap">
-                        <canvas id="dashboard-chart-etapas" aria-label="Distribución de rangos de etapa"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="admin-bloque dashboard-interacciones">
+        <section class="dashboard-distribuciones">
+            <div class="admin-bloque dashboard-grafica-resumen">
                 <div class="bloque-header">
-                    <h2>Interacciones registradas</h2>
+                    <h2>Distribución de Rangos</h2>
+                    <span class="count-badge">Clientes</span>
                 </div>
-                <div class="admin-tabla-wrap">
-                    <table class="admin-tabla">
-                        <thead>
-                            <tr>
-                                <th>Tipo de interacción</th>
-                                <th>Cantidad</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dashboard-interacciones-body">
-                            <tr><td colspan="2" class="dashboard-estado">Cargando interacciones...</td></tr>
-                        </tbody>
-                    </table>
+                <div class="dashboard-canvas-wrap">
+                    <canvas id="dashboard-chart-rangos" aria-label="Distribución de rangos de clientes"></canvas>
+                </div>
+            </div>
+
+            <div class="admin-bloque dashboard-grafica-resumen">
+                <div class="bloque-header">
+                    <h2>Distribución de Rango de Etapa</h2>
+                    <span class="count-badge">Clientes</span>
+                </div>
+                <div class="dashboard-canvas-wrap">
+                    <canvas id="dashboard-chart-etapas" aria-label="Distribución de rangos de etapa"></canvas>
                 </div>
             </div>
         </section>
@@ -193,16 +156,6 @@
             </div>
         </div>
 
-        <div class="admin-bloque">
-            <div class="bloque-header">
-                <h2>Actividad reciente</h2>
-                <span class="count-badge" style="font-size:0.7rem;">Últimas 5</span>
-            </div>
-            <ul class="actividad-lista" id="dashboard-actividad-lista">
-                <li class="dashboard-actividad-estado">Cargando actividad...</li>
-            </ul>
-        </div>
-
     </main>
 
     <style>
@@ -212,44 +165,25 @@
             padding: 20px 24px 24px;
             flex-wrap: wrap;
         }
-        .actividad-lista {
-            list-style: none;
-            padding: 0;
+        .dashboard-distribuciones {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            margin: 20px 40px 0;
+        }
+        .dashboard-distribuciones .admin-bloque {
             margin: 0;
         }
-        .actividad-lista li {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 24px;
-            border-bottom: 1px solid rgba(246,213,122,0.06);
-            font-family: 'Lato', sans-serif;
-            font-size: 0.88rem;
-            color: var(--text-main);
+        .dashboard-canvas-wrap {
+            height: 300px;
+            padding: 24px;
         }
-        .actividad-lista li:last-child {
-            border-bottom: none;
-        }
-        .actividad-lista li i {
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-        }
-        .actividad-lista li span:first-of-type {
-            flex: 1;
-        }
-        .actividad-hora {
-            color: var(--text-muted);
-            font-size: 0.72rem;
-            white-space: nowrap;
-        }
-        .dashboard-actividad-estado {
-            color: var(--text-muted) !important;
-            justify-content: center;
-        }
-        .card-badge.negativo {
-            background: rgba(239,68,68,0.15);
-            color: #f87171;
+        @media (max-width: 768px) {
+            .dashboard-distribuciones {
+                grid-template-columns: 1fr;
+                margin-left: 20px;
+                margin-right: 20px;
+            }
         }
         .btn-admin[style*="background:var(--lilac);"]:hover {
             background: #7c3aed !important;
@@ -263,7 +197,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { collection, getDocs, getFirestore, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { collection, getDocs, getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
@@ -276,163 +210,142 @@
         };
 
         const db = getFirestore(initializeApp(firebaseConfig));
-        let rangosChart;
-        let etapasChart;
+        const DIAS_RIESGO = 30;
+        const MILISEGUNDOS_DIA = 24 * 60 * 60 * 1000;
+        let graficaRangos;
+        let graficaEtapas;
 
-        const contarPor = (clientes, campo, valores) => valores.map((valor) =>
-            clientes.filter((cliente) => cliente[campo] === valor).length
-        );
+        function convertirFecha(valor) {
+            if (!valor) return null;
+            const fecha = typeof valor.toDate === 'function' ? valor.toDate() : new Date(valor);
+            return Number.isNaN(fecha.getTime()) ? null : fecha;
+        }
 
-        const opcionesGrafica = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: { color: '#ddd', font: { family: 'Cinzel' } }
+        function esClienteActivo(cliente) {
+            return [cliente.estado, cliente.etapa_crm]
+                .some((valor) => String(valor || '').trim().toLowerCase() === 'activo' ||
+                    String(valor || '').trim().toLowerCase() === 'frecuente');
+        }
+
+        function calcularDiasSinInteraccion(fecha, ahora) {
+            const fechaBase = fecha || ahora;
+            return Math.max(0, Math.floor((ahora - fechaBase) / MILISEGUNDOS_DIA));
+        }
+
+        function actualizarKpis(clientes, interacciones, clientesEnRiesgo) {
+            const totalClientes = clientes.length;
+            const clientesActivos = clientes.filter(esClienteActivo).length;
+            const fechaLimite = Date.now() - DIAS_RIESGO * MILISEGUNDOS_DIA;
+            const interaccionesRecientes = interacciones.filter((interaccion) => {
+                const fecha = convertirFecha(interaccion.fecha);
+                return fecha && fecha.getTime() >= fechaLimite;
+            }).length;
+            const porcentajeActivos = totalClientes
+                ? Math.round((clientesActivos / totalClientes) * 100)
+                : 0;
+
+            document.getElementById('kpi-total-clientes').textContent = totalClientes;
+            document.getElementById('kpi-clientes-activos').textContent = clientesActivos;
+            document.getElementById('kpi-activos-porcentaje').textContent = porcentajeActivos + '%';
+            document.getElementById('kpi-interacciones').textContent = interaccionesRecientes;
+            document.getElementById('kpi-clientes-riesgo').textContent = clientesEnRiesgo.length;
+        }
+
+        function contarPorCampo(clientes, campo, valores) {
+            return valores.map((valor) => clientes.filter((cliente) => cliente[campo] === valor).length);
+        }
+
+        function crearGraficaDistribucion(id, graficaActual, etiquetas, datos, colores) {
+            const canvas = document.getElementById(id);
+            if (graficaActual) graficaActual.destroy();
+            return new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: etiquetas,
+                    datasets: [{
+                        data: datos,
+                        backgroundColor: colores,
+                        borderColor: '#0a0412',
+                        borderWidth: 3,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#ddd', padding: 14, font: { family: 'Lato' } }
+                        }
+                    }
                 }
-            }
-        };
+            });
+        }
 
-        function renderizarGraficas(clientes) {
+        function renderizarGraficasDistribucion(clientes) {
             const rangos = ['Archimago', 'Maestro', 'Iniciado', 'Muggle'];
             const etapas = ['Activo', 'Frecuente', 'Inactivo', 'Prospecto'];
-            const crearGrafica = (id, instancia, labels, data, colores) => {
-                if (instancia) instancia.destroy();
-                return new Chart(document.getElementById(id), {
-                    type: 'doughnut',
-                    data: {
-                        labels,
-                        datasets: [{
-                            data,
-                            backgroundColor: colores,
-                            borderColor: '#0a0412',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: opcionesGrafica
-                });
-            };
-
-            rangosChart = crearGrafica(
-                'dashboard-chart-rangos', rangosChart, rangos,
-                contarPor(clientes, 'rango', rangos),
+            graficaRangos = crearGraficaDistribucion(
+                'dashboard-chart-rangos',
+                graficaRangos,
+                rangos,
+                contarPorCampo(clientes, 'rango', rangos),
                 ['#a855f7', '#3b82f6', '#eab308', '#6b7280']
             );
-            etapasChart = crearGrafica(
-                'dashboard-chart-etapas', etapasChart, etapas,
-                contarPor(clientes, 'etapa_crm', etapas),
+            graficaEtapas = crearGraficaDistribucion(
+                'dashboard-chart-etapas',
+                graficaEtapas,
+                etapas,
+                contarPorCampo(clientes, 'etapa_crm', etapas),
                 ['#4ade80', '#60a5fa', '#f87171', '#fb923c']
             );
         }
 
-        function renderizarInteracciones(interacciones) {
-            const cuerpo = document.getElementById('dashboard-interacciones-body');
-            const total = interacciones.length;
-            const conteo = interacciones.reduce((resultado, interaccion) => {
-                const tipo = interaccion.tipo || 'Sin especificar';
-                resultado[tipo] = (resultado[tipo] || 0) + 1;
-                return resultado;
-            }, {});
-
-            document.getElementById('total-interacciones').textContent =
-                total + ' interacción' + (total === 1 ? '' : 'es');
-            const filas = Object.entries(conteo).sort((a, b) => b[1] - a[1]);
-            cuerpo.innerHTML = filas.length
-                ? filas.map(([tipo, cantidad]) =>
-                    '<tr><td>' + tipo + '</td><td>' + cantidad + '</td></tr>'
-                ).join('')
-                : '<tr><td colspan="2" class="dashboard-estado">No hay interacciones registradas.</td></tr>';
-        }
-
-        function obtenerFechaActividad(valor) {
-            if (valor && typeof valor.toDate === 'function') return valor.toDate();
-            return valor ? new Date(valor) : new Date(0);
-        }
-
-        function tiempoRelativo(fecha) {
-            const minutos = Math.max(0, Math.floor((Date.now() - fecha.getTime()) / 60000));
-            if (minutos < 1) return 'ahora';
-            if (minutos < 60) return 'hace ' + minutos + ' min';
-            const horas = Math.floor(minutos / 60);
-            if (horas < 24) return 'hace ' + horas + ' h';
-            const dias = Math.floor(horas / 24);
-            return 'hace ' + dias + (dias === 1 ? ' día' : ' días');
-        }
-
-        function configurarIconoActividad(tipo) {
-            const iconos = {
-                pedido: ['fa-box', 'var(--gold)'],
-                cliente: ['fa-user-plus', 'var(--lilac)'],
-                producto: ['fa-pen-to-square', '#4ade80'],
-                promocion: ['fa-tags', '#fb923c'],
-                interaccion: ['fa-comments', '#60a5fa'],
-                reporte: ['fa-chart-simple', '#f87171']
-            };
-            return iconos[tipo] || ['fa-wand-sparkles', 'var(--gold)'];
-        }
-
-        function renderizarActividadReciente(actividades) {
-            const lista = document.getElementById('dashboard-actividad-lista');
-            lista.innerHTML = '';
-            const recientes = actividades
-                .sort((actividadA, actividadB) =>
-                    obtenerFechaActividad(actividadB.fecha) - obtenerFechaActividad(actividadA.fecha)
-                )
-                .slice(0, 5);
-
-            if (!recientes.length) {
-                lista.innerHTML = '<li class="dashboard-actividad-estado">No hay actividad registrada.</li>';
-                return;
-            }
-
-            recientes.forEach((actividad) => {
-                const [claseIcono, colorIcono] = configurarIconoActividad(actividad.tipo);
-                const fecha = obtenerFechaActividad(actividad.fecha);
-                const elemento = document.createElement('li');
-                const icono = document.createElement('i');
-                const descripcion = document.createElement('span');
-                const hora = document.createElement('span');
-
-                icono.className = 'fa-solid ' + claseIcono;
-                icono.style.color = colorIcono;
-                descripcion.textContent = actividad.descripcion || 'Actividad registrada';
-                hora.className = 'actividad-hora';
-                hora.textContent = tiempoRelativo(fecha);
-                elemento.append(icono, descripcion, hora);
-                lista.appendChild(elemento);
+        function renderizarClientesEnRiesgo(clientes, interacciones) {
+            const ahora = new Date();
+            const ultimaInteraccionPorCliente = new Map();
+            interacciones.forEach((interaccion) => {
+                const clienteId = interaccion.cliente_id;
+                const fecha = convertirFecha(interaccion.fecha);
+                if (!clienteId || !fecha) return;
+                const anterior = ultimaInteraccionPorCliente.get(clienteId);
+                if (!anterior || fecha > anterior) ultimaInteraccionPorCliente.set(clienteId, fecha);
             });
+
+            const clientesEnRiesgo = clientes.map((cliente) => {
+                const ultimaInteraccion = ultimaInteraccionPorCliente.get(cliente.id);
+                const fechaRegistro = convertirFecha(cliente.fecha_registro);
+                const diasSinInteraccion = calcularDiasSinInteraccion(ultimaInteraccion || fechaRegistro, ahora);
+                return { ...cliente, diasSinInteraccion, ultimaInteraccion };
+            }).filter((cliente) => cliente.diasSinInteraccion > DIAS_RIESGO)
+                .sort((clienteA, clienteB) => clienteB.diasSinInteraccion - clienteA.diasSinInteraccion);
+
+            return clientesEnRiesgo;
         }
 
-        function escucharActividadReciente() {
-            onSnapshot(collection(db, 'actividad'), (snapshot) => {
-                const actividades = snapshot.docs.map((documento) => documento.data());
-                renderizarActividadReciente(actividades);
-            }, (error) => {
-                console.error('Error escuchando la actividad del dashboard:', error);
-                document.getElementById('dashboard-actividad-lista').innerHTML =
-                    '<li class="dashboard-actividad-estado">No se pudo cargar la actividad.</li>';
-            });
-        }
-
-        async function cargarAnalitica() {
+        async function cargarDashboard() {
             try {
                 const [clientesSnapshot, interaccionesSnapshot] = await Promise.all([
                     getDocs(collection(db, 'clientes')),
                     getDocs(collection(db, 'interacciones'))
                 ]);
-                const clientes = clientesSnapshot.docs.map((documento) => documento.data());
+                const clientes = clientesSnapshot.docs.map((documento) => ({
+                    id: documento.id,
+                    ...documento.data()
+                }));
                 const interacciones = interaccionesSnapshot.docs.map((documento) => documento.data());
-                renderizarGraficas(clientes);
-                renderizarInteracciones(interacciones);
+                const clientesEnRiesgo = renderizarClientesEnRiesgo(clientes, interacciones);
+                actualizarKpis(clientes, interacciones, clientesEnRiesgo);
+                renderizarGraficasDistribucion(clientes);
             } catch (error) {
-                console.error('Error cargando la analítica del dashboard:', error);
-                document.getElementById('dashboard-interacciones-body').innerHTML =
-                    '<tr><td colspan="2" class="dashboard-estado">No se pudo cargar la analítica.</td></tr>';
+                console.error('Error cargando el dashboard CRM:', error);
+                document.querySelectorAll('.card-numero').forEach((elemento) => { elemento.textContent = '—'; });
             }
         }
 
-        escucharActividadReciente();
-        cargarAnalitica();
+        cargarDashboard();
     </script>
 
 </body>

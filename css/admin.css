@@ -262,43 +262,6 @@
     margin: 0;
 }
 
-.dashboard-analitica {
-    margin: 32px 40px 0;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    overflow: hidden;
-}
-
-.dashboard-analitica-titulo {
-    margin: 0;
-}
-
-.dashboard-graficas {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-    padding: 20px 24px 0;
-}
-
-.dashboard-grafica {
-    margin: 0;
-}
-
-.dashboard-canvas-wrap {
-    height: 280px;
-    padding: 20px 24px;
-}
-
-.dashboard-interacciones {
-    margin: 20px 24px 24px;
-}
-
-.dashboard-estado {
-    color: var(--text-muted) !important;
-    text-align: center;
-}
-
 /* ══════════════════════════════════════
    TABLA
 ══════════════════════════════════════ */
@@ -757,10 +720,6 @@
     .admin-cards { grid-template-columns: 1fr 1fr; padding: 20px; }
     .admin-bloque { margin: 20px; }
     .admin-topbar { padding: 16px 20px; }
-    .dashboard-analitica { margin: 20px; }
-    .dashboard-graficas { grid-template-columns: 1fr; padding: 16px 16px 0; }
-    .dashboard-interacciones { margin: 16px; }
-}
 @media (max-width: 480px) {
     .admin-cards { grid-template-columns: 1fr; }
 }   
