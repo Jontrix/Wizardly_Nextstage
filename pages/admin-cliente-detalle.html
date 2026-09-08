@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly — Detalle de Cliente</title>
+    <title>Wizardly — Clientes</title>
 
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="admin-body">
 
+    <!-- ── BARRA LATERAL ── -->
     <aside class="admin-sidebar">
         <div class="sidebar-logo">
             <img src="../images/logo/Logo.png" alt="Wizardly" />
@@ -23,7 +26,6 @@
                 <span class="sidebar-sub">Panel Arcano</span>
             </div>
         </div>
-
         <nav class="sidebar-nav">
             <a href="admin.html" class="nav-item">
                 <i class="fa-solid fa-gauge-high"></i> Dashboard
@@ -40,13 +42,16 @@
             <a href="admin-clientes.html" class="nav-item active">
                 <i class="fa-solid fa-users"></i> Clientes
             </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
             <a href="admin-reportes.html" class="nav-item">
                 <i class="fa-solid fa-chart-simple"></i> Reportes
             </a>
-             <a href="admin-configuracion.html" class="nav-item">
+            <a href="admin-configuracion.html" class="nav-item">
                 <i class="fa-solid fa-gear"></i> Configuración
+            </a>
         </nav>
-
         <div class="sidebar-footer">
             <a href="../index.html" class="nav-item">
                 <i class="fa-solid fa-arrow-left"></i> Volver al sitio
@@ -54,246 +59,145 @@
         </div>
     </aside>
 
+    <!-- ── CONTENIDO PRINCIPAL ── -->
     <main class="admin-main">
 
         <div class="admin-topbar">
-            <h1>Detalle de Cliente</h1>
+            <h1>Gestión de Clientes</h1>
             <div class="topbar-usuario">
                 <i class="fa-solid fa-circle-user"></i>
-                <span>Archimaga Seraphina</span>
+                <span id="nombre-administrador">Cargando...</span>
             </div>
         </div>
 
-        <a href="admin-clientes.html" class="btn-volver-clientes">
-            <i class="fa-solid fa-arrow-left"></i> Volver a clientes
-        </a>
+        <div class="admin-bloque">
+            <div class="bloque-header">
+                <h2>
+                    Clientes Registrados
+                    <span class="count-badge" id="clientes-count">0 clientes</span>
+                </h2>
+                <button class="btn-admin" onclick="abrirModalCliente()">
+                    <i class="fa-solid fa-plus"></i> Agregar cliente
+                </button>
+            </div>
 
-        <div class="admin-bloque cliente-header-card">
-            <div class="cliente-header">
-                <div class="cliente-avatar" id="cliente-avatar">--</div>
-                <div class="cliente-meta">
-                    <div class="cliente-titulo-wrap">
-                        <div>
-                            <h2 id="cliente-nombre">Cargando cliente...</h2>
-                            <p id="cliente-empresa" class="cliente-empresa">Empresa</p>
-                        </div>
-                        <div class="cliente-acciones">
-                            <button class="btn-admin-sm" onclick="window.abrirModalCambiarEtapa()">
-                                <i class="fa-solid fa-arrow-trend-up"></i> Cambiar etapa
-                            </button>
-                            <button class="btn-admin-sm" onclick="window.abrirModalEditarCliente()">
-                                <i class="fa-solid fa-pen"></i> Editar
-                            </button>
-                            <button class="btn-admin-sm btn-danger" onclick="window.abrirModalEliminarCliente()">
-                                <i class="fa-solid fa-trash"></i> Eliminar
-                            </button>
-                        </div>
-                    </div>
-                    <div class="cliente-badges">
-                        <span id="cliente-rango-badge" class="badge badge-initiated">Rango</span>
-                        <span id="cliente-etapa-badge" class="badge badge-activo">Etapa</span>
-                    </div>
+            <div class="admin-filtros">
+                <div class="admin-buscador" style="flex:2;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o email..." />
                 </div>
+                <div class="admin-filtro-select">
+                    <select id="filtro-rango-cliente">
+                        <option value="">Todos los rangos</option>
+                        <option value="Archimago">Archimago</option>
+                        <option value="Maestro">Maestro</option>
+                        <option value="Iniciado">Iniciado</option>
+                        <option value="Muggle">Muggle</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="admin-tabla-wrap">
+                <table class="admin-tabla" id="tabla-clientes">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Facción / Organización</th>
+                            <th>Rango Alquímico</th>
+                            <th>Etapa CRM</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-clientes"></tbody>
+                </table>
             </div>
         </div>
 
-        <div class="admin-bloque tabs-card">
-            <div class="detalle-tabs">
-                <button class="tab-button active" data-tab="info" type="button">Información</button>
-                <button class="tab-button" data-tab="interacciones" type="button">Interacciones</button>
+        <div class="admin-bloque" style="margin-top:32px;">
+            <div class="bloque-header">
+                <h2>Distribución de Rangos</h2>
             </div>
-
-            <div class="tab-panel active" id="panel-info">
-                <div class="info-grid">
-                    <div class="dato-item">
-                        <label>Correo</label>
-                        <p id="info-correo">-</p>
-                    </div>
-                    <div class="dato-item">
-                        <label>Teléfono</label>
-                        <p id="info-telefono">-</p>
-                    </div>
-                    <div class="dato-item">
-                        <label>Empresa</label>
-                        <p id="info-empresa">-</p>
-                    </div>
-                    <div class="dato-item">
-                        <label>Estado</label>
-                        <p id="info-estado">-</p>
-                    </div>
-                    <div class="dato-item">
-                        <label>Fecha de Registro</label>
-                        <p id="info-fecha-registro">-</p>
-                    </div>
-                    <div class="dato-item">
-                        <label>ID del Documento</label>
-                        <p id="info-id-documento">-</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-panel" id="panel-interacciones">
-                <div class="interacciones-header">
-                    <h3>Historial de contacto</h3>
-                    <button class="btn-admin" onclick="window.abrirModalNuevaInteraccion()">
-                        <i class="fa-solid fa-plus"></i> + Nueva interacción
-                    </button>
-                </div>
-                <div class="timeline" id="timeline-interacciones"></div>
+            <div style="padding:20px 24px; display:flex; justify-content:center;">
+                <canvas id="chart-clientes" width="300" height="300" style="max-width:300px; max-height:300px;"></canvas>
             </div>
         </div>
 
     </main>
 
-    <div class="modal-overlay" id="modal-cambiar-etapa-overlay">
+    <!-- ── MODAL AGREGAR / EDITAR CLIENTE ── -->
+    <div class="modal-overlay" id="modal-cliente-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>Cambiar etapa</h3>
-                <button class="modal-cerrar" onclick="window.cerrarModalCambiarEtapa()">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="campo-modal">
-                    <label>Etapa del cliente</label>
-                    <select id="etapa-cliente-select">
-                        <option value="Activo">Activo</option>
-                        <option value="Frecuente">Frecuente</option>
-                        <option value="Inactivo">Inactivo</option>
-                        <option value="Prospecto">Prospecto</option>
-                    </select>
-                </div>
-                <p class="help-text">Los cambios en la etapa ayudan a dar mejor seguimiento y priorizar a tus clientes.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-modal-cancelar" onclick="window.cerrarModalCambiarEtapa()">Cancelar</button>
-                <button class="btn-modal-guardar" onclick="window.guardarEtapaCliente()">
-                    <i class="fa-solid fa-floppy-disk"></i> Guardar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal-editar-cliente-overlay">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3>Editar Cliente</h3>
-                <button class="modal-cerrar" onclick="window.cerrarModalEditarCliente()">
+                <h3 id="modal-cliente-titulo">Agregar Cliente</h3>
+                <button class="modal-cerrar" onclick="cerrarModalCliente()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="campo-modal">
                     <label>Nombre Completo</label>
-                    <input type="text" id="edit-nombre" />
+                    <input type="text" id="mc-nombre" placeholder="Ej. Hermione Granger" />
                 </div>
                 <div class="campo-modal">
                     <label>Correo Electrónico</label>
-                    <input type="email" id="edit-correo" />
+                    <input type="email" id="mc-email" placeholder="ejemplo@magic.com" />
                 </div>
                 <div class="campo-modal">
-                    <label>Teléfono</label>
-                    <input type="text" id="edit-telefono" />
+                    <label>Teléfono Mágico</label>
+                    <input type="tel" id="mc-telefono" placeholder="Ej. 555-123-4567" />
                 </div>
                 <div class="campo-modal">
-                    <label>Empresa</label>
-                    <input type="text" id="edit-empresa" />
-                </div>
-                <div class="campo-modal-fila">
-                    <div class="campo-modal">
-                        <label>Rango</label>
-                        <select id="edit-rango">
-                            <option value="Archimago">Archimago</option>
-                            <option value="Maestro">Maestro</option>
-                            <option value="Iniciado">Iniciado</option>
-                            <option value="Muggle">Muggle</option>
-                        </select>
-                    </div>
-                    <div class="campo-modal">
-                        <label>Etapa</label>
-                        <select id="edit-etapa">
-                            <option value="Activo">Activo</option>
-                            <option value="Frecuente">Frecuente</option>
-                            <option value="Inactivo">Inactivo</option>
-                            <option value="Prospecto">Prospecto</option>
-                        </select>
-                    </div>
+                    <label>Facción / Organización</label>
+                    <input type="text" id="mc-faccion" placeholder="Ej. Ministerio de Magia o Independiente" />
                 </div>
                 <div class="campo-modal">
-                    <label>Estado</label>
-                    <select id="edit-estado">
+                    <label>Rango Alquímico</label>
+                    <select id="mc-rango">
+                        <option value="Archimago">Archimago</option>
+                        <option value="Maestro">Maestro</option>
+                        <option value="Iniciado">Iniciado</option>
+                        <option value="Muggle">Muggle</option>
+                    </select>
+                </div>
+                <div class="campo-modal">
+                    <label>Rango de Etapa</label>
+                    <select id="mc-etapa">
                         <option value="Activo">Activo</option>
+                        <option value="Frecuente">Frecuente</option>
+                        <option value="Inactivo">Inactivo</option>
+                        <option value="Prospecto">Prospecto</option>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn-modal-cancelar" onclick="window.cerrarModalEditarCliente()">Cancelar</button>
-                <button class="btn-modal-guardar" onclick="window.guardarEdicionCliente()">
-                    <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+                <button class="btn-modal-cancelar" onclick="cerrarModalCliente()">Cancelar</button>
+                <button class="btn-modal-guardar" onclick="guardarCliente()">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-nueva-interaccion-overlay">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3>Nueva Interacción</h3>
-                <button class="modal-cerrar" onclick="window.cerrarModalNuevaInteraccion()">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="campo-modal">
-                    <label>Tipo</label>
-                    <select id="interaccion-tipo">
-                        <option value="Llamada">Llamada</option>
-                        <option value="Correo">Correo</option>
-                        <option value="Reunión">Reunión</option>
-                        <option value="Otro">Otro</option>
-                    </select>
-                </div>
-                <div class="campo-modal">
-                    <label>Descripción</label>
-                    <textarea id="interaccion-descripcion" rows="4" placeholder="Describe el tema de la conversación..."></textarea>
-                </div>
-                <div class="campo-modal-fila">
-                    <div class="campo-modal">
-                        <label>Fecha</label>
-                        <input type="datetime-local" id="interaccion-fecha" />
-                    </div>
-                    <div class="campo-modal">
-                        <label>Responsable</label>
-                        <input type="text" id="interaccion-responsable" placeholder="Ej. Seraphina" />
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-modal-cancelar" onclick="window.cerrarModalNuevaInteraccion()">Cancelar</button>
-                <button class="btn-modal-guardar" onclick="window.guardarNuevaInteraccion()">
-                    <i class="fa-solid fa-paper-plane"></i> Guardar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal-confirm-delete-overlay">
+    <!-- ── MODAL ELIMINAR CLIENTE ── -->
+    <div class="modal-overlay" id="confirm-cliente-overlay">
         <div class="modal-card confirm-card">
             <div class="modal-header">
-                <h3>¿Eliminar cliente?</h3>
-                <button class="modal-cerrar" onclick="window.cerrarModalEliminarCliente()">
+                <h3>¿Eliminar cliente del registro?</h3>
+                <button class="modal-cerrar" onclick="cerrarConfirmCliente()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <p class="confirm-texto">
-                    Esta acción eliminará al cliente del registro y no podrá deshacerse.<br />
-                    ¿Deseas continuar con <strong id="confirm-delete-nombre">este cliente</strong>?
+                    Esta acción revocará sus credenciales arcanas.<br />
+                    ¿Seguro que deseas eliminar a <strong id="confirm-cliente-nombre"></strong>?
                 </p>
             </div>
             <div class="modal-footer">
-                <button class="btn-modal-cancelar" onclick="window.cerrarModalEliminarCliente()">Cancelar</button>
-                <button class="btn-modal-eliminar" onclick="window.confirmarEliminarCliente()">
+                <button class="btn-modal-cancelar" onclick="cerrarConfirmCliente()">Cancelar</button>
+                <button class="btn-modal-eliminar" onclick="confirmarEliminarCliente()">
                     <i class="fa-solid fa-trash"></i> Sí, eliminar
                 </button>
             </div>
@@ -302,224 +206,277 @@
 
     <div class="toast-admin" id="toast-cliente"></div>
 
+    <!-- ── LÓGICA DE FIREBASE Y JS ── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import {
-            getFirestore,
-            doc,
-            getDoc,
-            getDocs,
-            collection,
-            query,
-            where,
-            addDoc,
-            updateDoc,
-            deleteDoc,
-            Timestamp
-        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
+        // ⚠️ TUS CREDENCIALES REALES DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
             authDomain: "wizardly-nextstage.firebaseapp.com",
             projectId: "wizardly-nextstage",
             storageBucket: "wizardly-nextstage.firebasestorage.app",
             messagingSenderId: "336735978219",
-            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae"
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        window.clienteActual = null;
-        window.currentClienteId = null;
-        window.interacciones = [];
+        // Variables Globales
+        window.clientes = []; 
+        window.editandoClienteId = null;
+        var eliminandoClienteId = null;
+        var chartInstanceClientes = null;
 
-        const clienteAvatar = document.getElementById('cliente-avatar');
-        const clienteNombre = document.getElementById('cliente-nombre');
-        const clienteEmpresa = document.getElementById('cliente-empresa');
-        const clienteRangoBadge = document.getElementById('cliente-rango-badge');
-        const clienteEtapaBadge = document.getElementById('cliente-etapa-badge');
+        // Referencias DOM
+        var tbodyClientes = document.getElementById('tbody-clientes');
+        var inputBuscarCliente = document.getElementById('buscar-cliente');
+        var filtroRangoCliente = document.getElementById('filtro-rango-cliente');
+        var modalClienteOverlay = document.getElementById('modal-cliente-overlay');
+        var modalClienteTitulo = document.getElementById('modal-cliente-titulo');
+        var mcNombre = document.getElementById('mc-nombre');
+        var mcEmail = document.getElementById('mc-email');
+        var mcTelefono = document.getElementById('mc-telefono'); 
+        var mcFaccion = document.getElementById('mc-faccion');
+        var mcRango = document.getElementById('mc-rango');
+        var mcEtapa = document.getElementById('mc-etapa');
+        var confirmClienteOverlay = document.getElementById('confirm-cliente-overlay');
+        var confirmClienteNombre = document.getElementById('confirm-cliente-nombre');
+        var toastCliente = document.getElementById('toast-cliente');
+        var countBadgeCliente = document.getElementById('clientes-count');
 
-        const infoCorreo = document.getElementById('info-correo');
-        const infoTelefono = document.getElementById('info-telefono');
-        const infoEmpresa = document.getElementById('info-empresa');
-        const infoEstado = document.getElementById('info-estado');
-        const infoFechaRegistro = document.getElementById('info-fecha-registro');
-        const infoIdDocumento = document.getElementById('info-id-documento');
-
-        const modalCambiarEtapa = document.getElementById('modal-cambiar-etapa-overlay');
-        const etapaSelect = document.getElementById('etapa-cliente-select');
-
-        const modalEditarCliente = document.getElementById('modal-editar-cliente-overlay');
-        const editNombre = document.getElementById('edit-nombre');
-        const editCorreo = document.getElementById('edit-correo');
-        const editTelefono = document.getElementById('edit-telefono');
-        const editEmpresa = document.getElementById('edit-empresa');
-        const editRango = document.getElementById('edit-rango');
-        const editEtapa = document.getElementById('edit-etapa');
-        const editEstado = document.getElementById('edit-estado');
-
-        const modalNuevaInteraccion = document.getElementById('modal-nueva-interaccion-overlay');
-        const interaccionTipo = document.getElementById('interaccion-tipo');
-        const interaccionDescripcion = document.getElementById('interaccion-descripcion');
-        const interaccionFecha = document.getElementById('interaccion-fecha');
-        const interaccionResponsable = document.getElementById('interaccion-responsable');
-
-        const modalConfirmDelete = document.getElementById('modal-confirm-delete-overlay');
-        const confirmDeleteNombre = document.getElementById('confirm-delete-nombre');
-        const timeline = document.getElementById('timeline-interacciones');
-        const toastCliente = document.getElementById('toast-cliente');
-
-        function setActiveTab(tab) {
-            document.querySelectorAll('.tab-button').forEach((button) => {
-                button.classList.toggle('active', button.dataset.tab === tab);
-            });
-            document.querySelectorAll('.tab-panel').forEach((panel) => {
-                panel.classList.toggle('active', panel.id === `panel-${tab}`);
-            });
-        }
-
-        function getInitials(nombre) {
-            if (!nombre) return 'C';
-            const partes = nombre.trim().split(/\s+/).filter(Boolean);
-            return partes.slice(0, 2).map((parte) => parte.charAt(0).toUpperCase()).join('').substring(0, 2) || 'C';
-        }
-
-        function formatDateValue(value) {
-            if (!value) return 'Sin fecha';
-            let fecha;
-            if (value.toDate && typeof value.toDate === 'function') {
-                fecha = value.toDate();
+        // Mostrar Nombre del Administrador Actual
+        onAuthStateChanged(auth, (usuario) => {
+            const spanNombre = document.getElementById("nombre-administrador");
+            if (usuario) {
+                spanNombre.textContent = usuario.displayName || usuario.email || "Administrador";
             } else {
-                fecha = new Date(value);
+                const datosEmergencia = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
+                spanNombre.textContent = datosEmergencia.nombre || "Admin Supremo";
             }
-            if (isNaN(fecha.getTime())) return 'Sin fecha';
-            return new Intl.DateTimeFormat('es-MX', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).format(fecha);
+        });
+
+        // ==========================================
+        // 👁️ EL MENSAJERO DE LA BITÁCORA GLOBAL
+        // ==========================================
+        async function registrarAuditoria(modulo, accion, descripcion) {
+            const usuario = auth.currentUser;
+            let adminName = "Administrador Supremo";
+            let adminId = "Desconocido";
+
+            if (usuario) {
+                adminName = usuario.displayName || usuario.email || "Administrador";
+                adminId = usuario.uid;
+            } else {
+                try {
+                    const datosEmergencia = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
+                    if(datosEmergencia.nombre) adminName = datosEmergencia.nombre;
+                } catch(e) {}
+            }
+
+            try {
+                // ⚠️ Se asegura que vaya a "actividad" y no a "interacciones"
+                await addDoc(collection(db, "actividad"), {
+                    adminUid: adminId,
+                    adminNombre: adminName,
+                    modulo: modulo,
+                    accion: accion,
+                    descripcion: descripcion,
+                    fecha: Timestamp.now()
+                });
+                console.log("¡ÉXITO! Mensaje enviado a la bitácora.");
+                alert("✅ Se registró exitosamente en la Bitácora de Auditoría."); // <--- Chismoso activado
+            } catch (error) {
+                console.error("Error al reportar a la bitácora:", error);
+                alert("❌ Falló la conexión con la Bitácora: " + error.message);
+            }
         }
 
-        function getBadgeClassRango(rango) {
-            const map = {
-                'Archimago': 'badge-archmage',
-                'Maestro': 'badge-master',
-                'Iniciado': 'badge-initiated',
-                'Muggle': 'badge-muggle'
-            };
-            return map[rango] || 'badge-initiated';
-        }
+        // Leer datos desde Firebase
+        window.cargarClientesFirebase = async function() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "clientes"));
+                window.clientes = [];
+                querySnapshot.forEach((doc) => {
+                    let data = doc.data();
+                    data.id = doc.id; 
+                    window.clientes.push(data);
+                });
+                window.aplicarFiltrosCliente(); 
+            } catch (error) {
+                console.error("Error al obtener datos:", error);
+            }
+        };
 
-        function getBadgeClassEtapa(etapa) {
-            const map = {
-                'Activo': 'badge-activo',
-                'Frecuente': 'badge-frecuente',
-                'Inactivo': 'badge-inactivo',
-                'Prospecto': 'badge-prospecto'
-            };
-            return map[etapa] || 'badge-activo';
-        }
+        // Renderizar Tabla
+        window.renderTablaClientes = function(lista) {
+            lista = lista || window.clientes;
+            tbodyClientes.innerHTML = '';
+            
+            lista.forEach(function(c) {
+                var rangoClase = 'badge-archmage';
+                if (c.rango === 'Maestro') rangoClase = 'badge-master';
+                if (c.rango === 'Iniciado') rangoClase = 'badge-initiated';
+                if (c.rango === 'Muggle') rangoClase = 'badge-muggle'; 
 
-        function renderClienteHeader(cliente) {
-            if (!cliente) return;
+                var etapaClase = 'badge-activo';
+                if (c.etapa_crm === 'Frecuente') etapaClase = 'badge-frecuente';
+                if (c.etapa_crm === 'Inactivo') etapaClase = 'badge-inactivo';
+                if (c.etapa_crm === 'Prospecto') etapaClase = 'badge-prospecto';
 
-            clienteAvatar.textContent = getInitials(cliente.nombre);
-            clienteNombre.textContent = cliente.nombre || 'Cliente';
-            clienteEmpresa.textContent = cliente.empresa || 'Sin empresa';
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td class="td-id">#MAG-' + String(c.id).substring(0,4).toUpperCase() + '</td>' +
+                    '<td class="td-nombre"><strong>' + c.nombre + '</strong></td>' +
+                    '<td>' + c.correo + '</td>' +
+                    '<td>' + c.empresa + '</td>' +
+                    '<td><span class="badge ' + rangoClase + '">' + c.rango + '</span></td>' +
+                    '<td><span class="badge ' + etapaClase + '">' + (c.etapa_crm || 'Prospecto') + '</span></td>' +
+                    '<td><div class="acciones-wrap">' +
+                        '<button class="btn-icono editar" onclick="abrirEditarCliente(\'' + c.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+                        '<button class="btn-icono eliminar" onclick="abrirConfirmCliente(\'' + c.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
+                    '</div></td>';
+                tbodyClientes.appendChild(tr);
+            });
+            window.actualizarContadorCliente();
+            window.actualizarGraficaClientes();
+        };
 
-            clienteRangoBadge.textContent = cliente.rango || 'Sin rango';
-            clienteRangoBadge.className = 'badge ' + getBadgeClassRango(cliente.rango);
+        window.actualizarContadorCliente = function() {
+            var total = window.clientes.length;
+            countBadgeCliente.textContent = total + ' cliente' + (total !== 1 ? 's' : '');
+        };
 
-            clienteEtapaBadge.textContent = cliente.etapa_crm || 'Sin etapa';
-            clienteEtapaBadge.className = 'badge ' + getBadgeClassEtapa(cliente.etapa_crm);
-        }
+        // Filtros
+        window.aplicarFiltrosCliente = function() {
+            var texto = inputBuscarCliente.value.toLowerCase();
+            var rangoSel = filtroRangoCliente.value;
+            var filtrados = window.clientes.filter(function(c) {
+                var coincideTexto = c.nombre.toLowerCase().includes(texto) || c.correo.toLowerCase().includes(texto);
+                var coincideRango = (rangoSel === '' || c.rango === rangoSel);
+                return coincideTexto && coincideRango;
+            });
+            window.renderTablaClientes(filtrados);
+        };
 
-        function renderClienteInfo(cliente) {
-            if (!cliente) return;
+        // Funciones de Modales
+        window.abrirModalCliente = function() {
+            window.editandoClienteId = null;
+            modalClienteTitulo.textContent = 'Agregar Cliente';
+            mcNombre.value = '';
+            mcEmail.value = '';
+            mcTelefono.value = '';
+            mcFaccion.value = '';
+            mcRango.value = 'Iniciado';
+            mcEtapa.value = 'Activo';
+            modalClienteOverlay.classList.add('visible');
+        };
 
-            infoCorreo.textContent = cliente.correo || '-';
-            infoTelefono.textContent = cliente.telefono || '-';
-            infoEmpresa.textContent = cliente.empresa || '-';
-            infoEstado.textContent = cliente.estado || '-';
-            infoFechaRegistro.textContent = formatDateValue(cliente.fecha_registro);
-            infoIdDocumento.textContent = cliente.id || '-';
-        }
+        window.abrirEditarCliente = function(id) {
+            var c = window.clientes.find(function(x) { return x.id === id; });
+            if (!c) return;
+            
+            window.editandoClienteId = id; 
+            modalClienteTitulo.textContent = 'Editar Cliente';
+            mcNombre.value = c.nombre;
+            mcEmail.value = c.correo;
+            mcTelefono.value = c.telefono || "";
+            mcFaccion.value = c.empresa || "";
+            mcRango.value = c.rango;
+            mcEtapa.value = c.etapa_crm || "Prospecto";
+            
+            modalClienteOverlay.classList.add('visible');
+        };
 
-        function renderInteracciones(lista) {
-            if (!lista || lista.length === 0) {
-                timeline.innerHTML = '<div class="empty-state"><i class="fa-solid fa-comment-dots"></i><p>No hay interacciones registradas para este cliente.</p></div>';
+        window.cerrarModalCliente = function() {
+            modalClienteOverlay.classList.remove('visible');
+        };
+
+        // Guardar o Actualizar Cliente en Firebase
+        window.guardarCliente = async function() {
+            var nombre = mcNombre.value.trim();
+            var correo = mcEmail.value.trim();
+            var telefono = mcTelefono.value.trim() || "-";
+            var empresa = mcFaccion.value.trim() || "Independiente";
+            var rango = mcRango.value;
+            var etapa = mcEtapa.value;
+
+            if (!nombre || !correo) {
+                window.mostrarToastCliente('⚠️ Nombre y Correo son obligatorios.', 'error');
                 return;
             }
 
-            timeline.innerHTML = lista.map((item) => {
-                const descripcion = (item.descripcion || '').trim() || 'Sin descripción';
-                const fecha = formatDateValue(item.fecha);
-                const responsable = item.responsable || 'Sin responsable';
-                return `
-                    <div class="timeline-item">
-                        <div class="timeline-marker"><i class="fa-solid fa-circle"></i></div>
-                        <div class="timeline-content">
-                            <div class="timeline-meta">
-                                <span class="timeline-tipo">${item.tipo || 'Otro'}</span>
-                                <span class="timeline-fecha">${fecha}</span>
-                            </div>
-                            <p class="timeline-descripcion">${descripcion}</p>
-                            <div class="timeline-footer">
-                                <span><i class="fa-solid fa-user"></i> ${responsable}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        async function cargarCliente(id) {
             try {
-                const clienteRef = doc(db, 'clientes', id);
-                const snapshot = await getDoc(clienteRef);
+                if (window.editandoClienteId) {
+                    const clienteRef = doc(db, "clientes", window.editandoClienteId);
+                    await updateDoc(clienteRef, {
+                        nombre: nombre, correo: correo, telefono: telefono,
+                        empresa: empresa, rango: rango, etapa_crm: etapa
+                    });
+                    
+                    window.mostrarToastCliente('✦ Datos actualizados.', 'ok');
+                    
+                    // 📢 AVISO A LA BITÁCORA GLOBAL
+                    await registrarAuditoria("clientes", "Edición de Perfil", `Se modificaron los datos arcanos de ${nombre}.`);
 
-                if (!snapshot.exists()) {
-                    window.mostrarToastCliente('No se encontró el cliente solicitado.', 'error');
-                    return;
+                } else {
+                    await addDoc(collection(db, "clientes"), {
+                        nombre: nombre, correo: correo, telefono: telefono,
+                        empresa: empresa, rango: rango, etapa_crm: etapa, 
+                        estado: "Activo", fecha_registro: Timestamp.now()
+                    });
+                    
+                    window.mostrarToastCliente('✦ Mago registrado.', 'ok');
+
+                    // 📢 AVISO A LA BITÁCORA GLOBAL
+                    await registrarAuditoria("clientes", "Nuevo Cliente Registrado", `Se añadió al mago ${nombre} al grimorio.`);
                 }
 
-                const cliente = { id: snapshot.id, ...snapshot.data() };
-                window.clienteActual = cliente;
-                window.currentClienteId = id;
-
-                renderClienteHeader(cliente);
-                renderClienteInfo(cliente);
-                etapaSelect.value = cliente.etapa_crm || 'Activo';
-                confirmDeleteNombre.textContent = cliente.nombre || 'este cliente';
+                window.cerrarModalCliente();
+                window.cargarClientesFirebase();
             } catch (error) {
-                console.error('Error al cargar cliente:', error);
-                window.mostrarToastCliente('Error al cargar la información del cliente.', 'error');
+                console.error("Error al guardar: ", error);
+                window.mostrarToastCliente('⚠️ Error al lanzar el hechizo.', 'error');
             }
-        }
+        };
 
-        async function cargarInteracciones(id) {
+        // Eliminar Cliente
+        window.abrirConfirmCliente = function(id) {
+            var c = window.clientes.find(function(x) { return x.id === id; });
+            if (!c) return;
+            eliminandoClienteId = id;
+            confirmClienteNombre.textContent = c.nombre;
+            confirmClienteOverlay.classList.add('visible');
+        };
+
+        window.cerrarConfirmCliente = function() {
+            confirmClienteOverlay.classList.remove('visible');
+            eliminandoClienteId = null;
+        };
+
+        window.confirmarEliminarCliente = async function() {
+            if (eliminandoClienteId === null) return;
             try {
-                const q = query(collection(db, 'interacciones'), where('cliente_id', '==', id));
-                const snapshot = await getDocs(q);
-                const items = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+                const nombreEliminado = confirmClienteNombre.textContent; 
+                await deleteDoc(doc(db, "clientes", eliminandoClienteId));
+                window.cerrarConfirmCliente();
+                window.mostrarToastCliente('🗑 Mago exiliado con éxito.', 'error');
 
-                items.sort((a, b) => {
-                    const fechaA = a.fecha && a.fecha.toDate ? a.fecha.toDate().getTime() : new Date(a.fecha || 0).getTime();
-                    const fechaB = b.fecha && b.fecha.toDate ? b.fecha.toDate().getTime() : new Date(b.fecha || 0).getTime();
-                    return fechaB - fechaA;
-                });
+                // 📢 AVISO A LA BITÁCORA GLOBAL
+                await registrarAuditoria("clientes", "Mago Exiliado", `Se revocaron las credenciales arcanas de ${nombreEliminado}.`);
 
-                window.interacciones = items;
-                renderInteracciones(items);
-            } catch (error) {
-                console.error('Error al cargar interacciones:', error);
-                window.mostrarToastCliente('No se pudieron cargar las interacciones.', 'error');
+                window.cargarClientesFirebase();
+            } catch(error) {
+                console.error(error);
             }
-        }
+        };
 
+        // Toast
         window.mostrarToastCliente = function(msg, tipo) {
             tipo = tipo || 'ok';
             toastCliente.textContent = msg;
@@ -530,597 +487,91 @@
             }, 3000);
         };
 
-        window.abrirModalCambiarEtapa = function() {
-            if (!window.clienteActual) return;
-            etapaSelect.value = window.clienteActual.etapa_crm || 'Activo';
-            modalCambiarEtapa.classList.add('visible');
-        };
+        // Gráfica
+        window.actualizarGraficaClientes = function() {
+            var archimagos = window.clientes.filter(function(c) { return c.rango === 'Archimago'; }).length;
+            var maestros = window.clientes.filter(function(c) { return c.rango === 'Maestro'; }).length;
+            var iniciados = window.clientes.filter(function(c) { return c.rango === 'Iniciado'; }).length;
+            var muggles = window.clientes.filter(function(c) { return c.rango === 'Muggle'; }).length;
+            
+            var ctx = document.getElementById('chart-clientes').getContext('2d');
+            if (chartInstanceClientes) { chartInstanceClientes.destroy(); }
 
-        window.cerrarModalCambiarEtapa = function() {
-            modalCambiarEtapa.classList.remove('visible');
-        };
-
-        window.guardarEtapaCliente = async function() {
-            if (!window.currentClienteId) return;
-            const nuevaEtapa = etapaSelect.value;
-            try {
-                await updateDoc(doc(db, 'clientes', window.currentClienteId), {
-                    etapa_crm: nuevaEtapa
-                });
-
-                window.clienteActual.etapa_crm = nuevaEtapa;
-                renderClienteHeader(window.clienteActual);
-                window.cerrarModalCambiarEtapa();
-                window.mostrarToastCliente('Etapa actualizada correctamente.', 'ok');
-            } catch (error) {
-                console.error('Error al actualizar etapa:', error);
-                window.mostrarToastCliente('No se pudo actualizar la etapa.', 'error');
-            }
-        };
-
-        window.abrirModalEditarCliente = function() {
-            if (!window.clienteActual) return;
-            editNombre.value = window.clienteActual.nombre || '';
-            editCorreo.value = window.clienteActual.correo || '';
-            editTelefono.value = window.clienteActual.telefono || '';
-            editEmpresa.value = window.clienteActual.empresa || '';
-            editRango.value = window.clienteActual.rango || 'Iniciado';
-            editEtapa.value = window.clienteActual.etapa_crm || 'Activo';
-            editEstado.value = window.clienteActual.estado || 'Activo';
-            modalEditarCliente.classList.add('visible');
-        };
-
-        window.cerrarModalEditarCliente = function() {
-            modalEditarCliente.classList.remove('visible');
-        };
-
-        window.guardarEdicionCliente = async function() {
-            const nombre = editNombre.value.trim();
-            const correo = editCorreo.value.trim();
-            const telefono = editTelefono.value.trim();
-            const empresa = editEmpresa.value.trim();
-            const rango = editRango.value;
-            const etapa = editEtapa.value;
-            const estado = editEstado.value;
-
-            if (!nombre || !correo || !telefono || !empresa) {
-                window.mostrarToastCliente('Completa todos los campos obligatorios.', 'error');
-                return;
-            }
-
-            try {
-                await updateDoc(doc(db, 'clientes', window.currentClienteId), {
-                    nombre,
-                    correo,
-                    telefono,
-                    empresa,
-                    rango,
-                    etapa_crm: etapa,
-                    estado
-                });
-
-                window.clienteActual = { ...window.clienteActual, nombre, correo, telefono, empresa, rango, etapa_crm: etapa, estado };
-                renderClienteHeader(window.clienteActual);
-                renderClienteInfo(window.clienteActual);
-                window.cerrarModalEditarCliente();
-                window.mostrarToastCliente('Cliente actualizado correctamente.', 'ok');
-            } catch (error) {
-                console.error('Error al editar cliente:', error);
-                window.mostrarToastCliente('No se pudo guardar la edición.', 'error');
-            }
-        };
-
-        window.abrirModalNuevaInteraccion = function() {
-            interaccionTipo.value = 'Llamada';
-            interaccionDescripcion.value = '';
-            interaccionFecha.value = new Date().toISOString().slice(0, 16);
-            interaccionResponsable.value = '';
-            modalNuevaInteraccion.classList.add('visible');
-        };
-
-        window.cerrarModalNuevaInteraccion = function() {
-            modalNuevaInteraccion.classList.remove('visible');
-        };
-
-        window.guardarNuevaInteraccion = async function() {
-            const tipo = interaccionTipo.value;
-            const descripcion = interaccionDescripcion.value.trim();
-            const fechaInput = interaccionFecha.value;
-            const responsable = interaccionResponsable.value.trim();
-
-            if (!descripcion) {
-                window.mostrarToastCliente('La descripción es obligatoria.', 'error');
-                return;
-            }
-
-            try {
-                const nuevaInteraccion = {
-                    cliente_id: window.currentClienteId,
-                    usuario_id: 'admin-seraphina',
-                    tipo,
-                    descripcion,
-                    fecha: fechaInput ? Timestamp.fromDate(new Date(fechaInput)) : Timestamp.now(),
-                    responsable: responsable || 'Sin responsable',
-                    creado: Timestamp.now()
-                };
-
-                await addDoc(collection(db, 'interacciones'), nuevaInteraccion);
-                window.cerrarModalNuevaInteraccion();
-                await cargarInteracciones(window.currentClienteId);
-                window.mostrarToastCliente('Interacción registrada.', 'ok');
-            } catch (error) {
-                console.error('Error al guardar interacción:', error);
-                window.mostrarToastCliente('No se pudo guardar la interacción.', 'error');
-            }
-        };
-
-        window.abrirModalEliminarCliente = function() {
-            if (!window.clienteActual) return;
-            confirmDeleteNombre.textContent = window.clienteActual.nombre || 'este cliente';
-            modalConfirmDelete.classList.add('visible');
-        };
-
-        window.cerrarModalEliminarCliente = function() {
-            modalConfirmDelete.classList.remove('visible');
-        };
-
-        window.confirmarEliminarCliente = async function() {
-            if (!window.currentClienteId) return;
-            try {
-                await deleteDoc(doc(db, 'clientes', window.currentClienteId));
-                window.cerrarModalEliminarCliente();
-                window.mostrarToastCliente('Cliente eliminado.', 'ok');
-                setTimeout(function() {
-                    window.location.href = 'admin-clientes.html';
-                }, 600);
-            } catch (error) {
-                console.error('Error al eliminar cliente:', error);
-                window.mostrarToastCliente('No se pudo eliminar el cliente.', 'error');
-            }
-        };
-
-        document.querySelectorAll('.tab-button').forEach((button) => {
-            button.addEventListener('click', function() {
-                setActiveTab(this.dataset.tab);
+            chartInstanceClientes = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Archimagos', 'Maestros', 'Iniciados', 'Muggles'],
+                    datasets: [{
+                        data: [archimagos, maestros, iniciados, muggles],
+                        backgroundColor: ['#a855f7', '#3b82f6', '#eab308', '#6b7280'],
+                        borderColor: '#0a0412',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#ddd', font: { family: 'Cinzel' } } } }
+                }
             });
+        };
+
+        // Listeners
+        modalClienteOverlay.addEventListener('click', function(e) {
+            if (e.target === modalClienteOverlay) window.cerrarModalCliente();
         });
-
-        modalCambiarEtapa.addEventListener('click', function(e) {
-            if (e.target === modalCambiarEtapa) window.cerrarModalCambiarEtapa();
+        confirmClienteOverlay.addEventListener('click', function(e) {
+            if (e.target === confirmClienteOverlay) window.cerrarConfirmCliente();
         });
+        inputBuscarCliente.addEventListener('input', window.aplicarFiltrosCliente);
+        filtroRangoCliente.addEventListener('change', window.aplicarFiltrosCliente);
 
-        modalEditarCliente.addEventListener('click', function(e) {
-            if (e.target === modalEditarCliente) window.cerrarModalEditarCliente();
-        });
-
-        modalNuevaInteraccion.addEventListener('click', function(e) {
-            if (e.target === modalNuevaInteraccion) window.cerrarModalNuevaInteraccion();
-        });
-
-        modalConfirmDelete.addEventListener('click', function(e) {
-            if (e.target === modalConfirmDelete) window.cerrarModalEliminarCliente();
-        });
-
-        async function init() {
-            const params = new URLSearchParams(window.location.search);
-            const clienteId = params.get('id');
-
-            if (!clienteId) {
-                window.mostrarToastCliente('No se proporcionó un ID de cliente.', 'error');
-                return;
-            }
-
-            await cargarCliente(clienteId);
-            await cargarInteracciones(clienteId);
-        }
-
-        init();
+        // Arrancar
+        window.cargarClientesFirebase();
     </script>
 
+    <!-- ── ESTILOS ESPECÍFICOS DE ESTA VISTA ── -->
     <style>
-        .cliente-header-card {
-            margin-top: 32px;
-        }
-
-        .cliente-header {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            padding: 24px;
-        }
-
-        .cliente-avatar {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(192,132,252,0.2), rgba(246,213,122,0.2));
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Cinzel', serif;
-            font-size: 1.4rem;
-            color: var(--gold);
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-
-        .cliente-meta {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .cliente-titulo-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .cliente-titulo-wrap h2 {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(1.2rem, 2vw, 2rem);
-            color: var(--text-main);
-            margin: 0;
-        }
-
-        .cliente-empresa {
-            margin-top: 6px;
-            color: var(--text-muted);
-            font-family: 'Lato', sans-serif;
-            font-size: 0.92rem;
-        }
-
-        .cliente-acciones {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-.btn-volver-clientes {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 24px;
-    margin-left: 24px;
-    padding: 9px 16px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    color: var(--text-muted);
-    text-decoration: none;
-    font-family: 'Cinzel', serif;
-    font-size: 0.68rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transition: color 0.2s, border-color 0.2s, transform 0.2s;
-}
-
-.btn-volver-clientes:hover {
-    color: var(--gold);
-    border-color: var(--gold-dim);
-    transform: translateY(-1px);
-}
-
-        .btn-admin-sm {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 9px 16px;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            color: var(--gold);
-            font-family: 'Cinzel', serif;
-            font-size: 0.68rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
-        }
-
-        .btn-admin-sm:hover {
-            background: rgba(246,213,122,0.08);
-            transform: translateY(-1px);
-        }
-
-        .btn-admin-sm.btn-danger {
-            color: #f87171;
-            border-color: rgba(239,68,68,0.35);
-            background: rgba(239,68,68,0.12);
-        }
-
-        .cliente-badges {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 16px;
-        }
-
         .badge {
             display: inline-block;
-            padding: 5px 10px;
-            border-radius: 999px;
-            font-size: 0.72rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
             font-family: 'Cinzel', serif;
-            letter-spacing: 0.05em;
         }
-
         .badge-archmage { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
         .badge-master { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
         .badge-initiated { background: rgba(234, 179, 8, 0.15); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.3); }
         .badge-muggle { background: rgba(107, 114, 128, 0.15); color: #9ca3af; border: 1px solid rgba(107, 114, 128, 0.3); }
+        
         .badge-activo { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
         .badge-frecuente { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
         .badge-inactivo { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
         .badge-prospecto { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.3); }
 
-        .tabs-card {
-            margin-top: 24px;
-            overflow: hidden;
-        }
-
-        .detalle-tabs {
+        .admin-filtros {
             display: flex;
+            gap: 12px;
+            padding: 12px 24px 16px;
+            flex-wrap: wrap;
             border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.01);
+            align-items: center;
         }
-
-        .tab-button {
-            flex: 1;
-            padding: 16px 22px;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid transparent;
-            color: var(--text-muted);
-            font-family: 'Cinzel', serif;
-            font-size: 0.72rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
+        .admin-filtro-select select {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 16px;
+            color: var(--text-main);
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
             cursor: pointer;
-            transition: color 0.2s, border-color 0.2s, background 0.2s;
         }
-
-        .tab-button.active {
-            color: var(--gold);
+        .admin-filtro-select select:focus {
             border-color: var(--gold-dim);
-            background: rgba(246,213,122,0.05);
-        }
-
-        .tab-panel {
-            display: none;
-            padding: 24px;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(220px, 1fr));
-            gap: 18px;
-        }
-
-        .dato-item {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px 18px;
-        }
-
-        .dato-item label {
-            display: block;
-            margin-bottom: 8px;
-            font-family: 'Cinzel', serif;
-            font-size: 0.68rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-
-        .dato-item p {
-            color: var(--text-main);
-            font-family: 'Lato', sans-serif;
-            font-size: 0.95rem;
-            word-break: break-word;
-        }
-
-        .interacciones-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .interacciones-header h3 {
-            font-family: 'Cinzel', serif;
-            font-size: 0.9rem;
-            color: var(--gold);
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .timeline-item {
-            display: grid;
-            grid-template-columns: 24px 1fr;
-            gap: 14px;
-            align-items: flex-start;
-            position: relative;
-            padding-bottom: 8px;
-        }
-
-        .timeline-item:not(:last-child)::after {
-            content: "";
-            position: absolute;
-            left: 11px;
-            top: 24px;
-            bottom: -18px;
-            width: 1px;
-            background: rgba(246,213,122,0.18);
-        }
-
-        .timeline-marker {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: rgba(246,213,122,0.12);
-            border: 1px solid rgba(246,213,122,0.45);
-            color: var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.5rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .timeline-content {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 16px 18px;
-        }
-
-        .timeline-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-        }
-
-        .timeline-tipo {
-            display: inline-flex;
-            align-items: center;
-            padding: 5px 10px;
-            border-radius: 999px;
-            background: rgba(192,132,252,0.12);
-            color: var(--lilac);
-            font-family: 'Cinzel', serif;
-            font-size: 0.64rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .timeline-fecha {
-            color: var(--text-muted);
-            font-size: 0.78rem;
-            font-family: 'Lato', sans-serif;
-        }
-
-        .timeline-descripcion {
-            color: var(--text-main);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 12px;
-        }
-
-        .timeline-footer {
-            color: var(--text-muted);
-            font-size: 0.76rem;
-            font-family: 'Lato', sans-serif;
-        }
-
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 48px 20px;
-            color: var(--text-muted);
-            border: 1px dashed var(--border);
-            border-radius: 12px;
-            background: rgba(255,255,255,0.01);
-            text-align: center;
-        }
-
-        .empty-state i {
-            font-size: 1.5rem;
-            color: var(--gold);
-        }
-
-        .help-text {
-            margin-top: 10px;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            line-height: 1.6;
-        }
-
-        .confirm-card {
-            max-width: 480px;
-        }
-
-        .confirm-texto {
-            color: var(--text-main);
-            font-family: 'Lato', sans-serif;
-            font-size: 0.96rem;
-            line-height: 1.8;
-        }
-
-        .toast-admin {
-            position: fixed;
-            right: 24px;
-            bottom: 24px;
-            z-index: 9999;
-            display: inline-flex;
-            align-items: center;
-            padding: 12px 18px;
-            border-radius: 12px;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 700;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(20px);
-            transition: opacity 0.3s, transform 0.3s;
-            border: 1px solid var(--border);
-            background: rgba(26,13,46,0.96);
-            color: var(--text-main);
-            box-shadow: 0 16px 36px rgba(0,0,0,0.45);
-        }
-
-        .toast-admin.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .toast-admin.ok {
-            border-color: rgba(74,222,128,0.4);
-        }
-
-        .toast-admin.error {
-            border-color: rgba(239,68,68,0.4);
-            color: #fca5a5;
-        }
-
-        @media (max-width: 900px) {
-            .admin-body {
-                grid-template-columns: 1fr;
-            }
-
-            .admin-sidebar {
-                position: static;
-                height: auto;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
+
 </body>
 </html>
