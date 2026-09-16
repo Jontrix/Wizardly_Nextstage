@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizardly — Historial</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+</head>
+<body class="admin-body">
+
+    <!-- ── BARRA LATERAL ── -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">
+            <img src="../images/logo/Logo.png" alt="Wizardly" />
+            <div>
+                <span class="brand">Wizardly</span>
+                <span class="sidebar-sub">Panel Arcano</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard
+            </a>
+            <a href="admin-productos.html" class="nav-item">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-reportes.html" class="nav-item">
+                <i class="fa-solid fa-chart-simple"></i> Reportes
+            </a>
+            <a href="admin-historial.html" class="nav-item active">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── CONTENIDO PRINCIPAL ── -->
+    <main class="admin-main">
+        <div class="admin-topbar">
+            <h1>Historial de Actividad</h1>
+            <div class="topbar-usuario">
+                <i class="fa-solid fa-circle-user"></i>
+                <span>Archimaga Seraphina</span>
+            </div>
+        </div>
+
+        <div class="admin-bloque">
+            <div class="bloque-header">
+                <h2>
+                    Registros de Historial
+                    <span class="count-badge" id="historial-count">0 registros</span>
+                </h2>
+            </div>
+
+            <div class="admin-filtros">
+                <div class="admin-buscador" style="flex:2;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="buscar-historial" placeholder="Buscar en la descripción..." />
+                </div>
+                <div class="admin-filtro-select">
+                    <select id="filtro-modulo">
+                        <option value="">Todos</option>
+                        <option value="clientes">Clientes</option>
+                        <option value="interacciones">Interacciones</option>
+                        <option value="productos">Productos</option>
+                        <option value="pedidos">Pedidos</option>
+                        <option value="promociones">Promociones</option>
+                        <option value="configuracion">Configuración</option>
+                    </select>
+                </div>
+                <div class="admin-filtro-select">
+                    <select id="filtro-administrador">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="admin-tabla-wrap">
+                <table class="admin-tabla" id="tabla-historial">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Módulo</th>
+                            <th>Acción</th>
+                            <th>Descripción</th>
+                            <th>Administrador</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-historial"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast-admin" id="toast-historial"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        var historial = [];
+        var tbodyHistorial = document.getElementById('tbody-historial');
+        var inputBuscarHistorial = document.getElementById('buscar-historial');
+        var filtroModulo = document.getElementById('filtro-modulo');
+        var filtroAdministrador = document.getElementById('filtro-administrador');
+        var countBadgeHistorial = document.getElementById('historial-count');
+        var toastHistorial = document.getElementById('toast-historial');
+
+        function escaparHtml(valor) {
+            return String(valor ?? '').replace(/[&<>'"]/g, function(caracter) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[caracter];
+            });
+        }
+
+        function obtenerFecha(registro) {
+            if (!registro) return new Date(0);
+            if (typeof registro.toDate === 'function') return registro.toDate();
+            if (typeof registro.seconds === 'number') return new Date(registro.seconds * 1000);
+            var fecha = new Date(registro);
+            return Number.isNaN(fecha.getTime()) ? new Date(0) : fecha;
+        }
+
+        function formatearFecha(registro) {
+            var fecha = obtenerFecha(registro);
+            if (fecha.getTime() === 0) return '-';
+            return fecha.toLocaleString('es-MX', {
+                dateStyle: 'short',
+                timeStyle: 'short'
+            });
+        }
+
+        function mostrarToastHistorial(mensaje, tipo) {
+            toastHistorial.textContent = mensaje;
+            toastHistorial.className = 'toast-admin visible ' + (tipo || 'error');
+            clearTimeout(toastHistorial._t);
+            toastHistorial._t = setTimeout(function() {
+                toastHistorial.classList.remove('visible');
+            }, 3000);
+        }
+
+        function cargarAdministradores(registros) {
+            var nombres = registros
+                .map(function(registro) { return registro.nombre || registro.adminNombre; })
+                .filter(Boolean)
+                .filter(function(nombre, indice, lista) { return lista.indexOf(nombre) === indice; })
+                .sort(function(a, b) { return a.localeCompare(b); });
+
+            nombres.forEach(function(nombre) {
+                var opcion = document.createElement('option');
+                opcion.value = nombre;
+                opcion.textContent = nombre;
+                filtroAdministrador.appendChild(opcion);
+            });
+        }
+
+        function renderizarHistorial() {
+            var texto = inputBuscarHistorial.value.trim().toLowerCase();
+            var modulo = filtroModulo.value;
+            var administrador = filtroAdministrador.value;
+            var filtrados = historial.filter(function(registro) {
+                var descripcion = String(registro.descripcion || '').toLowerCase();
+                return descripcion.includes(texto) &&
+                    (!modulo || registro.modulo === modulo) &&
+                    (!administrador || registro.adminNombre === administrador);
+            });
+
+            tbodyHistorial.innerHTML = filtrados.map(function(registro) {
+                return '<tr>' +
+                    '<td>' + escaparHtml(formatearFecha(registro.fecha)) + '</td>' +
+                    '<td>' + escaparHtml(registro.modulo) + '</td>' +
+                    '<td>' + escaparHtml(registro.accion) + '</td>' +
+                    '<td>' + escaparHtml(registro.descripcion) + '</td>' +
+                    '<td>' + escaparHtml(registro.adminNombre || 'Sistema') + '</td>' +
+                    '</tr>';
+            }).join('');
+            countBadgeHistorial.textContent = filtrados.length + ' registro' + (filtrados.length !== 1 ? 's' : '');
+        }
+
+        async function cargarHistorial() {
+            try {
+                var resultado = await getDocs(collection(db, 'historial'));
+                historial = [];
+                resultado.forEach(function(documento) {
+                    historial.push({ id: documento.id, ...documento.data() });
+                });
+                historial.sort(function(a, b) {
+                    return obtenerFecha(b.fecha).getTime() - obtenerFecha(a.fecha).getTime();
+                });
+                renderizarHistorial();
+            } catch (error) {
+                console.error('Error al obtener el historial:', error);
+                mostrarToastHistorial('Error al conectar con la Base de Datos.');
+            }
+        }
+
+        async function cargarDatos() {
+            try {
+                var resultado = await getDocs(collection(db, 'administradores'));
+                var administradores = [];
+                resultado.forEach(function(documento) {
+                    administradores.push(documento.data());
+                });
+                cargarAdministradores(administradores);
+            } catch (error) {
+                console.error('Error al obtener administradores:', error);
+            }
+            await cargarHistorial();
+        }
+
+        inputBuscarHistorial.addEventListener('input', renderizarHistorial);
+        filtroModulo.addEventListener('change', renderizarHistorial);
+        filtroAdministrador.addEventListener('change', renderizarHistorial);
+        cargarDatos();
+    </script>
+
+    <style>
+        .admin-filtros {
+            display: flex;
+            gap: 12px;
+            padding: 12px 24px 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+        .admin-filtro-select select {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 16px;
+            color: var(--text-main);
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+        .admin-filtro-select select:focus {
+            border-color: var(--gold-dim);
+        }
+    </style>
+</body>
+</html>

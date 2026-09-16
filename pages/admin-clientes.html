@@ -275,6 +275,7 @@
 
     <!-- ── LÓGICA DE FIREBASE Y JS ── -->
     <script type="module">
+        import { registrarHistorial } from '../js/historial.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
@@ -500,6 +501,7 @@
                         rango: rango,
                         etapa_crm: etapa
                     });
+                    await registrarHistorial(db, { modulo: 'clientes', accion: 'editar', descripcion: 'Se editó el cliente ' + nombre, entidadId: window.editandoClienteId });
                     window.mostrarToastCliente('✦ Datos del mago actualizados.', 'ok');
                 } else {
                     // MODO CREACIÓN
@@ -513,6 +515,7 @@
                         estado: "Activo",
                         fecha_registro: Timestamp.now()
                     });
+                    await registrarHistorial(db, { modulo: 'clientes', accion: 'crear', descripcion: 'Se agregó el cliente ' + nombre, entidadId: null });
                     window.mostrarToastCliente('✦ Nuevo mago registrado en la nube.', 'ok');
                 }
 
@@ -542,6 +545,7 @@
             if (eliminandoClienteId === null) return;
             try {
                 await deleteDoc(doc(db, "clientes", eliminandoClienteId));
+                await registrarHistorial(db, { modulo: 'clientes', accion: 'eliminar', descripcion: 'Se eliminó al cliente ' + confirmClienteNombre.textContent, entidadId: eliminandoClienteId });
                 window.cerrarConfirmCliente();
                 window.mostrarToastCliente('🗑 Mago exiliado con éxito.', 'error');
                 window.cargarClientesFirebase();
