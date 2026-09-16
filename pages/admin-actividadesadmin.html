@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Wizardly — Actividad del Administrador</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body class="admin-body">
+
+
+    <!-- ==========================================
+         SIDEBAR
+    =========================================== -->
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-logo">
+
+            <img src="../images/logo/Logo.png" alt="Wizardly">
+
+            <div>
+
+                <span class="brand">
+                    Wizardly
+                </span>
+
+                <span class="sidebar-sub">
+                    Panel Arcano
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i>
+                Dashboard
+            </a>
+
+            <a href="admin-productos.html" class="nav-item">
+                <i class="fa-solid fa-hat-wizard"></i>
+                Productos
+            </a>
+
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i>
+                Pedidos
+            </a>
+
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i>
+                Promociones
+            </a>
+
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                CRM
+            </a>
+
+            <a href="admin-actividadesadmin.html" class="nav-item active">
+                <i class="fa-solid fa-clock"></i>
+                Actividad Admin
+            </a>
+
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Historial
+            </a>
+
+            <a href="admin-reportes.html" class="nav-item">
+                <i class="fa-solid fa-chart-simple"></i>
+                Reportes
+            </a>
+
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i>
+                Configuración
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i>
+                Volver al sitio
+            </a>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ==========================================
+         CONTENIDO PRINCIPAL
+    =========================================== -->
+
+    <main class="admin-main">
+
+
+        <!-- ==========================================
+             TOPBAR
+        =========================================== -->
+
+        <div class="admin-topbar">
+
+            <h1>
+                Mi Actividad
+            </h1>
+
+
+            <div class="topbar-usuario">
+
+                <i class="fa-solid fa-circle-user"></i>
+
+                <span id="nombre-administrador">
+                    Cargando...
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==========================================
+             CONTENIDO DE ACTIVIDAD
+        =========================================== -->
+
+        <div class="actividad-contenido">
+
+
+            <!-- ==========================================
+                 CONTROLES
+            =========================================== -->
+
+            <section class="actividad-controles">
+
+
+                <!-- BUSCADOR -->
+
+                <div class="actividad-buscador">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input
+                        type="text"
+                        id="buscar-actividad"
+                        placeholder="Buscar mi actividad...">
+
+                </div>
+
+
+
+                <!-- CALENDARIO -->
+
+                <div class="actividad-calendario">
+
+                    <i class="fa-regular fa-calendar"></i>
+
+                    <input
+                        type="date"
+                        id="fecha-actividad">
+
+                </div>
+
+
+
+                <!-- LIMPIAR -->
+
+                <button
+                    id="btn-limpiar-filtros"
+                    class="btn-filtro-limpiar">
+
+                    <i class="fa-solid fa-filter-circle-xmark"></i>
+
+                    Limpiar
+
+                </button>
+
+
+            </section>
+
+
+
+            <!-- ==========================================
+                 TABLA
+            =========================================== -->
+
+            <section class="admin-bloque actividad-bloque">
+
+
+                <div class="bloque-header">
+
+                    <h2>
+
+                        <i class="fa-solid fa-user-shield"></i>
+
+                        Mi actividad
+
+                        <span
+                            id="contador-actividad"
+                            class="count-badge">
+
+                            0 registros
+
+                        </span>
+
+                    </h2>
+
+                </div>
+
+
+
+                <div class="admin-tabla-wrap">
+
+
+                    <table class="admin-tabla actividad-tabla">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Fecha
+                                </th>
+
+                                <th>
+                                    Módulo
+                                </th>
+
+                                <th>
+                                    Acción
+                                </th>
+
+                                <th>
+                                    Detalles Exactos
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="tbody-actividad">
+
+
+                            <tr>
+
+                                <td
+                                    colspan="4"
+                                    class="actividad-cargando">
+
+                                    <i class="fa-solid fa-spinner fa-spin"></i>
+
+                                    Cargando tu actividad...
+
+                                </td>
+
+                            </tr>
+
+
+                        </tbody>
+
+
+                    </table>
+
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- ==========================================
+                 MENSAJE VACÍO
+            =========================================== -->
+
+            <div
+                id="actividad-vacia"
+                class="actividad-vacia"
+                style="display:none;">
+
+                <i class="fa-solid fa-moon"></i>
+
+                <h3>
+                    No hay actividad registrada
+                </h3>
+
+                <p>
+                    No se encontraron acciones realizadas
+                    por tu cuenta con estos filtros.
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+    </main>
+
+
+
+    <!-- ==========================================
+         TOAST
+    =========================================== -->
+
+    <div
+        class="toast-admin"
+        id="toast-actividad">
+    </div>
+
+
+
+    <!-- ==========================================
+         FIREBASE
+    =========================================== -->
+
+    <script type="module">
+
+
+        /* ==========================================
+           IMPORTACIONES
+        ========================================== */
+
+        import {
+            initializeApp
+        }
+        from
+        "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+
+
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            query,
+            where
+        }
+        from
+        "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+
+        import {
+            getAuth,
+            onAuthStateChanged
+        }
+        from
+        "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+
+
+        /* ==========================================
+           CONFIGURACIÓN FIREBASE
+        ========================================== */
+
+        const firebaseConfig = {
+
+            apiKey:
+                "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+
+            authDomain:
+                "wizardly-nextstage.firebaseapp.com",
+
+            projectId:
+                "wizardly-nextstage",
+
+            storageBucket:
+                "wizardly-nextstage.firebasestorage.app",
+
+            messagingSenderId:
+                "336735978219",
+
+            appId:
+                "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+
+            measurementId:
+                "G-FE1XKG7BFF"
+
+        };
+
+
+
+        /* ==========================================
+           INICIALIZAR FIREBASE
+        ========================================== */
+
+        const app =
+            initializeApp(firebaseConfig);
+
+
+        const db =
+            getFirestore(app);
+
+
+        const auth =
+            getAuth(app);
+
+
+
+        /* ==========================================
+           VARIABLES
+        ========================================== */
+
+        let actividades = [];
+
+
+        const tbody =
+            document.getElementById(
+                "tbody-actividad"
+            );
+
+
+        const buscador =
+            document.getElementById(
+                "buscar-actividad"
+            );
+
+
+        const fecha =
+            document.getElementById(
+                "fecha-actividad"
+            );
+
+
+        const contador =
+            document.getElementById(
+                "contador-actividad"
+            );
+
+
+        const nombreAdministrador =
+            document.getElementById(
+                "nombre-administrador"
+            );
+
+
+        const actividadVacia =
+            document.getElementById(
+                "actividad-vacia"
+            );
+
+
+
+        /* ==========================================
+           AUTENTICACIÓN
+        ========================================== */
+
+        onAuthStateChanged(
+            auth,
+            async (usuario) => {
+
+
+                /* NO HAY SESIÓN */
+
+                if (!usuario) {
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+
+                }
+
+
+
+                /* MOSTRAR ADMINISTRADOR */
+
+                nombreAdministrador.textContent =
+                    usuario.displayName ||
+                    usuario.email ||
+                    "Administrador";
+
+
+                console.log(
+                    "Administrador actual:",
+                    usuario.uid
+                );
+
+
+
+                /* CARGAR SOLO SU ACTIVIDAD */
+
+                await cargarActividad(
+                    usuario.uid
+                );
+
+            }
+        );
+
+
+
+        /* ==========================================
+           CARGAR ACTIVIDAD
+        ========================================== */
+
+        async function cargarActividad(
+            uidAdministrador
+        ) {
+
+            try {
+
+                console.log(
+                    "Buscando actividad del UID:",
+                    uidAdministrador
+                );
+
+
+                const referencia =
+                    collection(
+                        db,
+                        "actividad"
+                    );
+
+
+                const consulta =
+                    query(
+
+                        referencia,
+
+                        where(
+                            "adminUid",
+                            "==",
+                            uidAdministrador
+                        )
+
+                    );
+
+
+                const snapshot =
+                    await getDocs(
+                        consulta
+                    );
+
+
+                actividades =
+                    snapshot.docs.map(
+                        (documento) => ({
+
+                            id:
+                                documento.id,
+
+                            ...documento.data()
+
+                        })
+                    );
+
+
+                /*
+                 * ORDENAR DE MÁS RECIENTE
+                 * A MÁS ANTIGUO
+                 */
+
+                actividades.sort(
+                    (a, b) =>
+                        obtenerFecha(b.fecha) -
+                        obtenerFecha(a.fecha)
+                );
+
+
+                console.log(
+                    "Actividades encontradas:",
+                    actividades.length
+                );
+
+
+                renderizarActividad();
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Error cargando actividad:",
+                    error
+                );
+
+
+                mostrarToast(
+                    "⚠️ No se pudo cargar tu actividad.",
+                    "error"
+                );
+
+
+                actividades = [];
+
+
+                renderizarActividad();
+
+            }
+
+        }
+
+
+
+        /* ==========================================
+           RENDERIZAR TABLA
+        ========================================== */
+
+        function renderizarActividad() {
+
+
+            const texto =
+                buscador.value
+                    .trim()
+                    .toLowerCase();
+
+
+            const fechaSeleccionada =
+                fecha.value;
+
+
+
+            const filtradas =
+                actividades.filter(
+                    (actividad) => {
+
+
+                        /* ==========================
+                           BUSCADOR
+                        ========================== */
+
+                        const accion =
+                            String(
+                                actividad.accion ||
+                                ""
+                            )
+                            .toLowerCase();
+
+
+                        const detalles =
+                            String(
+                                actividad.descripcion ||
+                                ""
+                            )
+                            .toLowerCase();
+
+
+                        const modulo =
+                            String(
+                                actividad.modulo ||
+                                ""
+                            )
+                            .toLowerCase();
+
+
+
+                        const coincideTexto =
+                            !texto ||
+
+                            accion.includes(
+                                texto
+                            ) ||
+
+                            detalles.includes(
+                                texto
+                            ) ||
+
+                            modulo.includes(
+                                texto
+                            );
+
+
+
+                        /* ==========================
+                           FILTRO FECHA
+                        ========================== */
+
+                        let coincideFecha =
+                            true;
+
+
+                        if (
+                            fechaSeleccionada
+                        ) {
+
+                            const f =
+                                obtenerFecha(
+                                    actividad.fecha
+                                );
+
+
+                            const fStr =
+                                `${f.getFullYear()}-${String(
+                                    f.getMonth() + 1
+                                ).padStart(2, "0")}-${String(
+                                    f.getDate()
+                                ).padStart(2, "0")}`;
+
+
+                            coincideFecha =
+                                fStr ===
+                                fechaSeleccionada;
+
+                        }
+
+
+
+                        return (
+                            coincideTexto &&
+                            coincideFecha
+                        );
+
+                    }
+                );
+
+
+
+            /* LIMPIAR TABLA */
+
+            tbody.innerHTML = "";
+
+
+
+            /* CONTADOR */
+
+            contador.textContent =
+                filtradas.length +
+                (
+                    filtradas.length === 1
+                        ? " registro"
+                        : " registros"
+                );
+
+
+
+            /* SIN RESULTADOS */
+
+            if (
+                filtradas.length === 0
+            ) {
+
+                actividadVacia.style.display =
+                    "flex";
+
+                return;
+
+            }
+
+
+
+            actividadVacia.style.display =
+                "none";
+
+
+
+            /* CREAR FILAS */
+
+            filtradas.forEach(
+                (actividad) => {
+
+
+                    const tr =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    const fechaActividad =
+                        obtenerFecha(
+                            actividad.fecha
+                        );
+
+
+
+                    /* CLASE DEL MÓDULO */
+
+                    let claseModulo =
+                        "tipo-dashboard";
+
+
+                    if (
+                        actividad.modulo ===
+                        "clientes"
+                    ) {
+
+                        claseModulo =
+                            "tipo-cliente";
+
+                    }
+
+
+                    if (
+                        actividad.modulo ===
+                        "sistema"
+                    ) {
+
+                        claseModulo =
+                            "tipo-promocion";
+
+                    }
+
+
+                    if (
+                        actividad.modulo ===
+                        "productos"
+                    ) {
+
+                        claseModulo =
+                            "tipo-producto";
+
+                    }
+
+
+
+                    tr.innerHTML = `
+
+                        <td>
+
+                            <div class="actividad-fecha">
+
+                                <strong>
+                                    ${formatearFecha(
+                                        fechaActividad
+                                    )}
+                                </strong>
+
+                                <small>
+                                    ${formatearHora(
+                                        fechaActividad
+                                    )}
+                                </small>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="actividad-tipo ${claseModulo}">
+
+                                ${escaparHTML(
+                                    actividad.modulo ||
+                                    "Sistema"
+                                )}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="actividad-cliente">
+
+                                ${escaparHTML(
+                                    actividad.accion ||
+                                    "Actualización"
+                                )}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="actividad-descripcion">
+
+                                ${escaparHTML(
+                                    actividad.descripcion ||
+                                    "Sin detalles adicionales."
+                                )}
+
+                            </span>
+
+                        </td>
+
+                    `;
+
+
+                    tbody.appendChild(
+                        tr
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /* ==========================================
+           FECHA
+        ========================================== */
+
+        function obtenerFecha(
+            valor
+        ) {
+
+            if (!valor) {
+
+                return new Date(0);
+
+            }
+
+
+            if (
+                typeof valor.toDate ===
+                "function"
+            ) {
+
+                return valor.toDate();
+
+            }
+
+
+            return new Date(valor);
+
+        }
+
+
+
+        /* ==========================================
+           FORMATO FECHA
+        ========================================== */
+
+        function formatearFecha(
+            fecha
+        ) {
+
+            return fecha.toLocaleDateString(
+                "es-MX",
+                {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                }
+            );
+
+        }
+
+
+
+        /* ==========================================
+           FORMATO HORA
+        ========================================== */
+
+        function formatearHora(
+            fecha
+        ) {
+
+            return fecha.toLocaleTimeString(
+                "es-MX",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+        }
+
+
+
+        /* ==========================================
+           SEGURIDAD HTML
+        ========================================== */
+
+        function escaparHTML(
+            texto
+        ) {
+
+            return String(texto)
+
+                .replaceAll(
+                    "&",
+                    "&amp;"
+                )
+
+                .replaceAll(
+                    "<",
+                    "&lt;"
+                )
+
+                .replaceAll(
+                    ">",
+                    "&gt;"
+                )
+
+                .replaceAll(
+                    '"',
+                    "&quot;"
+                )
+
+                .replaceAll(
+                    "'",
+                    "&#039;"
+                );
+
+        }
+
+
+
+        /* ==========================================
+           BUSCADOR
+        ========================================== */
+
+        buscador.addEventListener(
+            "input",
+            renderizarActividad
+        );
+
+
+
+        /* ==========================================
+           FECHA
+        ========================================== */
+
+        fecha.addEventListener(
+            "change",
+            renderizarActividad
+        );
+
+
+
+        /* ==========================================
+           LIMPIAR FILTROS
+        ========================================== */
+
+        document
+            .getElementById(
+                "btn-limpiar-filtros"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    buscador.value = "";
+
+                    fecha.value = "";
+
+                    renderizarActividad();
+
+                }
+            );
+
+
+
+        /* ==========================================
+           TOAST
+        ========================================== */
+
+        function mostrarToast(
+            mensaje,
+            tipo = "ok"
+        ) {
+
+            const toast =
+                document.getElementById(
+                    "toast-actividad"
+                );
+
+
+            toast.textContent =
+                mensaje;
+
+
+            toast.className =
+                "toast-admin visible " +
+                tipo;
+
+
+            clearTimeout(
+                toast._t
+            );
+
+
+            toast._t =
+                setTimeout(
+                    () =>
+                        toast.classList.remove(
+                            "visible"
+                        ),
+                    3000
+                );
+
+        }
+
+
+    </script>
+
+
+
+    <!-- ==========================================
+         ESTILOS ESPECÍFICOS
+    =========================================== -->
+
+    <style>
+
+
+        /* ==========================================
+           CONTENEDOR GENERAL
+        =========================================== */
+
+        .actividad-contenido {
+
+            width: 100%;
+
+            max-width: 1400px;
+
+            margin: 0 auto;
+
+            padding: 55px 40px 70px;
+
+            box-sizing: border-box;
+
+        }
+
+
+
+        /* ==========================================
+           CONTROLES
+        =========================================== */
+
+        .actividad-controles {
+
+            width: 100%;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            gap: 14px;
+
+            flex-wrap: wrap;
+
+            margin: 0 auto 34px;
+
+        }
+
+
+
+        /* ==========================================
+           BUSCADOR
+        =========================================== */
+
+        .actividad-buscador {
+
+            width: 320px;
+
+            height: 52px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 0 16px;
+
+            background: var(--bg-card);
+
+            border: 1px solid var(--border);
+
+            border-radius: 30px;
+
+            box-sizing: border-box;
+
+        }
+
+
+        .actividad-buscador i {
+
+            color: var(--text-muted);
+
+            font-size: 1rem;
+
+        }
+
+
+        .actividad-buscador input {
+
+            background: transparent;
+
+            border: none;
+
+            outline: none;
+
+            color: var(--text-main);
+
+            width: 100%;
+
+            font-family: 'Lato', sans-serif;
+
+            font-size: 0.95rem;
+
+        }
+
+
+        .actividad-buscador input::placeholder {
+
+            color: var(--text-muted);
+
+        }
+
+
+
+        /* ==========================================
+           CALENDARIO
+        =========================================== */
+
+        .actividad-calendario {
+
+            height: 52px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding: 0 15px;
+
+            background: var(--bg-card);
+
+            border: 1px solid var(--border);
+
+            border-radius: 30px;
+
+            box-sizing: border-box;
+
+        }
+
+
+        .actividad-calendario i {
+
+            color: var(--gold);
+
+            font-size: 1rem;
+
+        }
+
+
+        .actividad-calendario input {
+
+            background: transparent;
+
+            border: none;
+
+            outline: none;
+
+            color: var(--text-main);
+
+            font-family: 'Lato', sans-serif;
+
+            font-size: 0.95rem;
+
+            color-scheme: dark;
+
+        }
+
+
+
+        /* ==========================================
+           BOTÓN LIMPIAR
+        =========================================== */
+
+        .btn-filtro-limpiar {
+
+            height: 52px;
+
+            padding: 0 20px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 30px;
+
+            background: transparent;
+
+            color: var(--text-muted);
+
+            cursor: pointer;
+
+            font-family: 'Lato', sans-serif;
+
+            font-size: 0.9rem;
+
+            transition: 0.2s;
+
+        }
+
+
+        .btn-filtro-limpiar:hover {
+
+            color: var(--gold);
+
+            border-color: var(--gold);
+
+        }
+
+
+
+        /* ==========================================
+           TABLA
+        =========================================== */
+
+        .actividad-bloque {
+
+            width: 100%;
+
+            margin: 0 auto;
+
+        }
+
+
+
+        .actividad-fecha {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 3px;
+
+        }
+
+
+        .actividad-fecha strong {
+
+            color: var(--text-main);
+
+        }
+
+
+        .actividad-fecha small {
+
+            color: var(--text-muted);
+
+            font-size: 0.72rem;
+
+        }
+
+
+        .actividad-cliente {
+
+            font-weight: 700;
+
+            color: var(--text-main);
+
+        }
+
+
+        .actividad-tipo {
+
+            display: inline-block;
+
+            padding: 5px 11px;
+
+            border-radius: 20px;
+
+            font-size: 0.68rem;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+
+        }
+
+
+        .tipo-dashboard {
+
+            background:
+                rgba(246,213,122,0.14);
+
+            color: var(--gold);
+
+        }
+
+
+        .tipo-cliente {
+
+            background:
+                rgba(192,132,252,0.16);
+
+            color: var(--lilac);
+
+        }
+
+
+        .tipo-promocion {
+
+            background:
+                rgba(168,85,247,0.15);
+
+            color: #a855f7;
+
+        }
+
+
+        .tipo-producto {
+
+            background:
+                rgba(96,165,250,0.15);
+
+            color: #60a5fa;
+
+        }
+
+
+        .actividad-descripcion {
+
+            color: var(--text-muted);
+
+            line-height: 1.5;
+
+        }
+
+
+        .actividad-cargando {
+
+            text-align: center;
+
+            padding: 45px !important;
+
+            color: var(--text-muted) !important;
+
+        }
+
+
+
+        /* ==========================================
+           MENSAJE VACÍO
+        =========================================== */
+
+        .actividad-vacia {
+
+            margin: 34px auto;
+
+            padding: 50px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 18px;
+
+            background: var(--bg-card);
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+        }
+
+
+        .actividad-vacia i {
+
+            font-size: 2rem;
+
+            color: var(--lilac);
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .actividad-vacia h3 {
+
+            font-family: 'Cinzel', serif;
+
+            color: var(--gold);
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .actividad-vacia p {
+
+            color: var(--text-muted);
+
+            font-family: 'Lato', sans-serif;
+
+        }
+
+
+
+        /* ==========================================
+           RESPONSIVE
+        =========================================== */
+
+        @media (max-width: 900px) {
+
+            .actividad-contenido {
+
+                padding: 40px 20px 60px;
+
+            }
+
+
+            .actividad-controles {
+
+                justify-content: center;
+
+            }
+
+
+            .actividad-buscador {
+
+                width: 100%;
+
+                max-width: 400px;
+
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .actividad-contenido {
+
+                padding: 30px 15px 50px;
+
+            }
+
+
+            .actividad-controles {
+
+                flex-direction: column;
+
+                align-items: stretch;
+
+            }
+
+
+            .actividad-buscador,
+
+            .actividad-calendario,
+
+            .btn-filtro-limpiar {
+
+                width: 100%;
+
+            }
+
+        }
+
+    </style>
+
+
+</body>
+
+</html>
