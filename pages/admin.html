@@ -222,9 +222,8 @@
         }
 
         function esClienteActivo(cliente) {
-            return [cliente.estado, cliente.etapa_crm]
-                .some((valor) => String(valor || '').trim().toLowerCase() === 'activo' ||
-                    String(valor || '').trim().toLowerCase() === 'frecuente');
+            const etapa = String(cliente.etapa_crm || '').trim().toLowerCase();
+            return etapa === 'activo' || etapa === 'frecuente';
         }
 
         function calcularDiasSinInteraccion(fecha, ahora) {

@@ -95,7 +95,7 @@
                     <i class="fa-solid fa-globe"></i> Todos
                 </button>
                 <button class="actividad-tab" data-tipo="clientes">
-                    <i class="fa-solid fa-users"></i> Clientes
+                    <i class="fa-solid fa-users"></i> CRM
                 </button>
                 <button class="actividad-tab" data-tipo="sistema">
                     <i class="fa-solid fa-gear"></i> Sistema
@@ -448,21 +448,21 @@
                 adminName = datosEmergencia.nombre || "Admin Supremo";
             }
 
-            try {
-                await addDoc(collection(db, "actividad"), {
-                    adminUid: adminId,
-                    adminNombre: adminName,
-                    modulo: modulo,
-                    accion: accion,
-                    descripcion: descripcion,
-                    fecha: Timestamp.now()
-                });
-                mostrarToastActividad("✦ Acción registrada en la bitácora.", "ok");
-                await cargarActividadDesdeFirestore();
-            } catch (error) {
-                console.error("Error registrando auditoría:", error);
-                mostrarToastActividad("⚠️ Error al registrar en la bitácora.", "error");
-            }
+           try {
+        await addDoc(collection(db, "actividad"), {
+            adminUid: adminId,
+            adminNombre: adminName,
+            modulo: modulo,
+            accion: accion,
+            descripcion: descripcion,
+            fecha: Timestamp.now()
+        });
+        mostrarToastActividad("✨ Acción registrada en la bitácora.", "ok");
+        await cargarActividadDesdeFirestore();
+    } catch (error) {
+        console.error("Error registrando auditoría:", error);
+        mostrarToastActividad("⚠️ Error al registrar en la bitácora.", "error");
+    
         };
 
     </script>

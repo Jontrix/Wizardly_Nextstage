@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly — Clientes</title>
+    <title>Wizardly — Perfil del Cliente</title>
 
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -63,7 +63,7 @@
     <main class="admin-main">
 
         <div class="admin-topbar">
-            <h1>Gestión de Clientes</h1>
+            <h1>Perfil del Cliente</h1>
             <div class="topbar-usuario">
                 <i class="fa-solid fa-circle-user"></i>
                 <span id="nombre-administrador">Cargando...</span>
@@ -72,147 +72,81 @@
 
         <div class="admin-bloque">
             <div class="bloque-header">
-                <h2>
-                    Clientes Registrados
-                    <span class="count-badge" id="clientes-count">0 clientes</span>
-                </h2>
-                <button class="btn-admin" onclick="abrirModalCliente()">
-                    <i class="fa-solid fa-plus"></i> Agregar cliente
+                <h2>Información e Interacciones</h2>
+                <button class="btn-admin" onclick="window.location.href='admin-clientes.html'">
+                    <i class="fa-solid fa-arrow-left"></i> Volver a clientes
                 </button>
             </div>
 
-            <div class="admin-filtros">
-                <div class="admin-buscador" style="flex:2;">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o email..." />
-                </div>
-                <div class="admin-filtro-select">
-                    <select id="filtro-rango-cliente">
-                        <option value="">Todos los rangos</option>
-                        <option value="Archimago">Archimago</option>
-                        <option value="Maestro">Maestro</option>
-                        <option value="Iniciado">Iniciado</option>
-                        <option value="Muggle">Muggle</option>
-                    </select>
-                </div>
-            </div>
+            <div class="detalle-layout">
+                <div class="detalle-card">
+                    <div class="detalle-header">
+                        <div class="detalle-avatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <span class="detalle-label">Cliente</span>
+                            <h3 id="detalle-cliente-nombre">Cargando...</h3>
+                        </div>
+                    </div>
 
-            <div class="admin-tabla-wrap">
-                <table class="admin-tabla" id="tabla-clientes">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Email</th>
-                            <th>Facción / Organización</th>
-                            <th>Rango Alquímico</th>
-                            <th>Etapa CRM</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-clientes"></tbody>
-                </table>
-            </div>
-        </div>
+                    <div class="detalle-grid">
+                        <div class="detalle-item">
+                            <span>ID</span>
+                            <strong id="detalle-cliente-id">--</strong>
+                        </div>
+                        <div class="detalle-item">
+                            <span>Email</span>
+                            <strong id="detalle-cliente-email">--</strong>
+                        </div>
+                        <div class="detalle-item">
+                            <span>Teléfono</span>
+                            <strong id="detalle-cliente-telefono">--</strong>
+                        </div>
+                        <div class="detalle-item">
+                            <span>Facción / Organización</span>
+                            <strong id="detalle-cliente-faccion">--</strong>
+                        </div>
+                        <div class="detalle-item">
+                            <span>Rango</span>
+                            <strong id="detalle-cliente-rango">--</strong>
+                        </div>
+                        <div class="detalle-item">
+                            <span>Etapa CRM</span>
+                            <strong id="detalle-cliente-etapa">--</strong>
+                        </div>
+                        <div class="detalle-item">
+                            <span>Estado</span>
+                            <strong id="detalle-cliente-estado">--</strong>
+                        </div>
+                        <div class="detalle-item">
+                            <span>Fecha de registro</span>
+                            <strong id="detalle-cliente-fecha">--</strong>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="admin-bloque" style="margin-top:32px;">
-            <div class="bloque-header">
-                <h2>Distribución de Rangos</h2>
-            </div>
-            <div style="padding:20px 24px; display:flex; justify-content:center;">
-                <canvas id="chart-clientes" width="300" height="300" style="max-width:300px; max-height:300px;"></canvas>
+                <div class="detalle-card">
+                    <div class="bloque-header compact-header">
+                        <h3>Interacciones recientes</h3>
+                        <span class="count-badge" id="detalle-interacciones-count">0</span>
+                    </div>
+                    <ul class="detalle-interacciones" id="detalle-lista-interacciones">
+                        <li class="detalle-vacia">Cargando interacciones...</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
     </main>
 
-    <!-- ── MODAL AGREGAR / EDITAR CLIENTE ── -->
-    <div class="modal-overlay" id="modal-cliente-overlay">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3 id="modal-cliente-titulo">Agregar Cliente</h3>
-                <button class="modal-cerrar" onclick="cerrarModalCliente()">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="campo-modal">
-                    <label>Nombre Completo</label>
-                    <input type="text" id="mc-nombre" placeholder="Ej. Hermione Granger" />
-                </div>
-                <div class="campo-modal">
-                    <label>Correo Electrónico</label>
-                    <input type="email" id="mc-email" placeholder="ejemplo@magic.com" />
-                </div>
-                <div class="campo-modal">
-                    <label>Teléfono Mágico</label>
-                    <input type="tel" id="mc-telefono" placeholder="Ej. 555-123-4567" />
-                </div>
-                <div class="campo-modal">
-                    <label>Facción / Organización</label>
-                    <input type="text" id="mc-faccion" placeholder="Ej. Ministerio de Magia o Independiente" />
-                </div>
-                <div class="campo-modal">
-                    <label>Rango Alquímico</label>
-                    <select id="mc-rango">
-                        <option value="Archimago">Archimago</option>
-                        <option value="Maestro">Maestro</option>
-                        <option value="Iniciado">Iniciado</option>
-                        <option value="Muggle">Muggle</option>
-                    </select>
-                </div>
-                <div class="campo-modal">
-                    <label>Rango de Etapa</label>
-                    <select id="mc-etapa">
-                        <option value="Activo">Activo</option>
-                        <option value="Frecuente">Frecuente</option>
-                        <option value="Inactivo">Inactivo</option>
-                        <option value="Prospecto">Prospecto</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-modal-cancelar" onclick="cerrarModalCliente()">Cancelar</button>
-                <button class="btn-modal-guardar" onclick="guardarCliente()">
-                    <i class="fa-solid fa-floppy-disk"></i> Guardar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ── MODAL ELIMINAR CLIENTE ── -->
-    <div class="modal-overlay" id="confirm-cliente-overlay">
-        <div class="modal-card confirm-card">
-            <div class="modal-header">
-                <h3>¿Eliminar cliente del registro?</h3>
-                <button class="modal-cerrar" onclick="cerrarConfirmCliente()">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p class="confirm-texto">
-                    Esta acción revocará sus credenciales arcanas.<br />
-                    ¿Seguro que deseas eliminar a <strong id="confirm-cliente-nombre"></strong>?
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-modal-cancelar" onclick="cerrarConfirmCliente()">Cancelar</button>
-                <button class="btn-modal-eliminar" onclick="confirmarEliminarCliente()">
-                    <i class="fa-solid fa-trash"></i> Sí, eliminar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="toast-admin" id="toast-cliente"></div>
-
-    <!-- ── LÓGICA DE FIREBASE Y JS ── -->
+    <!-- ── LÓGICA DE FIREBASE Y JS EXCLUSIVA PARA EL PERFIL ── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-        // ⚠️ TUS CREDENCIALES REALES DE FIREBASE
+        // ⚠️ TUS CREDENCIALES DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
             authDomain: "wizardly-nextstage.firebaseapp.com",
@@ -227,30 +161,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Variables Globales
-        window.clientes = []; 
-        window.editandoClienteId = null;
-        var eliminandoClienteId = null;
-        var chartInstanceClientes = null;
-
-        // Referencias DOM
-        var tbodyClientes = document.getElementById('tbody-clientes');
-        var inputBuscarCliente = document.getElementById('buscar-cliente');
-        var filtroRangoCliente = document.getElementById('filtro-rango-cliente');
-        var modalClienteOverlay = document.getElementById('modal-cliente-overlay');
-        var modalClienteTitulo = document.getElementById('modal-cliente-titulo');
-        var mcNombre = document.getElementById('mc-nombre');
-        var mcEmail = document.getElementById('mc-email');
-        var mcTelefono = document.getElementById('mc-telefono'); 
-        var mcFaccion = document.getElementById('mc-faccion');
-        var mcRango = document.getElementById('mc-rango');
-        var mcEtapa = document.getElementById('mc-etapa');
-        var confirmClienteOverlay = document.getElementById('confirm-cliente-overlay');
-        var confirmClienteNombre = document.getElementById('confirm-cliente-nombre');
-        var toastCliente = document.getElementById('toast-cliente');
-        var countBadgeCliente = document.getElementById('clientes-count');
-
-        // Mostrar Nombre del Administrador Actual
+        // 1. Mostrar Nombre del Administrador Actual
         onAuthStateChanged(auth, (usuario) => {
             const spanNombre = document.getElementById("nombre-administrador");
             if (usuario) {
@@ -261,272 +172,99 @@
             }
         });
 
-        // ==========================================
-        // 👁️ EL MENSAJERO DE LA BITÁCORA GLOBAL
-        // ==========================================
-        async function registrarAuditoria(modulo, accion, descripcion) {
-            const usuario = auth.currentUser;
-            let adminName = "Administrador Supremo";
-            let adminId = "Desconocido";
-
-            if (usuario) {
-                adminName = usuario.displayName || usuario.email || "Administrador";
-                adminId = usuario.uid;
-            } else {
-                try {
-                    const datosEmergencia = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
-                    if(datosEmergencia.nombre) adminName = datosEmergencia.nombre;
-                } catch(e) {}
-            }
-
-            try {
-                // ⚠️ Se asegura que vaya a "actividad" y no a "interacciones"
-                await addDoc(collection(db, "actividad"), {
-                    adminUid: adminId,
-                    adminNombre: adminName,
-                    modulo: modulo,
-                    accion: accion,
-                    descripcion: descripcion,
-                    fecha: Timestamp.now()
-                });
-                console.log("¡ÉXITO! Mensaje enviado a la bitácora.");
-                alert("✅ Se registró exitosamente en la Bitácora de Auditoría."); // <--- Chismoso activado
-            } catch (error) {
-                console.error("Error al reportar a la bitácora:", error);
-                alert("❌ Falló la conexión con la Bitácora: " + error.message);
-            }
+        // 2. Formatear la fecha para que se vea bonita
+        function formatearFecha(valor) {
+            if (!valor) return 'Sin información';
+            const fecha = typeof valor.toDate === 'function' ? valor.toDate() : new Date(valor);
+            if (Number.isNaN(fecha.getTime())) return 'Sin información';
+            return fecha.toLocaleString('es-MX', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
         }
 
-        // Leer datos desde Firebase
-        window.cargarClientesFirebase = async function() {
-            try {
-                const querySnapshot = await getDocs(collection(db, "clientes"));
-                window.clientes = [];
-                querySnapshot.forEach((doc) => {
-                    let data = doc.data();
-                    data.id = doc.id; 
-                    window.clientes.push(data);
-                });
-                window.aplicarFiltrosCliente(); 
-            } catch (error) {
-                console.error("Error al obtener datos:", error);
+        // 3. Dibujar las interacciones del cliente
+        function renderizarInteracciones(interacciones) {
+            const contenedor = document.getElementById('detalle-lista-interacciones');
+            const countBadge = document.getElementById('detalle-interacciones-count');
+
+            if (!contenedor) return;
+            countBadge.textContent = interacciones.length;
+
+            if (!interacciones.length) {
+                contenedor.innerHTML = '<li class="detalle-vacia">No hay interacciones registradas para este cliente.</li>';
+                return;
             }
-        };
 
-        // Renderizar Tabla
-        window.renderTablaClientes = function(lista) {
-            lista = lista || window.clientes;
-            tbodyClientes.innerHTML = '';
-            
-            lista.forEach(function(c) {
-                var rangoClase = 'badge-archmage';
-                if (c.rango === 'Maestro') rangoClase = 'badge-master';
-                if (c.rango === 'Iniciado') rangoClase = 'badge-initiated';
-                if (c.rango === 'Muggle') rangoClase = 'badge-muggle'; 
+            contenedor.innerHTML = interacciones.map((interaccion) => {
+                const detalle = interaccion.detalle || interaccion.descripcion || 'Sin detalle registrado';
+                const tipo = interaccion.tipo || interaccion.accion || 'Interacción';
+                return `
+                    <li class="detalle-interaccion-item">
+                        <div class="detalle-interaccion-header">
+                            <span class="detalle-interaccion-tipo">${tipo}</span>
+                            <span class="detalle-interaccion-fecha">${formatearFecha(interaccion.fecha)}</span>
+                        </div>
+                        <p>${detalle}</p>
+                    </li>
+                `;
+            }).join('');
+        }
 
-                var etapaClase = 'badge-activo';
-                if (c.etapa_crm === 'Frecuente') etapaClase = 'badge-frecuente';
-                if (c.etapa_crm === 'Inactivo') etapaClase = 'badge-inactivo';
-                if (c.etapa_crm === 'Prospecto') etapaClase = 'badge-prospecto';
+        // 4. Función Principal: Cargar el Cliente desde Firestore
+        async function cargarDetalleCliente() {
+            // Leer el ID mágico directamente de la URL (ej. perfil-cliente.html?id=MAGO123)
+            const params = new URLSearchParams(window.location.search);
+            const clienteId = params.get('id');
 
-                var tr = document.createElement('tr');
-                tr.innerHTML =
-                    '<td class="td-id">#MAG-' + String(c.id).substring(0,4).toUpperCase() + '</td>' +
-                    '<td class="td-nombre"><strong>' + c.nombre + '</strong></td>' +
-                    '<td>' + c.correo + '</td>' +
-                    '<td>' + c.empresa + '</td>' +
-                    '<td><span class="badge ' + rangoClase + '">' + c.rango + '</span></td>' +
-                    '<td><span class="badge ' + etapaClase + '">' + (c.etapa_crm || 'Prospecto') + '</span></td>' +
-                    '<td><div class="acciones-wrap">' +
-                        '<button class="btn-icono editar" onclick="abrirEditarCliente(\'' + c.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
-                        '<button class="btn-icono eliminar" onclick="abrirConfirmCliente(\'' + c.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
-                    '</div></td>';
-                tbodyClientes.appendChild(tr);
-            });
-            window.actualizarContadorCliente();
-            window.actualizarGraficaClientes();
-        };
-
-        window.actualizarContadorCliente = function() {
-            var total = window.clientes.length;
-            countBadgeCliente.textContent = total + ' cliente' + (total !== 1 ? 's' : '');
-        };
-
-        // Filtros
-        window.aplicarFiltrosCliente = function() {
-            var texto = inputBuscarCliente.value.toLowerCase();
-            var rangoSel = filtroRangoCliente.value;
-            var filtrados = window.clientes.filter(function(c) {
-                var coincideTexto = c.nombre.toLowerCase().includes(texto) || c.correo.toLowerCase().includes(texto);
-                var coincideRango = (rangoSel === '' || c.rango === rangoSel);
-                return coincideTexto && coincideRango;
-            });
-            window.renderTablaClientes(filtrados);
-        };
-
-        // Funciones de Modales
-        window.abrirModalCliente = function() {
-            window.editandoClienteId = null;
-            modalClienteTitulo.textContent = 'Agregar Cliente';
-            mcNombre.value = '';
-            mcEmail.value = '';
-            mcTelefono.value = '';
-            mcFaccion.value = '';
-            mcRango.value = 'Iniciado';
-            mcEtapa.value = 'Activo';
-            modalClienteOverlay.classList.add('visible');
-        };
-
-        window.abrirEditarCliente = function(id) {
-            var c = window.clientes.find(function(x) { return x.id === id; });
-            if (!c) return;
-            
-            window.editandoClienteId = id; 
-            modalClienteTitulo.textContent = 'Editar Cliente';
-            mcNombre.value = c.nombre;
-            mcEmail.value = c.correo;
-            mcTelefono.value = c.telefono || "";
-            mcFaccion.value = c.empresa || "";
-            mcRango.value = c.rango;
-            mcEtapa.value = c.etapa_crm || "Prospecto";
-            
-            modalClienteOverlay.classList.add('visible');
-        };
-
-        window.cerrarModalCliente = function() {
-            modalClienteOverlay.classList.remove('visible');
-        };
-
-        // Guardar o Actualizar Cliente en Firebase
-        window.guardarCliente = async function() {
-            var nombre = mcNombre.value.trim();
-            var correo = mcEmail.value.trim();
-            var telefono = mcTelefono.value.trim() || "-";
-            var empresa = mcFaccion.value.trim() || "Independiente";
-            var rango = mcRango.value;
-            var etapa = mcEtapa.value;
-
-            if (!nombre || !correo) {
-                window.mostrarToastCliente('⚠️ Nombre y Correo son obligatorios.', 'error');
+            if (!clienteId) {
+                document.getElementById('detalle-cliente-nombre').textContent = 'Falta ID en la URL';
+                document.getElementById('detalle-lista-interacciones').innerHTML = '<li class="detalle-vacia">Regresa a la tabla y selecciona un cliente válido.</li>';
                 return;
             }
 
             try {
-                if (window.editandoClienteId) {
-                    const clienteRef = doc(db, "clientes", window.editandoClienteId);
-                    await updateDoc(clienteRef, {
-                        nombre: nombre, correo: correo, telefono: telefono,
-                        empresa: empresa, rango: rango, etapa_crm: etapa
-                    });
-                    
-                    window.mostrarToastCliente('✦ Datos actualizados.', 'ok');
-                    
-                    // 📢 AVISO A LA BITÁCORA GLOBAL
-                    await registrarAuditoria("clientes", "Edición de Perfil", `Se modificaron los datos arcanos de ${nombre}.`);
+                // A) Buscar los datos del cliente
+                const clienteSnap = await getDoc(doc(db, 'clientes', clienteId));
 
-                } else {
-                    await addDoc(collection(db, "clientes"), {
-                        nombre: nombre, correo: correo, telefono: telefono,
-                        empresa: empresa, rango: rango, etapa_crm: etapa, 
-                        estado: "Activo", fecha_registro: Timestamp.now()
-                    });
-                    
-                    window.mostrarToastCliente('✦ Mago registrado.', 'ok');
-
-                    // 📢 AVISO A LA BITÁCORA GLOBAL
-                    await registrarAuditoria("clientes", "Nuevo Cliente Registrado", `Se añadió al mago ${nombre} al grimorio.`);
+                if (!clienteSnap.exists()) {
+                    document.getElementById('detalle-cliente-nombre').textContent = 'Mago no encontrado';
+                    return;
                 }
 
-                window.cerrarModalCliente();
-                window.cargarClientesFirebase();
+                const cliente = { id: clienteSnap.id, ...clienteSnap.data() };
+
+                // B) Inyectar los datos en el HTML
+                document.getElementById('detalle-cliente-nombre').textContent = cliente.nombre || 'Sin nombre';
+                document.getElementById('detalle-cliente-id').textContent = '#MAG-' + String(cliente.id).substring(0, 4).toUpperCase();
+                document.getElementById('detalle-cliente-email').textContent = cliente.correo || 'No especificado';
+                document.getElementById('detalle-cliente-telefono').textContent = cliente.telefono || 'No especificado';
+                document.getElementById('detalle-cliente-faccion').textContent = cliente.empresa || 'No especificado';
+                document.getElementById('detalle-cliente-rango').textContent = cliente.rango || 'No especificado';
+                document.getElementById('detalle-cliente-etapa').textContent = cliente.etapa_crm || 'Prospecto';
+                document.getElementById('detalle-cliente-estado').textContent = cliente.estado || 'Activo';
+                document.getElementById('detalle-cliente-fecha').textContent = formatearFecha(cliente.fecha_registro);
+
+                // C) Buscar su historial de interacciones
+                const interaccionesSnapshot = await getDocs(collection(db, 'interacciones'));
+                const interacciones = interaccionesSnapshot.docs
+                    .map((documento) => ({ id: documento.id, ...documento.data() }))
+                    .filter((interaccion) => String(interaccion.cliente_id || interaccion.clienteId || '') === String(clienteId))
+                    .sort((a, b) => {
+                        const fechaA = typeof a.fecha?.toDate === 'function' ? a.fecha.toDate().getTime() : new Date(a.fecha || 0).getTime();
+                        const fechaB = typeof b.fecha?.toDate === 'function' ? b.fecha.toDate().getTime() : new Date(b.fecha || 0).getTime();
+                        return fechaB - fechaA;
+                    });
+
+                renderizarInteracciones(interacciones);
             } catch (error) {
-                console.error("Error al guardar: ", error);
-                window.mostrarToastCliente('⚠️ Error al lanzar el hechizo.', 'error');
+                console.error('Error oscuro al cargar:', error);
+                document.getElementById('detalle-cliente-nombre').textContent = 'Error de conexión';
             }
-        };
-
-        // Eliminar Cliente
-        window.abrirConfirmCliente = function(id) {
-            var c = window.clientes.find(function(x) { return x.id === id; });
-            if (!c) return;
-            eliminandoClienteId = id;
-            confirmClienteNombre.textContent = c.nombre;
-            confirmClienteOverlay.classList.add('visible');
-        };
-
-        window.cerrarConfirmCliente = function() {
-            confirmClienteOverlay.classList.remove('visible');
-            eliminandoClienteId = null;
-        };
-
-        window.confirmarEliminarCliente = async function() {
-            if (eliminandoClienteId === null) return;
-            try {
-                const nombreEliminado = confirmClienteNombre.textContent; 
-                await deleteDoc(doc(db, "clientes", eliminandoClienteId));
-                window.cerrarConfirmCliente();
-                window.mostrarToastCliente('🗑 Mago exiliado con éxito.', 'error');
-
-                // 📢 AVISO A LA BITÁCORA GLOBAL
-                await registrarAuditoria("clientes", "Mago Exiliado", `Se revocaron las credenciales arcanas de ${nombreEliminado}.`);
-
-                window.cargarClientesFirebase();
-            } catch(error) {
-                console.error(error);
-            }
-        };
-
-        // Toast
-        window.mostrarToastCliente = function(msg, tipo) {
-            tipo = tipo || 'ok';
-            toastCliente.textContent = msg;
-            toastCliente.className = 'toast-admin visible ' + tipo;
-            clearTimeout(toastCliente._t);
-            toastCliente._t = setTimeout(function() {
-                toastCliente.classList.remove('visible');
-            }, 3000);
-        };
-
-        // Gráfica
-        window.actualizarGraficaClientes = function() {
-            var archimagos = window.clientes.filter(function(c) { return c.rango === 'Archimago'; }).length;
-            var maestros = window.clientes.filter(function(c) { return c.rango === 'Maestro'; }).length;
-            var iniciados = window.clientes.filter(function(c) { return c.rango === 'Iniciado'; }).length;
-            var muggles = window.clientes.filter(function(c) { return c.rango === 'Muggle'; }).length;
-            
-            var ctx = document.getElementById('chart-clientes').getContext('2d');
-            if (chartInstanceClientes) { chartInstanceClientes.destroy(); }
-
-            chartInstanceClientes = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Archimagos', 'Maestros', 'Iniciados', 'Muggles'],
-                    datasets: [{
-                        data: [archimagos, maestros, iniciados, muggles],
-                        backgroundColor: ['#a855f7', '#3b82f6', '#eab308', '#6b7280'],
-                        borderColor: '#0a0412',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { labels: { color: '#ddd', font: { family: 'Cinzel' } } } }
-                }
-            });
-        };
-
-        // Listeners
-        modalClienteOverlay.addEventListener('click', function(e) {
-            if (e.target === modalClienteOverlay) window.cerrarModalCliente();
-        });
-        confirmClienteOverlay.addEventListener('click', function(e) {
-            if (e.target === confirmClienteOverlay) window.cerrarConfirmCliente();
-        });
-        inputBuscarCliente.addEventListener('input', window.aplicarFiltrosCliente);
-        filtroRangoCliente.addEventListener('change', window.aplicarFiltrosCliente);
+        }
 
         // Arrancar
-        window.cargarClientesFirebase();
+        cargarDetalleCliente();
     </script>
 
     <!-- ── ESTILOS ESPECÍFICOS DE ESTA VISTA ── -->
@@ -570,6 +308,124 @@
         }
         .admin-filtro-select select:focus {
             border-color: var(--gold-dim);
+        }
+
+        .detalle-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 24px;
+            padding: 24px;
+        }
+        .detalle-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 18px 45px rgba(11, 9, 18, 0.2);
+        }
+        .detalle-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .detalle-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, rgba(168,85,247,0.18), rgba(59,130,246,0.18));
+            color: var(--gold);
+            font-size: 1.4rem;
+        }
+        .detalle-label {
+            display: block;
+            font-size: 0.72rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .detalle-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            padding-top: 20px;
+        }
+        .detalle-item {
+            background: rgba(255,255,255,0.015);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 14px 16px;
+        }
+        .detalle-item span {
+            display: block;
+            font-size: 0.74rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .detalle-item strong {
+            color: var(--text-main);
+            font-size: 0.96rem;
+            word-break: break-word;
+        }
+        .compact-header {
+            padding-bottom: 0;
+            border-bottom: none;
+            align-items: center;
+        }
+        .detalle-interacciones {
+            list-style: none;
+            padding: 0;
+            margin: 18px 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .detalle-interaccion-item {
+            background: rgba(255,255,255,0.015);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 14px 16px;
+        }
+        .detalle-interaccion-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .detalle-interaccion-tipo {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .detalle-interaccion-fecha {
+            color: var(--muted);
+            font-size: 0.72rem;
+        }
+        .detalle-interaccion-item p {
+            margin: 0;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+        .detalle-vacia {
+            list-style: none;
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px dashed rgba(255,255,255,0.12);
+            color: var(--muted);
+            text-align: center;
+            background: rgba(255,255,255,0.01);
+        }
+        @media (max-width: 900px) {
+            .detalle-layout {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 
