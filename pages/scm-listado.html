@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizardly — Lista de Productos SCM</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    
+    <style>
+        .sidebar-titulo {
+            display: block;
+            padding: 16px 20px 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: bold;
+            letter-spacing: 0.08em;
+        }
+
+        /* Estilos de las insignias PUSH / PULL */
+        .badge-estrategia {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            font-family: 'Lato', sans-serif;
+            text-transform: uppercase;
+        }
+        .badge-push { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+        .badge-pull { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+        /* Barra superior de acciones */
+        .admin-filtros {
+            display: flex;
+            gap: 12px;
+            padding: 12px 24px 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+        .admin-filtro-select select {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 16px;
+            color: var(--text-main);
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+        .admin-filtro-select select:focus {
+            border-color: var(--gold-dim);
+        }
+        .admin-filtro-select select option {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        /* Botón de volver */
+        .btn-volver {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Lato', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .btn-volver:hover {
+            color: var(--gold);
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.1);
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">
+            <img src="../images/logo/Logo.png" alt="Wizardly" />
+            <div>
+                <span class="brand">Wizardly</span>
+                <span class="sidebar-sub">Panel Arcano</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard
+            </a>
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <!-- Activo en Productos -->
+            <a href="admin-productos.html" class="nav-item active">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
+            <a href="admin-reportes.html" class="nav-item">
+                <i class="fa-solid fa-chart-simple"></i> Reportes
+            </a>
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
+            </a>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="admin-main">
+
+        <div class="admin-topbar">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <!-- Botón para regresar al Dashboard de SCM (admin-productos.html) -->
+                <a href="admin-productos.html" class="btn-volver">
+                    <i class="fa-solid fa-arrow-left"></i> Panel SCM
+                </a>
+                <h1 style="margin: 0;">Lista de Productos</h1>
+            </div>
+            
+            <div class="topbar-usuario">
+                <i class="fa-solid fa-circle-user"></i>
+                <span>Archimaga Seraphina</span>
+            </div>
+        </div>
+
+        <div class="admin-bloque">
+            <div class="bloque-header">
+                <h2>
+                    Inventario SCM
+                    <span class="count-badge" id="productos-count">0 productos</span>
+                </h2>
+                <button class="btn-admin" onclick="abrirModal()">
+                    <i class="fa-solid fa-plus"></i> Nuevo producto
+                </button>
+            </div>
+
+            <!-- Filtros SCM -->
+            <div class="admin-filtros">
+                <div class="admin-buscador" style="flex:2;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="admin-buscar" placeholder="Buscar producto por nombre..." oninput="aplicarFiltros()" />
+                </div>
+                <div class="admin-filtro-select">
+                    <select id="filtro-categoria" onchange="aplicarFiltros()">
+                        <option value="">Categoría: Todas</option>
+                        <option value="Varitas">Varitas</option>
+                        <option value="Pociones">Pociones</option>
+                        <option value="Libros">Libros</option>
+                        <option value="Amuletos">Amuletos</option>
+                    </select>
+                </div>
+                <div class="admin-filtro-select">
+                    <select id="filtro-estrategia" onchange="aplicarFiltros()">
+                        <option value="">Estrategia: Todas</option>
+                        <option value="PUSH">PUSH</option>
+                        <option value="PULL">PULL</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabla de datos (Diseño específico SCM) -->
+            <div class="admin-tabla-wrap">
+                <table class="admin-tabla" id="tabla-productos">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">Imagen</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th style="text-align: center;">Stock</th>
+                            <th style="text-align: center;">Stock min.</th>
+                            <th style="text-align: center;">Estrategia</th>
+                            <th style="text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-productos"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL: AGREGAR / EDITAR PRODUCTO SCM -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Nuevo Producto SCM</h3>
+                <button class="modal-cerrar" onclick="cerrarModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="campo-modal">
+                    <label>Nombre del producto</label>
+                    <input type="text" id="m-nombre" placeholder="Ej. Varita de Saúco" />
+                </div>
+                
+                <div class="campo-modal-fila">
+                    <div class="campo-modal">
+                        <label>Categoría</label>
+                        <select id="m-categoria">
+                            <option value="">Seleccionar...</option>
+                            <option value="Varitas">Varitas</option>
+                            <option value="Pociones">Pociones</option>
+                            <option value="Libros">Libros</option>
+                            <option value="Amuletos">Amuletos</option>
+                        </select>
+                    </div>
+                    <div class="campo-modal">
+                        <label>Estrategia Logística</label>
+                        <select id="m-estrategia">
+                            <option value="PUSH">PUSH (Producir para stock)</option>
+                            <option value="PULL">PULL (Bajo demanda)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="campo-modal-fila">
+                    <div class="campo-modal">
+                        <label>Stock Actual</label>
+                        <input type="number" id="m-stock" placeholder="0" min="0" step="1" />
+                    </div>
+                    <div class="campo-modal">
+                        <label>Stock Mínimo (Alerta)</label>
+                        <input type="number" id="m-stockmin" placeholder="0" min="0" step="1" />
+                    </div>
+                </div>
+
+                <div class="campo-modal">
+                    <label>URL de imagen</label>
+                    <input type="text" id="m-imagen" placeholder="../images/mi-producto.jpg" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-cancelar" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn-modal-guardar" onclick="guardarProducto()">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CONFIRMAR ELIMINAR -->
+    <div class="modal-overlay" id="confirm-overlay">
+        <div class="modal-card confirm-card">
+            <div class="modal-header">
+                <h3>¿Eliminar producto?</h3>
+                <button class="modal-cerrar" onclick="cerrarConfirm()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="confirm-texto">
+                    Esta acción no se puede deshacer.<br />
+                    ¿Seguro que deseas eliminar <strong id="confirm-nombre"></strong>?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-cancelar" onclick="cerrarConfirm()">Cancelar</button>
+                <button class="btn-modal-eliminar" onclick="confirmarEliminar()">
+                    <i class="fa-solid fa-trash"></i> Sí, eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-admin" id="toast-admin"></div>
+
+    <script>
+        // Array de datos iniciales mezclando tu tema mágico con los campos SCM solicitados
+        var productos = [
+            { id: 1, nombre: "Varita de Saúco", categoria: "Varitas", stock: 25, stockMin: 10, estrategia: "PUSH", imagen: "../images/varita sauco.webp" },
+            { id: 2, nombre: "Poción Multijugos", categoria: "Pociones", stock: 12, stockMin: 15, estrategia: "PULL", imagen: "../images/pocion.jpg" },
+            { id: 3, nombre: "Grimorio Antiguo", categoria: "Libros", stock: 8, stockMin: 5, estrategia: "PUSH", imagen: "../images/grimorio.jpg" },
+            { id: 4, nombre: "Amuleto Protector", categoria: "Amuletos", stock: 30, stockMin: 15, estrategia: "PULL", imagen: "../images/amuleto.jpg" }
+        ];
+
+        var editandoId = null;
+        var eliminandoId = null;
+        
+        // Referencias al DOM
+        var tbody = document.getElementById('tbody-productos');
+        var inputBuscar = document.getElementById('admin-buscar');
+        var filtroCategoria = document.getElementById('filtro-categoria');
+        var filtroEstrategia = document.getElementById('filtro-estrategia');
+        var countBadge = document.getElementById('productos-count');
+        var toast = document.getElementById('toast-admin');
+
+        var modalOverlay = document.getElementById('modal-overlay');
+        var modalTitulo = document.getElementById('modal-titulo');
+        var mNombre = document.getElementById('m-nombre');
+        var mCategoria = document.getElementById('m-categoria');
+        var mEstrategia = document.getElementById('m-estrategia');
+        var mStock = document.getElementById('m-stock');
+        var mStockMin = document.getElementById('m-stockmin');
+        var mImagen = document.getElementById('m-imagen');
+
+        var confirmOverlay = document.getElementById('confirm-overlay');
+        var confirmNombre = document.getElementById('confirm-nombre');
+
+        // Función para inyectar los datos a la tabla
+        function renderTabla(lista) {
+            lista = lista || productos;
+            tbody.innerHTML = '';
+            
+            lista.forEach(function(p) {
+                // Determinar badge de estrategia
+                var badgeEst = p.estrategia === 'PUSH' ? 'badge-push' : 'badge-pull';
+                // Determinar color de stock (si es menor al min, se pone rojo)
+                var colorStock = p.stock <= p.stockMin ? 'color: #f87171; font-weight: bold;' : '';
+
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td><img src="' + p.imagen + '" alt="' + p.nombre + '" class="tabla-thumb" onerror="this.src=\'../images/logo/Logo.png\'" style="width:40px; height:40px; object-fit:cover; border-radius:6px; border: 1px solid rgba(255,255,255,0.1);"></td>' +
+                    '<td class="td-nombre">' + p.nombre + '</td>' +
+                    '<td>' + p.categoria + '</td>' +
+                    '<td style="text-align: center; ' + colorStock + '">' + p.stock + '</td>' +
+                    '<td style="text-align: center; opacity: 0.7;">' + p.stockMin + '</td>' +
+                    '<td style="text-align: center;"><span class="badge-estrategia ' + badgeEst + '">' + p.estrategia + '</span></td>' +
+                    '<td style="text-align: center;">' +
+                        '<div class="acciones-wrap" style="justify-content: center;">' +
+                            '<button class="btn-icono editar" onclick="abrirEditar(' + p.id + ')" title="Editar"><i class="fa-solid fa-pen"></i></button>' +
+                            '<button class="btn-icono eliminar" onclick="abrirConfirm(' + p.id + ')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>' +
+                        '</div>' +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+            
+            countBadge.textContent = lista.length + ' producto' + (lista.length !== 1 ? 's' : '');
+        }
+
+        // Lógica de Filtros
+        function aplicarFiltros() {
+            var texto = inputBuscar.value.toLowerCase();
+            var cat = filtroCategoria.value;
+            var est = filtroEstrategia.value;
+            
+            var filtrados = productos.filter(function(p) {
+                var coincideNombre = p.nombre.toLowerCase().includes(texto);
+                var coincideCat = (cat === '' || p.categoria === cat);
+                var coincideEst = (est === '' || p.estrategia === est);
+                return coincideNombre && coincideCat && coincideEst;
+            });
+            renderTabla(filtrados);
+        }
+
+        // Modal: Funciones
+        function abrirModal() {
+            editandoId = null;
+            modalTitulo.textContent = 'Nuevo Producto SCM';
+            limpiarCampos();
+            modalOverlay.classList.add('visible');
+        }
+
+        function abrirEditar(id) {
+            var p = productos.find(function(x) { return x.id === id; });
+            if (!p) return;
+            editandoId = id;
+            modalTitulo.textContent = 'Editar Producto SCM';
+            mNombre.value = p.nombre;
+            mCategoria.value = p.categoria;
+            mEstrategia.value = p.estrategia;
+            mStock.value = p.stock;
+            mStockMin.value = p.stockMin;
+            mImagen.value = p.imagen;
+            modalOverlay.classList.add('visible');
+        }
+
+        function limpiarCampos() {
+            mNombre.value = '';
+            mCategoria.value = '';
+            mEstrategia.value = 'PUSH';
+            mStock.value = '';
+            mStockMin.value = '';
+            mImagen.value = '';
+        }
+
+        function cerrarModal() {
+            modalOverlay.classList.remove('visible');
+        }
+
+        function guardarProducto() {
+            var nombre = mNombre.value.trim();
+            var categoria = mCategoria.value;
+            var estrategia = mEstrategia.value;
+            var stock = parseInt(mStock.value) || 0;
+            var stockMin = parseInt(mStockMin.value) || 0;
+            var imagen = mImagen.value.trim();
+
+            if (!nombre || !categoria) {
+                mostrarToast('⚠️ Completa nombre y categoría.', 'error');
+                return;
+            }
+
+            if (editandoId !== null) {
+                var idx = productos.findIndex(function(p) { return p.id === editandoId; });
+                productos[idx].nombre = nombre;
+                productos[idx].categoria = categoria;
+                productos[idx].estrategia = estrategia;
+                productos[idx].stock = stock;
+                productos[idx].stockMin = stockMin;
+                productos[idx].imagen = imagen;
+                mostrarToast('✦ Producto actualizado.', 'ok');
+            } else {
+                var maxId = productos.length > 0 ? Math.max(...productos.map(p => p.id)) : 0;
+                productos.push({
+                    id: maxId + 1,
+                    nombre: nombre,
+                    categoria: categoria,
+                    estrategia: estrategia,
+                    stock: stock,
+                    stockMin: stockMin,
+                    imagen: imagen
+                });
+                mostrarToast('✦ Producto agregado a SCM.', 'ok');
+            }
+
+            cerrarModal();
+            aplicarFiltros();
+        }
+
+        // Eliminar Funciones
+        function abrirConfirm(id) {
+            var p = productos.find(function(x) { return x.id === id; });
+            if (!p) return;
+            eliminandoId = id;
+            confirmNombre.textContent = p.nombre;
+            confirmOverlay.classList.add('visible');
+        }
+
+        function cerrarConfirm() {
+            confirmOverlay.classList.remove('visible');
+            eliminandoId = null;
+        }
+
+        function confirmarEliminar() {
+            if (eliminandoId === null) return;
+            productos = productos.filter(function(p) { return p.id !== eliminandoId; });
+            cerrarConfirm();
+            aplicarFiltros();
+            mostrarToast('🗑 Producto eliminado.', 'error');
+        }
+
+        function mostrarToast(msg, tipo) {
+            tipo = tipo || 'ok';
+            toast.textContent = msg;
+            toast.className = 'toast-admin visible ' + tipo;
+            clearTimeout(toast._t);
+            toast._t = setTimeout(function() {
+                toast.classList.remove('visible');
+            }, 3000);
+        }
+
+        // Inicializar tabla al cargar
+        aplicarFiltros();
+
+        // Cerrar modales clickeando afuera
+        modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) cerrarModal(); });
+        confirmOverlay.addEventListener('click', function(e) { if (e.target === confirmOverlay) cerrarConfirm(); });
+    </script>
+</body>
+</html>
