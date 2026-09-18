@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
@@ -14,6 +14,16 @@
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <style>
+        .sidebar-titulo {
+            display: block;
+            padding: 16px 20px 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: bold;
+            letter-spacing: 0.08em;
+        }
+    </style>
 </head>
 <body class="admin-body">
 
@@ -27,14 +37,9 @@
             </div>
         </div>
         <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
             <a href="admin.html" class="nav-item">
                 <i class="fa-solid fa-gauge-high"></i> Dashboard
-            </a>
-            <a href="admin-productos.html" class="nav-item">
-                <i class="fa-solid fa-hat-wizard"></i> Productos
-            </a>
-            <a href="admin-pedidos.html" class="nav-item">
-                <i class="fa-solid fa-scroll"></i> Pedidos
             </a>
             <a href="admin-promociones.html" class="nav-item">
                 <i class="fa-solid fa-wand-sparkles"></i> Promociones
@@ -42,8 +47,8 @@
             <a href="admin-clientes.html" class="nav-item">
                 <i class="fa-solid fa-users"></i> Clientes
             </a>
-            <a href="admin-reportes.html" class="nav-item">
-                <i class="fa-solid fa-chart-simple"></i> Reportes
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
             </a>
             <a href="admin-historial.html" class="nav-item">
                 <i class="fa-solid fa-book-skull"></i> Historial
@@ -51,7 +56,26 @@
             <a href="admin-configuracion.html" class="nav-item active">
                 <i class="fa-solid fa-gear"></i> Configuración
             </a>
-            
+
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-productos.html" class="nav-item">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
+            <a href="admin-reportes.html" class="nav-item">
+                <i class="fa-solid fa-chart-simple"></i> Reportes
+            </a>
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
         </nav>
         <div class="sidebar-footer">
             <a href="../index.html" class="nav-item">
