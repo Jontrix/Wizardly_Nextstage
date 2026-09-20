@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
@@ -12,16 +12,6 @@
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    <style>
-        .sidebar-titulo {
-            display: block;
-            padding: 16px 20px 8px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: bold;
-            letter-spacing: 0.08em;
-        }
-    </style>
 </head>
 <body class="admin-body">
 
@@ -35,45 +25,34 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            <span class="sidebar-titulo">GENERAL</span>
             <a href="admin.html" class="nav-item">
                 <i class="fa-solid fa-gauge-high"></i> Dashboard
             </a>
-            <a href="admin-promociones.html" class="nav-item">
-                <i class="fa-solid fa-wand-sparkles"></i> Promociones
-            </a>
-            <a href="admin-clientes.html" class="nav-item">
-                <i class="fa-solid fa-users"></i> Clientes
-            </a>
-            <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
-            </a>
-            <a href="admin-historial.html" class="nav-item">
-                <i class="fa-solid fa-book-skull"></i> Historial
-            </a>
-            <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Configuración
-            </a>
-
-            <span class="sidebar-titulo">MÓDULO SCM</span>
             <a href="admin-productos.html" class="nav-item active">
                 <i class="fa-solid fa-hat-wizard"></i> Productos
             </a>
             <a href="admin-pedidos.html" class="nav-item">
                 <i class="fa-solid fa-scroll"></i> Pedidos
             </a>
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> CRM
+            </a>
+            <a href="admin-actividadesadmin.html" class="nav-item">
+                <i class="fa-solid fa-clock"></i> Actividad Admin
+            </a>
+            </a>
+                        <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Historial
+            </a>
+
             <a href="admin-reportes.html" class="nav-item">
                 <i class="fa-solid fa-chart-simple"></i> Reportes
             </a>
-            <a href="admin-proveedores.html" class="nav-item">
-                <i class="fa-solid fa-truck-fast"></i> Proveedores
-            </a>
-            <a href="admin-inventario.html" class="nav-item">
-                <i class="fa-solid fa-boxes-stacked"></i> Inventario
-            </a>
-            <a href="admin-logistica.html" class="nav-item">
-                <i class="fa-solid fa-route"></i> Logística
-            </a>
+             <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
         </nav>
         <div class="sidebar-footer">
             <a href="../index.html" class="nav-item">
@@ -93,78 +72,7 @@
             </div>
         </div>
 
-        <div class="admin-bloque scm-panel">
-            <div class="bloque-header">
-                <h2>
-                    Cadena de Suministros
-                    <span class="count-badge">Panel operativo</span>
-                </h2>
-            </div>
-
-            <div class="scm-grid">
-                <!-- AQUÍ ESTÁ EL CAMBIO: El enlace (href) ahora apunta a scm-lista.html -->
-                <a href="scm-listado.html" class="scm-card">
-                    <div class="scm-icon">
-                        <i class="fa-solid fa-hat-wizard"></i>
-                    </div>
-                    <div class="scm-card-body">
-                        <h3>Productos</h3>
-                        <p>Gestión de catálogo</p>
-                    </div>
-                </a>
-
-                <a href="#" class="scm-card">
-                    <div class="scm-icon">
-                        <i class="fa-solid fa-truck-fast"></i>
-                    </div>
-                    <div class="scm-card-body">
-                        <h3>Proveedores</h3>
-                        <p>Administrar proveedores</p>
-                    </div>
-                </a>
-
-                <a href="#" class="scm-card">
-                    <div class="scm-icon">
-                        <i class="fa-solid fa-boxes-stacked"></i>
-                    </div>
-                    <div class="scm-card-body">
-                        <h3>Inventario</h3>
-                        <p>Control de existencias</p>
-                    </div>
-                </a>
-
-                <a href="admin-pedidos.html" class="scm-card">
-                    <div class="scm-icon">
-                        <i class="fa-solid fa-scroll"></i>
-                    </div>
-                    <div class="scm-card-body">
-                        <h3>Pedidos</h3>
-                        <p>Reposición y suministro</p>
-                    </div>
-                </a>
-
-                <a href="#" class="scm-card">
-                    <div class="scm-icon">
-                        <i class="fa-solid fa-route"></i>
-                    </div>
-                    <div class="scm-card-body">
-                        <h3>Logística</h3>
-                        <p>Estrategias Push / Pull</p>
-                    </div>
-                </a>
-
-                <a href="admin-reportes.html" class="scm-card">
-                    <div class="scm-icon">
-                        <i class="fa-solid fa-chart-simple"></i>
-                    </div>
-                    <div class="scm-card-body">
-                        <h3>Reportes</h3>
-                        <p>Métricas y análisis</p>
-                    </div>
-                </a>
-            </div>
-        </div>
-
+        <!-- BLOQUE PRINCIPAL -->
         <div class="admin-bloque">
             <div class="bloque-header">
                 <h2>
@@ -176,6 +84,7 @@
                 </button>
             </div>
 
+            <!-- FILTROS Y BÚSQUEDA -->
             <div class="admin-filtros">
                 <div class="admin-buscador" style="flex:2;">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -203,6 +112,7 @@
                 </div>
             </div>
 
+            <!-- TABLA -->
             <div class="admin-tabla-wrap">
                 <table class="admin-tabla" id="tabla-productos">
                     <thead>
@@ -224,6 +134,7 @@
 
     </main>
 
+    <!-- MODAL: AGREGAR / EDITAR PRODUCTO -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -296,6 +207,7 @@
         </div>
     </div>
 
+    <!-- MODAL: VER DETALLE -->
     <div class="modal-overlay" id="detalle-overlay">
         <div class="modal-card" style="max-width:600px;">
             <div class="modal-header">
@@ -304,13 +216,16 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body" id="detalle-body"></div>
+            <div class="modal-body" id="detalle-body">
+                <!-- Se llena dinámicamente -->
+            </div>
             <div class="modal-footer">
                 <button class="btn-modal-cancelar" onclick="cerrarDetalle()">Cerrar</button>
             </div>
         </div>
     </div>
 
+    <!-- CONFIRM: ELIMINAR -->
     <div class="modal-overlay" id="confirm-overlay">
         <div class="modal-card confirm-card">
             <div class="modal-header">
@@ -334,9 +249,11 @@
         </div>
     </div>
 
+    <!-- TOAST -->
     <div class="toast-admin" id="toast-admin"></div>
 
     <script>
+        // ── Base de productos con nuevos campos ──────────────
         var productos = [
             { id: 1, nombre: "Varita de Saúco", precio: 350.00, categoria: "Varitas", etiqueta: "Nuevo", existencia: 12, estado: "Activo", descripcion: "La varita más poderosa.", imagen: "../images/varita sauco.webp" },
             { id: 2, nombre: "Poción de Invisibilidad", precio: 85.50, categoria: "Pociones", etiqueta: "Oferta", existencia: 0, estado: "Inactivo", descripcion: "Vuelve invisible por 1 hora.", imagen: "../images/pocion invisiobilidad.jpg" },
@@ -350,6 +267,8 @@
 
         var editandoId = null;
         var eliminandoId = null;
+
+        // ── Referencias DOM ──────────────────────────────────────
         var tbody = document.getElementById('tbody-productos');
         var inputBuscar = document.getElementById('admin-buscar');
         var filtroCategoria = document.getElementById('filtro-categoria');
@@ -371,6 +290,7 @@
         var detalleOverlay = document.getElementById('detalle-overlay');
         var detalleBody = document.getElementById('detalle-body');
 
+        // ── Renderizar tabla ──────────────────────────────────────
         function renderTabla(lista) {
             lista = lista || productos;
             tbody.innerHTML = '';
@@ -396,11 +316,13 @@
             actualizarContador();
         }
 
+        // ── Actualizar contador ──────────────────────────────────
         function actualizarContador() {
             var total = productos.length;
             countBadge.textContent = total + ' producto' + (total !== 1 ? 's' : '');
         }
 
+        // ── Filtros combinados ──────────────────────────────────
         function aplicarFiltros() {
             var texto = inputBuscar.value.toLowerCase();
             var cat = filtroCategoria.value;
@@ -415,6 +337,7 @@
             renderTabla(filtrados);
         }
 
+        // ── Abrir modal AGREGAR ──────────────────────────────────
         function abrirModal() {
             editandoId = null;
             modalTitulo.textContent = 'Agregar Producto';
@@ -422,6 +345,7 @@
             modalOverlay.classList.add('visible');
         }
 
+        // ── Abrir modal EDITAR ───────────────────────────────────
         function abrirEditar(id) {
             var p = productos.find(function(x) { return x.id === id; });
             if (!p) return;
@@ -453,6 +377,7 @@
             modalOverlay.classList.remove('visible');
         }
 
+        // ── Guardar (agregar o editar) ──────────────────────────
         function guardarProducto() {
             var nombre = mNombre.value.trim();
             var precio = parseFloat(mPrecio.value);
@@ -501,9 +426,10 @@
             }
 
             cerrarModal();
-            aplicarFiltros();
+            aplicarFiltros(); // Refresca la tabla con filtros actuales
         }
 
+        // ── Ver detalle ──────────────────────────────────────────
         function verDetalle(id) {
             var p = productos.find(function(x) { return x.id === id; });
             if (!p) return;
@@ -529,6 +455,7 @@
             detalleOverlay.classList.remove('visible');
         }
 
+        // ── Confirmar ELIMINAR ──────────────────────────────────
         function abrirConfirm(id) {
             var p = productos.find(function(x) { return x.id === id; });
             if (!p) return;
@@ -550,6 +477,7 @@
             mostrarToast('🗑 Producto eliminado.', 'error');
         }
 
+        // ── Toast ─────────────────────────────────────────────────
         function mostrarToast(msg, tipo) {
             tipo = tipo || 'ok';
             toast.textContent = msg;
@@ -560,8 +488,10 @@
             }, 3000);
         }
 
-        aplicarFiltros();
+        // ── Inicializar ──────────────────────────────────────────
+        aplicarFiltros(); // Carga la tabla con filtros por defecto
 
+        // Cerrar modales al hacer clic fuera
         modalOverlay.addEventListener('click', function(e) {
             if (e.target === modalOverlay) cerrarModal();
         });
@@ -573,6 +503,7 @@
         });
     </script>
 
+    <!-- Estilos para los nuevos elementos -->
     <style>
         .estado.entregado { background: rgba(74,222,128,0.15); color: #4ade80; }
         .estado.pendiente { background: rgba(251,146,60,0.15); color: #fb923c; }
@@ -604,132 +535,6 @@
         .btn-icono.detalle:hover {
             background: rgba(192,132,252,0.12);
             border-color: var(--lilac);
-        }
-
-        .sidebar-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .sidebar-section {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .sidebar-section-title {
-            display: block;
-            margin: 0 12px 4px;
-            padding-top: 2px;
-            font-size: 0.68rem;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: rgba(220, 205, 255, 0.55);
-            font-weight: 700;
-            opacity: 0.9;
-        }
-
-        .sidebar-section + .sidebar-section {
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .scm-panel {
-            padding: 0;
-            overflow: hidden;
-        }
-
-        .scm-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(220px, 1fr));
-            gap: 20px;
-            padding: 24px 28px 28px;
-        }
-
-        .scm-card {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-height: 210px;
-            text-decoration: none;
-            padding: 24px 22px;
-            border-radius: 22px;
-            background: linear-gradient(180deg, rgba(18, 16, 28, 0.9), rgba(28, 23, 38, 0.86));
-            border: 1px solid rgba(214, 175, 94, 0.26);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 18px 34px rgba(9, 7, 17, 0.42);
-            transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
-            color: var(--text-main);
-            overflow: hidden;
-        }
-
-        .scm-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at top left, rgba(192, 132, 252, 0.18), transparent 42%);
-            opacity: 0.8;
-        }
-
-        .scm-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(214, 175, 94, 0.7);
-            box-shadow: 0 0 0 1px rgba(214, 175, 94, 0.25), 0 20px 38px rgba(119, 81, 160, 0.26), 0 0 24px rgba(214, 175, 94, 0.18);
-        }
-
-        .scm-card:hover .scm-icon {
-            box-shadow: 0 0 22px rgba(214, 175, 94, 0.4);
-            border-color: rgba(214, 175, 94, 0.65);
-            color: #f7d98d;
-        }
-
-        .scm-icon,
-        .scm-card-body,
-        .scm-card::before {
-            position: relative;
-            z-index: 1;
-        }
-
-        .scm-icon {
-            width: 72px;
-            height: 72px;
-            display: grid;
-            place-items: center;
-            margin-bottom: 20px;
-            border-radius: 18px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(214, 175, 94, 0.28);
-            color: var(--gold);
-            font-size: 1.9rem;
-            transition: all 0.22s ease;
-        }
-
-        .scm-card-body h3 {
-            margin: 0 0 6px;
-            font-family: "Cinzel", serif;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .scm-card-body p {
-            margin: 0;
-            color: rgba(232, 228, 242, 0.72);
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 1100px) {
-            .scm-grid {
-                grid-template-columns: repeat(2, minmax(220px, 1fr));
-            }
-        }
-
-        @media (max-width: 760px) {
-            .scm-grid {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 
