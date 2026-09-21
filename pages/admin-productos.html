@@ -15,7 +15,7 @@
 </head>
 <body class="admin-body">
 
-    <!-- SIDEBAR -->
+    <!-- ── BARRA LATERAL ── -->
     <aside class="admin-sidebar">
         <div class="sidebar-logo">
             <img src="../images/logo/Logo.png" alt="Wizardly" />
@@ -76,7 +76,7 @@
         </div>
     </aside>
 
-    <!-- CONTENIDO -->
+    <!-- ── CONTENIDO PRINCIPAL ── -->
     <main class="admin-main">
 
         <div class="admin-topbar">
@@ -87,7 +87,6 @@
             </div>
         </div>
 
-        <!-- BLOQUE PRINCIPAL -->
         <div class="admin-bloque">
             <div class="bloque-header">
                 <h2><!-- Espacio intencionalmente vacío para igualar diseño visual --></h2>
@@ -139,7 +138,7 @@
 
     </main>
 
-    <!-- MODAL: AGREGAR / EDITAR PRODUCTO -->
+    <!-- ── MODAL: AGREGAR / EDITAR PRODUCTO ── -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -222,25 +221,7 @@
         </div>
     </div>
 
-    <!-- MODAL: VER DETALLE (Mantenido funcional aunque no esté en la vista principal de la tabla) -->
-    <div class="modal-overlay" id="detalle-overlay">
-        <div class="modal-card" style="max-width:600px;">
-            <div class="modal-header">
-                <h3>Detalle del Producto</h3>
-                <button class="modal-cerrar" onclick="cerrarDetalle()">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body" id="detalle-body">
-                <!-- Se llena dinámicamente -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn-modal-cancelar" onclick="cerrarDetalle()">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- CONFIRM: ELIMINAR -->
+    <!-- ── CONFIRM: ELIMINAR ── -->
     <div class="modal-overlay" id="confirm-overlay">
         <div class="modal-card confirm-card">
             <div class="modal-header">
@@ -264,26 +245,69 @@
         </div>
     </div>
 
-    <!-- TOAST -->
+    <!-- ── TOAST ── -->
     <div class="toast-admin" id="toast-admin"></div>
 
-    <script>
-        // ── Base de productos ORIGINAL INTACTA ──
-        var productos = [
-            { id: 1, nombre: "Varita de Saúco", precio: 350.00, categoria: "Varitas", etiqueta: "Nuevo", existencia: 12, estado: "Activo", descripcion: "La varita más poderosa.", imagen: "../images/varita sauco.webp" },
-            { id: 2, nombre: "Poción de Invisibilidad", precio: 85.50, categoria: "Pociones", etiqueta: "Oferta", existencia: 0, estado: "Inactivo", descripcion: "Vuelve invisible por 1 hora.", imagen: "../images/pocion invisiobilidad.jpg" },
-            { id: 3, nombre: "Grimorio de Hechizos Antiguos", precio: 420.00, categoria: "Libros", etiqueta: "Nuevo", existencia: 5, estado: "Activo", descripcion: "Conjuro de protección.", imagen: "../images/grimorio.jpg" },
-            { id: 4, nombre: "Cristal de Adivinación", precio: 199.99, categoria: "Cristales", etiqueta: "", existencia: 3, estado: "Activo", descripcion: "Vislumbra el futuro.", imagen: "../images/cristal de adivinacion.webp" },
-            { id: 5, nombre: "Amuleto de Protección", precio: 65.00, categoria: "Amuletos", etiqueta: "Oferta", existencia: 8, estado: "Activo", descripcion: "Escudo mágico contra maleficios.", imagen: "../images/Amuleto de proteccion.jpeg" },
-            { id: 6, nombre: "Caldero de Cobre", precio: 275.00, categoria: "Calderos", etiqueta: "", existencia: 2, estado: "Activo", descripcion: "Ideal para pociones complejas.", imagen: "../images/Caldero.jpg" },
-            { id: 7, nombre: "Mapa del Tesoro Escondido", precio: 120.00, categoria: "Pergaminos", etiqueta: "Nuevo", existencia: 0, estado: "Inactivo", descripcion: "Señala el camino.", imagen: "../images/mapa del tesoro.jpg" },
-            { id: 8, nombre: "Pluma de Fénix", precio: 450.00, categoria: "Reliquias", etiqueta: "Nuevo", existencia: 1, estado: "Activo", descripcion: "Pluma mágica de fénix.", imagen: "../images/pluma de fenix.jpg" }
+    <!-- ── LÓGICA DE FIREBASE Y JS ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // TUS CREDENCIALES DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 🔥 TUS PRODUCTOS ORIGINALES (Para migrarlos a la base de datos) 🔥
+        const productosBase = [
+            { nombre: "Varita de Saúco", precio: 350.00, categoria: "Varitas", etiqueta: "Nuevo", existencia: 12, estado: "Activo", descripcion: "La varita más poderosa.", imagen: "../images/varita sauco.webp" },
+            { nombre: "Poción de Invisibilidad", precio: 85.50, categoria: "Pociones", etiqueta: "Oferta", existencia: 0, estado: "Inactivo", descripcion: "Vuelve invisible por 1 hora.", imagen: "../images/pocion invisiobilidad.jpg" },
+            { nombre: "Grimorio de Hechizos Antiguos", precio: 420.00, categoria: "Libros", etiqueta: "Nuevo", existencia: 5, estado: "Activo", descripcion: "Conjuro de protección.", imagen: "../images/grimorio.jpg" },
+            { nombre: "Cristal de Adivinación", precio: 199.99, categoria: "Cristales", etiqueta: "", existencia: 3, estado: "Activo", descripcion: "Vislumbra el futuro.", imagen: "../images/cristal de adivinacion.webp" },
+            { nombre: "Amuleto de Protección", precio: 65.00, categoria: "Amuletos", etiqueta: "Oferta", existencia: 8, estado: "Activo", descripcion: "Escudo mágico contra maleficios.", imagen: "../images/Amuleto de proteccion.jpeg" },
+            { nombre: "Caldero de Cobre", precio: 275.00, categoria: "Calderos", etiqueta: "", existencia: 2, estado: "Activo", descripcion: "Ideal para pociones complejas.", imagen: "../images/Caldero.jpg" },
+            { nombre: "Mapa del Tesoro Escondido", precio: 120.00, categoria: "Pergaminos", etiqueta: "Nuevo", existencia: 0, estado: "Inactivo", descripcion: "Señala el camino.", imagen: "../images/mapa del tesoro.jpg" },
+            { nombre: "Pluma de Fénix", precio: 450.00, categoria: "Reliquias", etiqueta: "Nuevo", existencia: 1, estado: "Activo", descripcion: "Pluma mágica de fénix.", imagen: "../images/pluma de fenix.jpg" }
         ];
 
-        var editandoId = null;
-        var eliminandoId = null;
+        // 🔥 FUNCIÓN DEL HISTORIAL 🔥
+        async function registrarHistorialLocal(modulo, accion, descripcion) {
+            try {
+                let adminNombre = "Sistema";
+                const datosRaw = localStorage.getItem('usuarioDatos');
+                if (datosRaw) {
+                    const usuario = JSON.parse(datosRaw);
+                    if (usuario && usuario.nombre) adminNombre = usuario.nombre;
+                }
 
-        // ── Referencias DOM ──
+                await addDoc(collection(db, "historial"), {
+                    modulo: modulo,
+                    accion: accion,
+                    descripcion: descripcion,
+                    adminNombre: adminNombre,
+                    adminUid: "desconocido",
+                    fecha: Timestamp.now()
+                });
+            } catch (error) {
+                console.error("Error al guardar historial:", error);
+            }
+        }
+
+        // Variables Globales
+        window.productos = [];
+        window.editandoId = null;
+        window.eliminandoId = null;
+
+        // Referencias DOM
         var tbody = document.getElementById('tbody-productos');
         var inputBuscar = document.getElementById('admin-buscar');
         var filtroCategoria = document.getElementById('filtro-categoria');
@@ -303,19 +327,57 @@
         var confirmOverlay = document.getElementById('confirm-overlay');
         var confirmNombre = document.getElementById('confirm-nombre');
         var toast = document.getElementById('toast-admin');
-        var detalleOverlay = document.getElementById('detalle-overlay');
-        var detalleBody = document.getElementById('detalle-body');
 
-        // ── Renderizar tabla ──
-        function renderTabla(lista) {
-            lista = lista || productos;
+        // Leer datos desde Firebase y Auto-Migrar si está vacío
+        window.cargarProductosFirebase = async function() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "productos"));
+                
+                // 🚀 MIGRACIÓN AUTOMÁTICA
+                if (querySnapshot.empty) {
+                    window.mostrarToast('Sincronizando productos con la base de datos...', 'ok');
+                    for (let p of productosBase) {
+                        await addDoc(collection(db, "productos"), {
+                            nombre: p.nombre,
+                            descripcion: p.descripcion,
+                            categoria: p.categoria,
+                            proveedor: "Ollivanders", 
+                            existencia: p.existencia,
+                            stock_min: 10,            
+                            estrategia: "PUSH",       
+                            precio: p.precio,
+                            imagen: p.imagen,
+                            estado: p.estado,
+                            etiqueta: p.etiqueta,
+                            fecha_registro: Timestamp.now()
+                        });
+                    }
+                    window.cargarProductosFirebase();
+                    return;
+                }
+
+                // Si ya hay productos, los leemos
+                window.productos = [];
+                querySnapshot.forEach((doc) => {
+                    let data = doc.data();
+                    data.id = doc.id; 
+                    window.productos.push(data);
+                });
+                
+                window.aplicarFiltros(); 
+            } catch (error) {
+                console.error("Error al obtener datos:", error);
+                window.mostrarToast('Error al conectar con la Base de Datos', 'error');
+            }
+        };
+
+        // Renderizar tabla
+        window.renderTabla = function(lista) {
+            lista = lista || window.productos;
             tbody.innerHTML = '';
             lista.forEach(function(p) {
-                // Fallback para los datos predeterminados que no tienen estrategia ni stock mínimo
                 var estrategiaObj = p.estrategia || "PUSH";
                 var stockMinObj = p.stock_min || 10;
-                
-                // Clases de color para igualar el ejemplo (Push = verde, Pull = azul)
                 var claseEstrategia = (estrategiaObj === 'PUSH') ? 'badge-activo' : 'badge-frecuente';
                 
                 var tr = document.createElement('tr');
@@ -327,39 +389,38 @@
                     '<td>' + stockMinObj + '</td>' +
                     '<td><span class="badge ' + claseEstrategia + '">' + estrategiaObj + '</span></td>' +
                     '<td><div class="acciones-wrap">' +
-                        '<button class="btn-icono ver" style="color: #10b981;" onclick="abrirDetalle(' + p.id + ')"><i class="fa-solid fa-eye"></i></button>' +
-                        '<button class="btn-icono editar" style="color: #3b82f6;" onclick="abrirEditar(' + p.id + ')"><i class="fa-solid fa-pen"></i></button>' +
-                        '<button class="btn-icono eliminar" style="color: #ef4444;" onclick="abrirConfirm(' + p.id + ')"><i class="fa-solid fa-trash"></i></button>' +
+                        '<button class="btn-icono editar" style="color: #3b82f6;" onclick="abrirEditar(\'' + p.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+                        '<button class="btn-icono eliminar" style="color: #ef4444;" onclick="abrirConfirm(\'' + p.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
                     '</div></td>';
                 tbody.appendChild(tr);
             });
-        }
+        };
 
-        // ── Filtros combinados ──
-        function aplicarFiltros() {
+        // Filtros combinados
+        window.aplicarFiltros = function() {
             var texto = inputBuscar.value.toLowerCase();
             var cat = filtroCategoria.value;
-            var filtrados = productos.filter(function(p) {
+            var filtrados = window.productos.filter(function(p) {
                 var coincideNombre = p.nombre.toLowerCase().includes(texto);
                 var coincideCat = (cat === '' || p.categoria === cat);
                 return coincideNombre && coincideCat;
             });
-            renderTabla(filtrados);
-        }
+            window.renderTabla(filtrados);
+        };
 
-        // ── Abrir modal AGREGAR ──
-        function abrirModal() {
-            editandoId = null;
+        // Abrir modal AGREGAR
+        window.abrirModal = function() {
+            window.editandoId = null;
             modalTitulo.textContent = 'Nuevo producto';
-            limpiarCampos();
+            window.limpiarCampos();
             modalOverlay.classList.add('visible');
-        }
+        };
 
-        // ── Abrir modal EDITAR ──
-        function abrirEditar(id) {
-            var p = productos.find(function(x) { return x.id === id; });
+        // Abrir modal EDITAR
+        window.abrirEditar = function(id) {
+            var p = window.productos.find(function(x) { return x.id === id; });
             if (!p) return;
-            editandoId = id;
+            window.editandoId = id;
             modalTitulo.textContent = 'Editar Producto';
             
             mNombre.value = p.nombre;
@@ -370,57 +431,29 @@
             mStockMin.value = p.stock_min || 10;
             mEstrategia.value = p.estrategia || 'PUSH';
             mPrecio.value = p.precio;
-            mImagen.value = p.imagen;
+            mImagen.value = p.imagen || '';
             
             modalOverlay.classList.add('visible');
-        }
+        };
 
-        function abrirDetalle(id) {
-            var p = productos.find(function(x) { return x.id === id; });
-            if (!p) return;
-
-            detalleBody.innerHTML = 
-                '<div style="display:flex; gap:18px; align-items:flex-start;">' +
-                    '<img src="' + (p.imagen || '../images/logo/Logo.png') + '" alt="' + p.nombre + '" style="width:120px; height:120px; object-fit:cover; border-radius:12px; border:1px solid var(--border);" onerror="this.src=\'../images/logo/Logo.png\'">' +
-                    '<div style="flex:1;">' +
-                        '<h4 style="margin:0 0 8px; color: var(--text-main);">' + p.nombre + '</h4>' +
-                        '<p style="margin:0 0 10px; color: var(--text-soft);">' + (p.descripcion || 'Sin descripción disponible.') + '</p>' +
-                        '<div style="display:grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap:10px; font-size:0.92rem;">' +
-                            '<div><strong>Categoría:</strong><br>' + (p.categoria || '-') + '</div>' +
-                            '<div><strong>Proveedor:</strong><br>' + (p.proveedor || '-') + '</div>' +
-                            '<div><strong>Stock:</strong><br>' + (p.existencia || 0) + '</div>' +
-                            '<div><strong>Stock mínimo:</strong><br>' + (p.stock_min || 0) + '</div>' +
-                            '<div><strong>Estrategia:</strong><br>' + (p.estrategia || 'PUSH') + '</div>' +
-                            '<div><strong>Precio:</strong><br>$' + Number(p.precio || 0).toFixed(2) + '</div>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
-
-            detalleOverlay.classList.add('visible');
-        }
-
-        function cerrarDetalle() {
-            detalleOverlay.classList.remove('visible');
-        }
-
-        function limpiarCampos() {
+        window.limpiarCampos = function() {
             mNombre.value = '';
             mDescripcion.value = '';
             mCategoria.value = '';
             mProveedor.value = '';
             mExistencia.value = 0;
-            mStockMin.value = 0;
+            mStockMin.value = 10;
             mEstrategia.value = 'PUSH';
             mPrecio.value = '';
             mImagen.value = '';
-        }
+        };
 
-        function cerrarModal() {
+        window.cerrarModal = function() {
             modalOverlay.classList.remove('visible');
-        }
+        };
 
-        // ── Guardar (agregar o editar) ──
-        function guardarProducto() {
+        // Guardar (agregar o editar) en Firebase
+        window.guardarProducto = async function() {
             var nombre = mNombre.value.trim();
             var descripcion = mDescripcion.value.trim();
             var categoria = mCategoria.value;
@@ -432,78 +465,75 @@
             var imagen = mImagen.value.trim();
 
             if (!nombre || isNaN(precio) || !categoria) {
-                mostrarToast('⚠️ Completa nombre, costo unitario y categoría.', 'error');
+                window.mostrarToast('⚠️ Completa nombre, costo unitario y categoría.', 'error');
                 return;
             }
 
-            if (editandoId !== null) {
-                var idx = productos.findIndex(function(p) { return p.id === editandoId; });
-                // Mantenemos atributos viejos que no están en el form (como etiqueta, estado)
-                var pActual = productos[idx];
-                productos[idx] = {
-                    id: editandoId,
-                    nombre: nombre,
-                    descripcion: descripcion,
-                    categoria: categoria,
-                    proveedor: proveedor,
-                    existencia: existencia,
-                    stock_min: stock_min,
-                    estrategia: estrategia,
-                    precio: precio,
-                    imagen: imagen,
-                    estado: pActual.estado,
-                    etiqueta: pActual.etiqueta
-                };
-                mostrarToast('✦ Producto actualizado correctamente.', 'ok');
-            } else {
-                var maxId = 0;
-                productos.forEach(function(p) { if (p.id > maxId) maxId = p.id; });
-                var nuevoId = maxId + 1;
-                productos.push({
-                    id: nuevoId,
-                    nombre: nombre,
-                    descripcion: descripcion,
-                    categoria: categoria,
-                    proveedor: proveedor,
-                    existencia: existencia,
-                    stock_min: stock_min,
-                    estrategia: estrategia,
-                    precio: precio,
-                    imagen: imagen,
-                    estado: 'Activo',
-                    etiqueta: 'Nuevo'
-                });
-                mostrarToast('✦ Producto agregado al catálogo.', 'ok');
+            try {
+                if (window.editandoId) {
+                    // MODO EDICIÓN
+                    const productoRef = doc(db, "productos", window.editandoId);
+                    await updateDoc(productoRef, {
+                        nombre: nombre, descripcion: descripcion, categoria: categoria,
+                        proveedor: proveedor, existencia: existencia, stock_min: stock_min,
+                        estrategia: estrategia, precio: precio, imagen: imagen
+                    });
+                    
+                    await registrarHistorialLocal("productos", "actualizar", "Se actualizó el producto: " + nombre);
+                    window.mostrarToast('✦ Producto actualizado correctamente.', 'ok');
+                } else {
+                    // MODO CREACIÓN
+                    await addDoc(collection(db, "productos"), {
+                        nombre: nombre, descripcion: descripcion, categoria: categoria,
+                        proveedor: proveedor, existencia: existencia, stock_min: stock_min,
+                        estrategia: estrategia, precio: precio, imagen: imagen,
+                        fecha_registro: Timestamp.now()
+                    });
+                    
+                    await registrarHistorialLocal("productos", "crear", "Se agregó el producto: " + nombre);
+                    window.mostrarToast('✦ Producto agregado al catálogo.', 'ok');
+                }
+
+                window.cerrarModal();
+                window.cargarProductosFirebase();
+            } catch (error) {
+                console.error("Error al guardar: ", error);
+                window.mostrarToast('⚠️ Error al conectar con la base de datos.', 'error');
             }
+        };
 
-            cerrarModal();
-            aplicarFiltros(); 
-        }
-
-        // ── Confirmar ELIMINAR ──
-        function abrirConfirm(id) {
-            var p = productos.find(function(x) { return x.id === id; });
+        // Confirmar ELIMINAR
+        window.abrirConfirm = function(id) {
+            var p = window.productos.find(function(x) { return x.id === id; });
             if (!p) return;
-            eliminandoId = id;
+            window.eliminandoId = id;
             confirmNombre.textContent = p.nombre;
             confirmOverlay.classList.add('visible');
-        }
+        };
 
-        function cerrarConfirm() {
+        window.cerrarConfirm = function() {
             confirmOverlay.classList.remove('visible');
-            eliminandoId = null;
-        }
+            window.eliminandoId = null;
+        };
 
-        function confirmarEliminar() {
-            if (eliminandoId === null) return;
-            productos = productos.filter(function(p) { return p.id !== eliminandoId; });
-            cerrarConfirm();
-            aplicarFiltros();
-            mostrarToast('🗑 Producto eliminado.', 'error');
-        }
+        window.confirmarEliminar = async function() {
+            if (window.eliminandoId === null) return;
+            try {
+                let nombreEliminado = confirmNombre.textContent;
+                await deleteDoc(doc(db, "productos", window.eliminandoId));
+                
+                await registrarHistorialLocal("productos", "eliminar", "Se eliminó el producto: " + nombreEliminado);
+                
+                window.cerrarConfirm();
+                window.mostrarToast('🗑 Producto eliminado.', 'error');
+                window.cargarProductosFirebase();
+            } catch(error) {
+                console.error(error);
+            }
+        };
 
-        // ── Toast ──
-        function mostrarToast(msg, tipo) {
+        // Toast
+        window.mostrarToast = function(msg, tipo) {
             tipo = tipo || 'ok';
             toast.textContent = msg;
             toast.className = 'toast-admin visible ' + tipo;
@@ -511,23 +541,21 @@
             toast._t = setTimeout(function() {
                 toast.classList.remove('visible');
             }, 3000);
-        }
+        };
 
-        // ── Inicializar ──
-        aplicarFiltros(); 
-
+        // Cerrar modales al hacer clic fuera
         modalOverlay.addEventListener('click', function(e) {
-            if (e.target === modalOverlay) cerrarModal();
+            if (e.target === modalOverlay) window.cerrarModal();
         });
         confirmOverlay.addEventListener('click', function(e) {
-            if (e.target === confirmOverlay) cerrarConfirm();
+            if (e.target === confirmOverlay) window.cerrarConfirm();
         });
-        detalleOverlay.addEventListener('click', function(e) {
-            if (e.target === detalleOverlay) cerrarDetalle();
-        });
+
+        // Inicializar lectura de Firebase
+        window.cargarProductosFirebase();
     </script>
 
-    <!-- Estilos de colores referenciados al ejemplo -->
+    <!-- ── ESTILOS ESPECÍFICOS ── -->
     <style>
         .badge {
             display: inline-block;
