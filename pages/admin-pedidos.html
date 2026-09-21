@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly — Pedidos</title>
+    <title>Wizardly â€” Pedidos</title>
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css" />
@@ -76,7 +76,7 @@
         .badge-select {
             cursor: pointer;
             outline: none;
-            /* Añadimos un poco de espacio extra a la derecha para la flecha del select */
+            /* AÃ±adimos un poco de espacio extra a la derecha para la flecha del select */
             padding-right: 20px;
             transition: all 0.3s ease;
         }
@@ -109,34 +109,49 @@
             </div>
         </div>
         <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
             <a href="admin.html" class="nav-item">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard
-            </a>
-            <a href="admin-productos.html" class="nav-item">
-                <i class="fa-solid fa-hat-wizard"></i> Productos
-            </a>
-            <a href="admin-pedidos.html" class="nav-item active">
-                <i class="fa-solid fa-scroll"></i> Pedidos
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
             </a>
             <a href="admin-promociones.html" class="nav-item">
                 <i class="fa-solid fa-wand-sparkles"></i> Promociones
             </a>
             <a href="admin-clientes.html" class="nav-item">
-                <i class="fa-solid fa-users"></i> CRM
+                <i class="fa-solid fa-users"></i> Clientes
             </a>
-            <a href="admin-actividadesadmin.html" class="nav-item">
-                <i class="fa-solid fa-clock"></i> Actividad Admin
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
             </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
             </a>
-                        <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i> Historial
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
             </a>
 
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
+            <a href="admin-productos.html" class="nav-item active">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
             <a href="admin-reportes.html" class="nav-item">
                 <i class="fa-solid fa-chart-simple"></i> Reportes
             </a>
-             <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Configuración
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
         </nav>
         <div class="sidebar-footer">
             <a href="../index.html" class="nav-item">
@@ -147,7 +162,7 @@
 
     <main class="admin-main">
         <div class="admin-topbar">
-            <h1>Gestión de Pedidos</h1>
+            <h1>GestiÃ³n de Pedidos</h1>
             <div class="topbar-usuario">
                 <i class="fa-solid fa-circle-user"></i>
                 <span>Archimaga Seraphina</span>
@@ -187,7 +202,7 @@
                         <tr>
                             <td>#WIZ-9041</td>
                             <td>Albus Dumbledore</td>
-                            <td>1x Varita de Fénix Suprema, 2x Poción de Maná Pura</td>
+                            <td>1x Varita de FÃ©nix Suprema, 2x PociÃ³n de ManÃ¡ Pura</td>
                             <td>350 Oro</td>
                             <td>
                                 <select class="badge badge-select badge-success" onchange="cambiarEstado(this)">
@@ -226,7 +241,7 @@
                         <tr>
                             <td>#WIZ-8755</td>
                             <td>Morgana le Fay</td>
-                            <td>2x Elíxir de Transmutación Prohibida</td>
+                            <td>2x ElÃ­xir de TransmutaciÃ³n Prohibida</td>
                             <td>240 Oro</td>
                             <td>
                                 <select class="badge badge-select badge-danger" onchange="cambiarEstado(this)">
@@ -238,8 +253,8 @@
                         </tr>
                         <tr>
                             <td>#WIZ-8610</td>
-                            <td>Merlín Ambrosius</td>
-                            <td>5x Pergamino de Teletransportación Avanzada</td>
+                            <td>MerlÃ­n Ambrosius</td>
+                            <td>5x Pergamino de TeletransportaciÃ³n Avanzada</td>
                             <td>150 Oro</td>
                             <td>
                                 <select class="badge badge-select badge-success" onchange="cambiarEstado(this)">
@@ -272,7 +287,7 @@
                 selectElement.classList.add('badge-danger');
             }
 
-            // Opcional: Aquí podrías agregar un código Fetch/AJAX en el futuro 
+            // Opcional: AquÃ­ podrÃ­as agregar un cÃ³digo Fetch/AJAX en el futuro 
             // para enviar el nuevo estado directamente a tu base de datos
             // console.log("Estado actualizado a: " + estado);
         }

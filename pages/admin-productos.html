@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly — Gestión de Productos</title>
+    <title>Wizardly â€” GestiÃ³n de Productos</title>
 
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,34 +25,49 @@
             </div>
         </div>
         <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
             <a href="admin.html" class="nav-item">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
             </a>
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
             <a href="admin-productos.html" class="nav-item active">
                 <i class="fa-solid fa-hat-wizard"></i> Productos
             </a>
             <a href="admin-pedidos.html" class="nav-item">
                 <i class="fa-solid fa-scroll"></i> Pedidos
             </a>
-            <a href="admin-promociones.html" class="nav-item">
-                <i class="fa-solid fa-wand-sparkles"></i> Promociones
-            </a>
-            <a href="admin-clientes.html" class="nav-item">
-                <i class="fa-solid fa-users"></i> CRM
-            </a>
-            <a href="admin-actividadesadmin.html" class="nav-item">
-                <i class="fa-solid fa-clock"></i> Actividad Admin
-            </a>
-            </a>
-                        <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i> Historial
-            </a>
-
             <a href="admin-reportes.html" class="nav-item">
                 <i class="fa-solid fa-chart-simple"></i> Reportes
             </a>
-             <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Configuración
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
         </nav>
         <div class="sidebar-footer">
             <a href="../index.html" class="nav-item">
@@ -65,7 +80,7 @@
     <main class="admin-main">
 
         <div class="admin-topbar">
-            <h1>Gestión de Productos</h1>
+            <h1>GestiÃ³n de Productos</h1>
             <div class="topbar-usuario">
                 <i class="fa-solid fa-circle-user"></i>
                 <span>Archimaga Seraphina</span>
@@ -76,7 +91,7 @@
         <div class="admin-bloque">
             <div class="bloque-header">
                 <h2>
-                    Catálogo completo
+                    CatÃ¡logo completo
                     <span class="count-badge" id="productos-count">0 productos</span>
                 </h2>
                 <button class="btn-admin" onclick="abrirModal()">
@@ -84,7 +99,7 @@
                 </button>
             </div>
 
-            <!-- FILTROS Y BÚSQUEDA -->
+            <!-- FILTROS Y BÃšSQUEDA -->
             <div class="admin-filtros">
                 <div class="admin-buscador" style="flex:2;">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -92,7 +107,7 @@
                 </div>
                 <div class="admin-filtro-select">
                     <select id="filtro-categoria" onchange="aplicarFiltros()">
-                        <option value="">Todas las categorías</option>
+                        <option value="">Todas las categorÃ­as</option>
                         <option>Varitas</option>
                         <option>Pociones</option>
                         <option>Libros</option>
@@ -120,7 +135,7 @@
                             <th>ID</th>
                             <th>Imagen</th>
                             <th>Nombre</th>
-                            <th>Categoría</th>
+                            <th>CategorÃ­a</th>
                             <th>Precio</th>
                             <th>Existencia</th>
                             <th>Estado</th>
@@ -146,7 +161,7 @@
             <div class="modal-body">
                 <div class="campo-modal">
                     <label>Nombre del producto</label>
-                    <input type="text" id="m-nombre" placeholder="Ej. Varita de Saúco" />
+                    <input type="text" id="m-nombre" placeholder="Ej. Varita de SaÃºco" />
                 </div>
                 <div class="campo-modal-fila">
                     <div class="campo-modal">
@@ -154,7 +169,7 @@
                         <input type="number" id="m-precio" placeholder="0.00" min="0" step="0.01" />
                     </div>
                     <div class="campo-modal">
-                        <label>Categoría</label>
+                        <label>CategorÃ­a</label>
                         <select id="m-categoria">
                             <option value="">Seleccionar...</option>
                             <option>Varitas</option>
@@ -190,7 +205,7 @@
                     </select>
                 </div>
                 <div class="campo-modal">
-                    <label>Descripción</label>
+                    <label>DescripciÃ³n</label>
                     <textarea id="m-descripcion" rows="3" placeholder="Describe el artefacto..."></textarea>
                 </div>
                 <div class="campo-modal">
@@ -217,7 +232,7 @@
                 </button>
             </div>
             <div class="modal-body" id="detalle-body">
-                <!-- Se llena dinámicamente -->
+                <!-- Se llena dinÃ¡micamente -->
             </div>
             <div class="modal-footer">
                 <button class="btn-modal-cancelar" onclick="cerrarDetalle()">Cerrar</button>
@@ -229,21 +244,21 @@
     <div class="modal-overlay" id="confirm-overlay">
         <div class="modal-card confirm-card">
             <div class="modal-header">
-                <h3>¿Eliminar producto?</h3>
+                <h3>Â¿Eliminar producto?</h3>
                 <button class="modal-cerrar" onclick="cerrarConfirm()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <p class="confirm-texto">
-                    Esta acción no se puede deshacer.<br />
-                    ¿Seguro que deseas eliminar <strong id="confirm-nombre"></strong>?
+                    Esta acciÃ³n no se puede deshacer.<br />
+                    Â¿Seguro que deseas eliminar <strong id="confirm-nombre"></strong>?
                 </p>
             </div>
             <div class="modal-footer">
                 <button class="btn-modal-cancelar" onclick="cerrarConfirm()">Cancelar</button>
                 <button class="btn-modal-eliminar" onclick="confirmarEliminar()">
-                    <i class="fa-solid fa-trash"></i> Sí, eliminar
+                    <i class="fa-solid fa-trash"></i> SÃ­, eliminar
                 </button>
             </div>
         </div>
@@ -253,22 +268,22 @@
     <div class="toast-admin" id="toast-admin"></div>
 
     <script>
-        // ── Base de productos con nuevos campos ──────────────
+        // â”€â”€ Base de productos con nuevos campos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         var productos = [
-            { id: 1, nombre: "Varita de Saúco", precio: 350.00, categoria: "Varitas", etiqueta: "Nuevo", existencia: 12, estado: "Activo", descripcion: "La varita más poderosa.", imagen: "../images/varita sauco.webp" },
-            { id: 2, nombre: "Poción de Invisibilidad", precio: 85.50, categoria: "Pociones", etiqueta: "Oferta", existencia: 0, estado: "Inactivo", descripcion: "Vuelve invisible por 1 hora.", imagen: "../images/pocion invisiobilidad.jpg" },
-            { id: 3, nombre: "Grimorio de Hechizos Antiguos", precio: 420.00, categoria: "Libros", etiqueta: "Nuevo", existencia: 5, estado: "Activo", descripcion: "Conjuro de protección.", imagen: "../images/grimorio.jpg" },
-            { id: 4, nombre: "Cristal de Adivinación", precio: 199.99, categoria: "Cristales", etiqueta: "", existencia: 3, estado: "Activo", descripcion: "Vislumbra el futuro.", imagen: "../images/cristal de adivinacion.webp" },
-            { id: 5, nombre: "Amuleto de Protección", precio: 65.00, categoria: "Amuletos", etiqueta: "Oferta", existencia: 8, estado: "Activo", descripcion: "Escudo mágico contra maleficios.", imagen: "../images/Amuleto de proteccion.jpeg" },
+            { id: 1, nombre: "Varita de SaÃºco", precio: 350.00, categoria: "Varitas", etiqueta: "Nuevo", existencia: 12, estado: "Activo", descripcion: "La varita mÃ¡s poderosa.", imagen: "../images/varita sauco.webp" },
+            { id: 2, nombre: "PociÃ³n de Invisibilidad", precio: 85.50, categoria: "Pociones", etiqueta: "Oferta", existencia: 0, estado: "Inactivo", descripcion: "Vuelve invisible por 1 hora.", imagen: "../images/pocion invisiobilidad.jpg" },
+            { id: 3, nombre: "Grimorio de Hechizos Antiguos", precio: 420.00, categoria: "Libros", etiqueta: "Nuevo", existencia: 5, estado: "Activo", descripcion: "Conjuro de protecciÃ³n.", imagen: "../images/grimorio.jpg" },
+            { id: 4, nombre: "Cristal de AdivinaciÃ³n", precio: 199.99, categoria: "Cristales", etiqueta: "", existencia: 3, estado: "Activo", descripcion: "Vislumbra el futuro.", imagen: "../images/cristal de adivinacion.webp" },
+            { id: 5, nombre: "Amuleto de ProtecciÃ³n", precio: 65.00, categoria: "Amuletos", etiqueta: "Oferta", existencia: 8, estado: "Activo", descripcion: "Escudo mÃ¡gico contra maleficios.", imagen: "../images/Amuleto de proteccion.jpeg" },
             { id: 6, nombre: "Caldero de Cobre", precio: 275.00, categoria: "Calderos", etiqueta: "", existencia: 2, estado: "Activo", descripcion: "Ideal para pociones complejas.", imagen: "../images/Caldero.jpg" },
-            { id: 7, nombre: "Mapa del Tesoro Escondido", precio: 120.00, categoria: "Pergaminos", etiqueta: "Nuevo", existencia: 0, estado: "Inactivo", descripcion: "Señala el camino.", imagen: "../images/mapa del tesoro.jpg" },
-            { id: 8, nombre: "Pluma de Fénix", precio: 450.00, categoria: "Reliquias", etiqueta: "Nuevo", existencia: 1, estado: "Activo", descripcion: "Pluma mágica de fénix.", imagen: "../images/pluma de fenix.jpg" }
+            { id: 7, nombre: "Mapa del Tesoro Escondido", precio: 120.00, categoria: "Pergaminos", etiqueta: "Nuevo", existencia: 0, estado: "Inactivo", descripcion: "SeÃ±ala el camino.", imagen: "../images/mapa del tesoro.jpg" },
+            { id: 8, nombre: "Pluma de FÃ©nix", precio: 450.00, categoria: "Reliquias", etiqueta: "Nuevo", existencia: 1, estado: "Activo", descripcion: "Pluma mÃ¡gica de fÃ©nix.", imagen: "../images/pluma de fenix.jpg" }
         ];
 
         var editandoId = null;
         var eliminandoId = null;
 
-        // ── Referencias DOM ──────────────────────────────────────
+        // â”€â”€ Referencias DOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         var tbody = document.getElementById('tbody-productos');
         var inputBuscar = document.getElementById('admin-buscar');
         var filtroCategoria = document.getElementById('filtro-categoria');
@@ -290,7 +305,7 @@
         var detalleOverlay = document.getElementById('detalle-overlay');
         var detalleBody = document.getElementById('detalle-body');
 
-        // ── Renderizar tabla ──────────────────────────────────────
+        // â”€â”€ Renderizar tabla â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function renderTabla(lista) {
             lista = lista || productos;
             tbody.innerHTML = '';
@@ -316,13 +331,13 @@
             actualizarContador();
         }
 
-        // ── Actualizar contador ──────────────────────────────────
+        // â”€â”€ Actualizar contador â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function actualizarContador() {
             var total = productos.length;
             countBadge.textContent = total + ' producto' + (total !== 1 ? 's' : '');
         }
 
-        // ── Filtros combinados ──────────────────────────────────
+        // â”€â”€ Filtros combinados â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function aplicarFiltros() {
             var texto = inputBuscar.value.toLowerCase();
             var cat = filtroCategoria.value;
@@ -337,7 +352,7 @@
             renderTabla(filtrados);
         }
 
-        // ── Abrir modal AGREGAR ──────────────────────────────────
+        // â”€â”€ Abrir modal AGREGAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function abrirModal() {
             editandoId = null;
             modalTitulo.textContent = 'Agregar Producto';
@@ -345,7 +360,7 @@
             modalOverlay.classList.add('visible');
         }
 
-        // ── Abrir modal EDITAR ───────────────────────────────────
+        // â”€â”€ Abrir modal EDITAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function abrirEditar(id) {
             var p = productos.find(function(x) { return x.id === id; });
             if (!p) return;
@@ -377,7 +392,7 @@
             modalOverlay.classList.remove('visible');
         }
 
-        // ── Guardar (agregar o editar) ──────────────────────────
+        // â”€â”€ Guardar (agregar o editar) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function guardarProducto() {
             var nombre = mNombre.value.trim();
             var precio = parseFloat(mPrecio.value);
@@ -389,7 +404,7 @@
             var estado = mEstado.value;
 
             if (!nombre || isNaN(precio) || !categoria) {
-                mostrarToast('⚠️ Completa nombre, precio y categoría.', 'error');
+                mostrarToast('âš ï¸ Completa nombre, precio y categorÃ­a.', 'error');
                 return;
             }
 
@@ -406,7 +421,7 @@
                     existencia: existencia,
                     estado: estado
                 };
-                mostrarToast('✦ Producto actualizado correctamente.', 'ok');
+                mostrarToast('âœ¦ Producto actualizado correctamente.', 'ok');
             } else {
                 var maxId = 0;
                 productos.forEach(function(p) { if (p.id > maxId) maxId = p.id; });
@@ -422,14 +437,14 @@
                     existencia: existencia,
                     estado: estado
                 });
-                mostrarToast('✦ Producto agregado al catálogo.', 'ok');
+                mostrarToast('âœ¦ Producto agregado al catÃ¡logo.', 'ok');
             }
 
             cerrarModal();
             aplicarFiltros(); // Refresca la tabla con filtros actuales
         }
 
-        // ── Ver detalle ──────────────────────────────────────────
+        // â”€â”€ Ver detalle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function verDetalle(id) {
             var p = productos.find(function(x) { return x.id === id; });
             if (!p) return;
@@ -440,12 +455,12 @@
                     '</div>' +
                     '<div style="flex:2;">' +
                         '<p><strong>Nombre:</strong> ' + p.nombre + '</p>' +
-                        '<p><strong>Categoría:</strong> ' + p.categoria + '</p>' +
+                        '<p><strong>CategorÃ­a:</strong> ' + p.categoria + '</p>' +
                         '<p><strong>Precio:</strong> $' + p.precio.toFixed(2) + '</p>' +
                         '<p><strong>Existencia:</strong> ' + p.existencia + '</p>' +
                         '<p><strong>Estado:</strong> ' + (p.estado || 'Activo') + '</p>' +
                         '<p><strong>Etiqueta:</strong> ' + (p.etiqueta || 'Ninguna') + '</p>' +
-                        '<p><strong>Descripción:</strong> ' + (p.descripcion || 'Sin descripción') + '</p>' +
+                        '<p><strong>DescripciÃ³n:</strong> ' + (p.descripcion || 'Sin descripciÃ³n') + '</p>' +
                     '</div>' +
                 '</div>';
             detalleOverlay.classList.add('visible');
@@ -455,7 +470,7 @@
             detalleOverlay.classList.remove('visible');
         }
 
-        // ── Confirmar ELIMINAR ──────────────────────────────────
+        // â”€â”€ Confirmar ELIMINAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function abrirConfirm(id) {
             var p = productos.find(function(x) { return x.id === id; });
             if (!p) return;
@@ -474,10 +489,10 @@
             productos = productos.filter(function(p) { return p.id !== eliminandoId; });
             cerrarConfirm();
             aplicarFiltros();
-            mostrarToast('🗑 Producto eliminado.', 'error');
+            mostrarToast('ðŸ—‘ Producto eliminado.', 'error');
         }
 
-        // ── Toast ─────────────────────────────────────────────────
+        // â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function mostrarToast(msg, tipo) {
             tipo = tipo || 'ok';
             toast.textContent = msg;
@@ -488,7 +503,7 @@
             }, 3000);
         }
 
-        // ── Inicializar ──────────────────────────────────────────
+        // â”€â”€ Inicializar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         aplicarFiltros(); // Carga la tabla con filtros por defecto
 
         // Cerrar modales al hacer clic fuera

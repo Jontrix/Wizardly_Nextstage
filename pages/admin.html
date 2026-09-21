@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly — Panel Admin</title>
+    <title>Wizardly â€” Panel Admin</title>
 
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,33 +26,48 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="admin.html" class="nav-item active">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard
-            </a>
-            <a href="admin-productos.html" class="nav-item">
-                <i class="fa-solid fa-hat-wizard"></i> Productos
-            </a>
-            <a href="admin-pedidos.html" class="nav-item">
-                <i class="fa-solid fa-scroll"></i> Pedidos
+            <span class="sidebar-titulo">GENERAL</span>
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
             </a>
             <a href="admin-promociones.html" class="nav-item">
                 <i class="fa-solid fa-wand-sparkles"></i> Promociones
             </a>
             <a href="admin-clientes.html" class="nav-item">
-                <i class="fa-solid fa-users"></i> CRM
+                <i class="fa-solid fa-users"></i> Clientes
             </a>
-            <a href="admin-actividadesadmin.html" class="nav-item">
-                <i class="fa-solid fa-clock"></i> Actividad Admin
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
             </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
             </a>
-                        <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i> Historial
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
             </a>
 
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
+            <a href="admin-productos.html" class="nav-item active">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
             <a href="admin-reportes.html" class="nav-item">
                 <i class="fa-solid fa-chart-simple"></i> Reportes
-                 <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
             </a>
         </nav>
 
@@ -102,9 +117,9 @@
                 </div>
                 <div class="card-datos">
                     <span class="card-numero" id="kpi-interacciones">--</span>
-                    <span class="card-label">Interacciones (últimos 30 días)</span>
+                    <span class="card-label">Interacciones (Ãºltimos 30 dÃ­as)</span>
                 </div>
-                <span class="card-badge neutro">30 días</span>
+                <span class="card-badge neutro">30 dÃ­as</span>
             </div>
 
             <div class="admin-card">
@@ -113,37 +128,37 @@
                 </div>
                 <div class="card-datos">
                     <span class="card-numero" id="kpi-clientes-riesgo">--</span>
-                    <span class="card-label">Clientes sin interacción</span>
+                    <span class="card-label">Clientes sin interacciÃ³n</span>
                 </div>
-                <span class="card-badge negativo">+30 días</span>
+                <span class="card-badge negativo">+30 dÃ­as</span>
             </div>
         </div>
 
         <section class="dashboard-distribuciones">
             <div class="admin-bloque dashboard-grafica-resumen">
                 <div class="bloque-header">
-                    <h2>Distribución de Rangos</h2>
+                    <h2>DistribuciÃ³n de Rangos</h2>
                     <span class="count-badge">Clientes</span>
                 </div>
                 <div class="dashboard-canvas-wrap">
-                    <canvas id="dashboard-chart-rangos" aria-label="Distribución de rangos de clientes"></canvas>
+                    <canvas id="dashboard-chart-rangos" aria-label="DistribuciÃ³n de rangos de clientes"></canvas>
                 </div>
             </div>
 
             <div class="admin-bloque dashboard-grafica-resumen">
                 <div class="bloque-header">
-                    <h2>Distribución de Rango de Etapa</h2>
+                    <h2>DistribuciÃ³n de Rango de Etapa</h2>
                     <span class="count-badge">Clientes</span>
                 </div>
                 <div class="dashboard-canvas-wrap">
-                    <canvas id="dashboard-chart-etapas" aria-label="Distribución de rangos de etapa"></canvas>
+                    <canvas id="dashboard-chart-etapas" aria-label="DistribuciÃ³n de rangos de etapa"></canvas>
                 </div>
             </div>
         </section>
 
         <div class="admin-bloque acciones-rapidas">
             <div class="bloque-header">
-                <h2>Acciones rápidas</h2>
+                <h2>Acciones rÃ¡pidas</h2>
             </div>
             <div class="acciones-botones">
                 <a href="admin-productos.html" class="btn-admin">
@@ -153,7 +168,7 @@
                     <i class="fa-solid fa-scroll"></i> Ver pedidos
                 </a>
                 <a href="admin-promociones.html" class="btn-admin" style="background:#fb923c;">
-                    <i class="fa-solid fa-wand-sparkles"></i> Crear promoción
+                    <i class="fa-solid fa-wand-sparkles"></i> Crear promociÃ³n
                 </a>
             </div>
         </div>
@@ -343,7 +358,7 @@
                 renderizarGraficasDistribucion(clientes);
             } catch (error) {
                 console.error('Error cargando el dashboard CRM:', error);
-                document.querySelectorAll('.card-numero').forEach((elemento) => { elemento.textContent = '—'; });
+                document.querySelectorAll('.card-numero').forEach((elemento) => { elemento.textContent = 'â€”'; });
             }
         }
 

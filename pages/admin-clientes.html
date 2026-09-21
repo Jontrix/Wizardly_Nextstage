@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
@@ -26,35 +26,48 @@
             </div>
         </div>
         <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
             <a href="admin.html" class="nav-item">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
             </a>
-            <a href="admin-productos.html" class="nav-item">
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <a href="admin-productos.html" class="nav-item active">
                 <i class="fa-solid fa-hat-wizard"></i> Productos
             </a>
             <a href="admin-pedidos.html" class="nav-item">
                 <i class="fa-solid fa-scroll"></i> Pedidos
             </a>
-            <a href="admin-promociones.html" class="nav-item">
-                <i class="fa-solid fa-wand-sparkles"></i> Promociones
-            </a>
-            <a href="admin-clientes.html" class="nav-item active">
-                <i class="fa-solid fa-users"></i> CRM
-            </a>
-            <a href="admin-actividadesadmin.html" class="nav-item">
-                <i class="fa-solid fa-clock"></i> Actividad Admin
-            </a>
-                        <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i> Historial
-            </a>
-    
             <a href="admin-reportes.html" class="nav-item">
                 <i class="fa-solid fa-chart-simple"></i> Reportes
             </a>
-            <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Configuración
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
             </a>
-            
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
         </nav>
         <div class="sidebar-footer">
             <a href="../index.html" class="nav-item">
@@ -65,7 +78,6 @@
 
     <!-- ── CONTENIDO PRINCIPAL ── -->
     <main class="admin-main">
-
         <div class="admin-topbar">
             <h1>Gestión de Clientes</h1>
             <div class="topbar-usuario">
@@ -147,9 +159,9 @@
                 </div>
             </div>
         </div>
-
     </main>
 
+    <!-- ── MODAL AGREGAR / EDITAR CLIENTE ── -->
     <div class="modal-overlay" id="modal-cliente-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -279,7 +291,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // TUS CREDENCIALES REALES DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
             authDomain: "wizardly-nextstage.firebaseapp.com",
@@ -293,6 +304,29 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // 🔥 FUNCIÓN DEL HISTORIAL INYECTADA DIRECTAMENTE 🔥
+        async function registrarHistorialLocal(modulo, accion, descripcion) {
+            try {
+                let adminNombre = "Sistema";
+                const datosRaw = localStorage.getItem('usuarioDatos');
+                if (datosRaw) {
+                    const usuario = JSON.parse(datosRaw);
+                    if (usuario && usuario.nombre) adminNombre = usuario.nombre;
+                }
+
+                await addDoc(collection(db, "historial"), {
+                    modulo: modulo,
+                    accion: accion,
+                    descripcion: descripcion,
+                    adminNombre: adminNombre,
+                    adminUid: "desconocido",
+                    fecha: Timestamp.now()
+                });
+            } catch (error) {
+                console.error("Error al guardar en el historial:", error);
+            }
+        }
+
         // Variables Globales
         window.clientes = []; 
         window.editandoClienteId = null;
@@ -300,7 +334,6 @@
         var chartInstanceClientes = null;
         var chartInstanceEtapas = null;
 
-        // Referencias DOM
         var tbodyClientes = document.getElementById('tbody-clientes');
         var inputBuscarCliente = document.getElementById('buscar-cliente');
         var filtroRangoCliente = document.getElementById('filtro-rango-cliente');
@@ -319,18 +352,15 @@
         var toastCliente = document.getElementById('toast-cliente');
         var countBadgeCliente = document.getElementById('clientes-count');
 
-        // Leer datos desde Firebase
         window.cargarClientesFirebase = async function() {
             try {
                 const querySnapshot = await getDocs(collection(db, "clientes"));
                 window.clientes = [];
-                
                 querySnapshot.forEach((doc) => {
                     let data = doc.data();
                     data.id = doc.id; 
                     window.clientes.push(data);
                 });
-                
                 window.aplicarFiltrosCliente(); 
             } catch (error) {
                 console.error("Error al obtener datos:", error);
@@ -338,7 +368,6 @@
             }
         };
 
-        // Renderizar Tabla
         window.renderTablaClientes = function(lista) {
             lista = lista || window.clientes;
             tbodyClientes.innerHTML = '';
@@ -379,7 +408,6 @@
             countBadgeCliente.textContent = total + ' cliente' + (total !== 1 ? 's' : '');
         };
 
-        // Filtros
         window.aplicarFiltrosCliente = function() {
             var texto = inputBuscarCliente.value.toLowerCase();
             var rangoSel = filtroRangoCliente.value;
@@ -393,7 +421,6 @@
             window.renderTablaClientes(filtrados);
         };
 
-        // Funciones de Modales
         window.abrirModalCliente = function() {
             window.editandoClienteId = null;
             modalClienteTitulo.textContent = 'Agregar Cliente';
@@ -409,17 +436,14 @@
         window.abrirEditarCliente = function(id) {
             var c = window.clientes.find(function(x) { return x.id === id; });
             if (!c) return;
-            
             window.editandoClienteId = id; 
             modalClienteTitulo.textContent = 'Editar Cliente';
-            
             mcNombre.value = c.nombre;
             mcEmail.value = c.correo;
             mcTelefono.value = c.telefono || "";
             mcFaccion.value = c.empresa || "";
             mcRango.value = c.rango;
             mcEtapa.value = c.etapa_crm;
-            
             modalClienteOverlay.classList.add('visible');
         };
 
@@ -444,7 +468,6 @@
             visualizarClienteOverlay.classList.remove('visible');
         };
 
-        // Guardar o Actualizar Cliente en Firebase
         window.guardarCliente = async function() {
             var nombre = mcNombre.value.trim();
             var correo = mcEmail.value.trim();
@@ -453,39 +476,8 @@
             var rango = mcRango.value;
             var etapa = mcEtapa.value;
 
-            // Validar que todos los campos requeridos estén completos
-            if (!nombre) {
-                window.mostrarToastCliente('⚠️ El nombre completo es obligatorio.', 'error');
-                return;
-            }
-            if (!correo) {
-                window.mostrarToastCliente('⚠️ El correo electrónico es obligatorio.', 'error');
-                return;
-            }
-            if (!telefono) {
-                window.mostrarToastCliente('⚠️ El teléfono es obligatorio.', 'error');
-                return;
-            }
-            if (!empresa) {
-                window.mostrarToastCliente('⚠️ La facción/organización es obligatoria.', 'error');
-                return;
-            }
-
-            // Validar formato de email
-            var regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!regexEmail.test(correo)) {
-                window.mostrarToastCliente('⚠️ El correo electrónico no es válido.', 'error');
-                return;
-            }
-
-            // Validar que el teléfono solo contenga números, espacios y guiones
-            var regexTelefono = /^[0-9\s\-\+\(\)]*$/;
-            if (!regexTelefono.test(telefono)) {
-                window.mostrarToastCliente('⚠️ El teléfono solo debe contener números, espacios y símbolos de formato.', 'error');
-                return;
-            }
-            if (telefono.replace(/[^0-9]/g, '').length < 7) {
-                window.mostrarToastCliente('⚠️ El teléfono debe tener al menos 7 dígitos.', 'error');
+            if (!nombre || !correo || !telefono || !empresa) {
+                window.mostrarToastCliente('⚠️ Faltan campos obligatorios.', 'error');
                 return;
             }
 
@@ -494,38 +486,36 @@
                     // MODO EDICIÓN
                     const clienteRef = doc(db, "clientes", window.editandoClienteId);
                     await updateDoc(clienteRef, {
-                        nombre: nombre,
-                        correo: correo,
-                        telefono: telefono,
-                        empresa: empresa,
-                        rango: rango,
-                        etapa_crm: etapa
+                        nombre: nombre, correo: correo, telefono: telefono,
+                        empresa: empresa, rango: rango, etapa_crm: etapa
                     });
+                    
+                    // 🔥 CONEXIÓN AL HISTORIAL 🔥
+                    await registrarHistorialLocal("clientes", "actualizar", "Se actualizó el cliente: " + nombre);
+                    
                     window.mostrarToastCliente('✦ Datos del mago actualizados.', 'ok');
                 } else {
                     // MODO CREACIÓN
                     await addDoc(collection(db, "clientes"), {
-                        nombre: nombre,
-                        correo: correo,
-                        telefono: telefono,
-                        empresa: empresa,
-                        rango: rango, 
-                        etapa_crm: etapa, 
-                        estado: "Activo",
-                        fecha_registro: Timestamp.now()
+                        nombre: nombre, correo: correo, telefono: telefono,
+                        empresa: empresa, rango: rango, etapa_crm: etapa, 
+                        estado: "Activo", fecha_registro: Timestamp.now()
                     });
+                    
+                    // 🔥 CONEXIÓN AL HISTORIAL 🔥
+                    await registrarHistorialLocal("clientes", "crear", "Se agregó el cliente: " + nombre);
+                    
                     window.mostrarToastCliente('✦ Nuevo mago registrado en la nube.', 'ok');
                 }
 
                 window.cerrarModalCliente();
-                window.cargarClientesFirebase(); // Recargamos la tabla
+                window.cargarClientesFirebase();
             } catch (error) {
                 console.error("Error al guardar: ", error);
                 window.mostrarToastCliente('⚠️ Error al lanzar el hechizo.', 'error');
             }
         };
 
-        // Eliminar Cliente
         window.abrirConfirmCliente = function(id) {
             var c = window.clientes.find(function(x) { return x.id === id; });
             if (!c) return;
@@ -542,7 +532,12 @@
         window.confirmarEliminarCliente = async function() {
             if (eliminandoClienteId === null) return;
             try {
+                let nombreEliminado = confirmClienteNombre.textContent;
                 await deleteDoc(doc(db, "clientes", eliminandoClienteId));
+                
+                // 🔥 CONEXIÓN AL HISTORIAL 🔥
+                await registrarHistorialLocal("clientes", "eliminar", "Se eliminó el cliente: " + nombreEliminado);
+                
                 window.cerrarConfirmCliente();
                 window.mostrarToastCliente('🗑 Mago exiliado con éxito.', 'error');
                 window.cargarClientesFirebase();
@@ -551,7 +546,6 @@
             }
         };
 
-        // Toast
         window.mostrarToastCliente = function(msg, tipo) {
             tipo = tipo || 'ok';
             toastCliente.textContent = msg;
@@ -562,7 +556,6 @@
             }, 3000);
         };
 
-        // Gráfica
         window.actualizarGraficaClientes = function() {
             var archimagos = window.clientes.filter(function(c) { return c.rango === 'Archimago'; }).length;
             var maestros = window.clientes.filter(function(c) { return c.rango === 'Maestro'; }).length;
@@ -579,18 +572,13 @@
                     datasets: [{
                         data: [archimagos, maestros, iniciados, muggles],
                         backgroundColor: ['#a855f7', '#3b82f6', '#eab308', '#6b7280'],
-                        borderColor: '#0a0412',
-                        borderWidth: 2
+                        borderColor: '#0a0412', borderWidth: 2
                     }]
                 },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { labels: { color: '#ddd', font: { family: 'Cinzel' } } } }
-                }
+                options: { responsive: true, plugins: { legend: { labels: { color: '#ddd', font: { family: 'Cinzel' } } } } }
             });
         };
 
-        // Gráfica de Etapas
         window.actualizarGraficaEtapas = function() {
             var activos = window.clientes.filter(function(c) { return c.etapa_crm === 'Activo'; }).length;
             var frecuentes = window.clientes.filter(function(c) { return c.etapa_crm === 'Frecuente'; }).length;
@@ -607,18 +595,13 @@
                     datasets: [{
                         data: [activos, frecuentes, inactivos, prospectos],
                         backgroundColor: ['#4ade80', '#60a5fa', '#f87171', '#fb923c'],
-                        borderColor: '#0a0412',
-                        borderWidth: 2
+                        borderColor: '#0a0412', borderWidth: 2
                     }]
                 },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { labels: { color: '#ddd', font: { family: 'Cinzel' } } } }
-                }
+                options: { responsive: true, plugins: { legend: { labels: { color: '#ddd', font: { family: 'Cinzel' } } } } }
             });
         };
 
-        // Listeners
         modalClienteOverlay.addEventListener('click', function(e) {
             if (e.target === modalClienteOverlay) window.cerrarModalCliente();
         });
@@ -629,11 +612,9 @@
         filtroRangoCliente.addEventListener('change', window.aplicarFiltrosCliente);
         filtroEtapaCliente.addEventListener('change', window.aplicarFiltrosCliente);
 
-        // Arrancar
         window.cargarClientesFirebase();
     </script>
 
-    <!-- ── ESTILOS ESPECÍFICOS DE ESTA VISTA ── -->
     <style>
         .badge {
             display: inline-block;
@@ -676,6 +657,5 @@
             border-color: var(--gold-dim);
         }
     </style>
-
 </body>
 </html>

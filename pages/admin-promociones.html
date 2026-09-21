@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly — Promociones</title>
+    <title>Wizardly â€” Promociones</title>
 
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,34 +27,48 @@
             </div>
         </div>
         <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
             <a href="admin.html" class="nav-item">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
             </a>
-            <a href="admin-productos.html" class="nav-item">
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
+            <a href="admin-productos.html" class="nav-item active">
                 <i class="fa-solid fa-hat-wizard"></i> Productos
-                
             </a>
             <a href="admin-pedidos.html" class="nav-item">
                 <i class="fa-solid fa-scroll"></i> Pedidos
             </a>
-            <a href="admin-promociones.html" class="nav-item active">
-                <i class="fa-solid fa-wand-sparkles"></i> Promociones
-            </a>
-                <a href="admin-clientes.html" class="nav-item">
-                <i class="fa-solid fa-users"></i> CRM
-
-            </a>
-            <a href="admin-actividadesadmin.html" class="nav-item">
-                <i class="fa-solid fa-clock"></i> Actividad Admin
-            </a>
-                        <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i> Historial
-            </a>
-          
-             <a href="admin-reportes.html" class="nav-item">
+            <a href="admin-reportes.html" class="nav-item">
                 <i class="fa-solid fa-chart-simple"></i> Reportes
-                 <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
             </a>
         </nav>
         <div class="sidebar-footer">
@@ -68,7 +82,7 @@
     <main class="admin-main">
 
         <div class="admin-topbar">
-            <h1>Gestión de Promociones</h1>
+            <h1>GestiÃ³n de Promociones</h1>
             <div class="topbar-usuario">
                 <i class="fa-solid fa-circle-user"></i>
                 <span>Archimaga Seraphina</span>
@@ -83,7 +97,7 @@
                     <span class="count-badge" id="promos-count">0 promociones</span>
                 </h2>
                 <button class="btn-admin" onclick="abrirModalPromo()">
-                    <i class="fa-solid fa-plus"></i> Agregar promoción
+                    <i class="fa-solid fa-plus"></i> Agregar promociÃ³n
                 </button>
             </div>
 
@@ -121,7 +135,7 @@
             </div>
         </div>
 
-        <!-- BLOQUE: GRÁFICA -->
+        <!-- BLOQUE: GRÃFICA -->
         <div class="admin-bloque" style="margin-top:32px;">
             <div class="bloque-header">
                 <h2>Resumen de promociones</h2>
@@ -133,18 +147,18 @@
 
     </main>
 
-    <!-- MODAL: AGREGAR / EDITAR PROMOCIÓN -->
+    <!-- MODAL: AGREGAR / EDITAR PROMOCIÃ“N -->
     <div class="modal-overlay" id="modal-promo-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <h3 id="modal-promo-titulo">Agregar Promoción</h3>
+                <h3 id="modal-promo-titulo">Agregar PromociÃ³n</h3>
                 <button class="modal-cerrar" onclick="cerrarModalPromo()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="campo-modal">
-                    <label>Nombre de la promoción</label>
+                    <label>Nombre de la promociÃ³n</label>
                     <input type="text" id="mp-nombre" placeholder="Ej. Descuento de Verano" />
                 </div>
                 <div class="campo-modal">
@@ -169,8 +183,8 @@
                     </select>
                 </div>
                 <div class="campo-modal">
-                    <label>Descripción (opcional)</label>
-                    <textarea id="mp-descripcion" rows="2" placeholder="Detalles de la promoción..."></textarea>
+                    <label>DescripciÃ³n (opcional)</label>
+                    <textarea id="mp-descripcion" rows="2" placeholder="Detalles de la promociÃ³n..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -182,25 +196,25 @@
         </div>
     </div>
 
-    <!-- CONFIRM: ELIMINAR PROMOCIÓN -->
+    <!-- CONFIRM: ELIMINAR PROMOCIÃ“N -->
     <div class="modal-overlay" id="confirm-promo-overlay">
         <div class="modal-card confirm-card">
             <div class="modal-header">
-                <h3>¿Eliminar promoción?</h3>
+                <h3>Â¿Eliminar promociÃ³n?</h3>
                 <button class="modal-cerrar" onclick="cerrarConfirmPromo()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <p class="confirm-texto">
-                    Esta acción no se puede deshacer.<br />
-                    ¿Seguro que deseas eliminar <strong id="confirm-promo-nombre"></strong>?
+                    Esta acciÃ³n no se puede deshacer.<br />
+                    Â¿Seguro que deseas eliminar <strong id="confirm-promo-nombre"></strong>?
                 </p>
             </div>
             <div class="modal-footer">
                 <button class="btn-modal-cancelar" onclick="cerrarConfirmPromo()">Cancelar</button>
                 <button class="btn-modal-eliminar" onclick="confirmarEliminarPromo()">
-                    <i class="fa-solid fa-trash"></i> Sí, eliminar
+                    <i class="fa-solid fa-trash"></i> SÃ­, eliminar
                 </button>
             </div>
         </div>
@@ -211,18 +225,18 @@
 
     <!-- ====== SCRIPT ====== -->
     <script>
-        // ── Datos de promociones ──────────────────────────────
+        // â”€â”€ Datos de promociones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         var promociones = [
             { id: 1, nombre: "Descuento de Luna Nueva", descuento: 20, fechaInicio: "2026-07-01", fechaFin: "2026-07-31", estado: "Activa", descripcion: "20% en todas las pociones" },
             { id: 2, nombre: "Kit del Mago Principiante", descuento: 15, fechaInicio: "2026-06-01", fechaFin: "2026-12-31", estado: "Activa", descripcion: "Varita + Amuleto con 15% OFF" },
-            { id: 3, nombre: "Oferta de Verano", descuento: 10, fechaInicio: "2026-07-15", fechaFin: "2026-08-15", estado: "Inactiva", descripcion: "10% en artículos seleccionados" }
+            { id: 3, nombre: "Oferta de Verano", descuento: 10, fechaInicio: "2026-07-15", fechaFin: "2026-08-15", estado: "Inactiva", descripcion: "10% en artÃ­culos seleccionados" }
         ];
 
         var editandoPromoId = null;
         var eliminandoPromoId = null;
         var chartInstance = null;
 
-        // ── Referencias DOM ──────────────────────────────────────
+        // â”€â”€ Referencias DOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         var tbodyPromos = document.getElementById('tbody-promos');
         var inputBuscarPromo = document.getElementById('buscar-promo');
         var filtroEstadoPromo = document.getElementById('filtro-estado-promo');
@@ -239,7 +253,7 @@
         var toastPromo = document.getElementById('toast-promo');
         var countBadgePromo = document.getElementById('promos-count');
 
-        // ── Renderizar tabla de promociones ────────────────────
+        // â”€â”€ Renderizar tabla de promociones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function renderTablaPromos(lista) {
             lista = lista || promociones;
             tbodyPromos.innerHTML = '';
@@ -263,13 +277,13 @@
             actualizarGrafica();
         }
 
-        // ── Actualizar contador ──────────────────────────────────
+        // â”€â”€ Actualizar contador â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function actualizarContadorPromo() {
             var total = promociones.length;
-            countBadgePromo.textContent = total + ' promoción' + (total !== 1 ? 'es' : '');
+            countBadgePromo.textContent = total + ' promociÃ³n' + (total !== 1 ? 'es' : '');
         }
 
-        // ── Filtros ──────────────────────────────────────────────
+        // â”€â”€ Filtros â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function aplicarFiltrosPromo() {
             var texto = inputBuscarPromo.value.toLowerCase();
             var est = filtroEstadoPromo.value;
@@ -281,10 +295,10 @@
             renderTablaPromos(filtrados);
         }
 
-        // ── Modal AGREGAR ────────────────────────────────────────
+        // â”€â”€ Modal AGREGAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function abrirModalPromo() {
             editandoPromoId = null;
-            modalPromoTitulo.textContent = 'Agregar Promoción';
+            modalPromoTitulo.textContent = 'Agregar PromociÃ³n';
             mpNombre.value = '';
             mpDescuento.value = '';
             mpFechaInicio.value = '';
@@ -294,12 +308,12 @@
             modalPromoOverlay.classList.add('visible');
         }
 
-        // ── Modal EDITAR ────────────────────────────────────────
+        // â”€â”€ Modal EDITAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function abrirEditarPromo(id) {
             var p = promociones.find(function(x) { return x.id === id; });
             if (!p) return;
             editandoPromoId = id;
-            modalPromoTitulo.textContent = 'Editar Promoción';
+            modalPromoTitulo.textContent = 'Editar PromociÃ³n';
             mpNombre.value = p.nombre;
             mpDescuento.value = p.descuento;
             mpFechaInicio.value = p.fechaInicio;
@@ -313,7 +327,7 @@
             modalPromoOverlay.classList.remove('visible');
         }
 
-        // ── Guardar promoción ────────────────────────────────────
+        // â”€â”€ Guardar promociÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function guardarPromocion() {
             var nombre = mpNombre.value.trim();
             var descuento = parseInt(mpDescuento.value);
@@ -323,11 +337,11 @@
             var descripcion = mpDescripcion.value.trim();
 
             if (!nombre || isNaN(descuento) || !fechaInicio || !fechaFin) {
-                mostrarToastPromo('⚠️ Completa todos los campos obligatorios.', 'error');
+                mostrarToastPromo('âš ï¸ Completa todos los campos obligatorios.', 'error');
                 return;
             }
             if (descuento < 0 || descuento > 100) {
-                mostrarToastPromo('⚠️ El descuento debe ser entre 0 y 100.', 'error');
+                mostrarToastPromo('âš ï¸ El descuento debe ser entre 0 y 100.', 'error');
                 return;
             }
 
@@ -342,7 +356,7 @@
                     estado: estado,
                     descripcion: descripcion
                 };
-                mostrarToastPromo('✦ Promoción actualizada.', 'ok');
+                mostrarToastPromo('âœ¦ PromociÃ³n actualizada.', 'ok');
             } else {
                 var maxId = 0;
                 promociones.forEach(function(p) { if (p.id > maxId) maxId = p.id; });
@@ -356,14 +370,14 @@
                     estado: estado,
                     descripcion: descripcion
                 });
-                mostrarToastPromo('✦ Promoción agregada.', 'ok');
+                mostrarToastPromo('âœ¦ PromociÃ³n agregada.', 'ok');
             }
 
             cerrarModalPromo();
             aplicarFiltrosPromo();
         }
 
-        // ── Confirmar ELIMINAR ──────────────────────────────────
+        // â”€â”€ Confirmar ELIMINAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function abrirConfirmPromo(id) {
             var p = promociones.find(function(x) { return x.id === id; });
             if (!p) return;
@@ -382,10 +396,10 @@
             promociones = promociones.filter(function(p) { return p.id !== eliminandoPromoId; });
             cerrarConfirmPromo();
             aplicarFiltrosPromo();
-            mostrarToastPromo('🗑 Promoción eliminada.', 'error');
+            mostrarToastPromo('ðŸ—‘ PromociÃ³n eliminada.', 'error');
         }
 
-        // ── Toast ─────────────────────────────────────────────────
+        // â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function mostrarToastPromo(msg, tipo) {
             tipo = tipo || 'ok';
             toastPromo.textContent = msg;
@@ -396,7 +410,7 @@
             }, 3000);
         }
 
-        // ── Gráfica (Chart.js) ──────────────────────────────────
+        // â”€â”€ GrÃ¡fica (Chart.js) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function actualizarGrafica() {
             var activas = promociones.filter(function(p) { return p.estado === 'Activa'; }).length;
             var inactivas = promociones.length - activas;
@@ -433,7 +447,7 @@
             });
         }
 
-        // ── Inicializar ──────────────────────────────────────────
+        // â”€â”€ Inicializar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         aplicarFiltrosPromo();
 
         // Cerrar modales al hacer clic fuera

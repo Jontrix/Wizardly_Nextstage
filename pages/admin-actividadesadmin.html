@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Wizardly — Actividad del Administrador</title>
+    <title>Wizardly â€” Actividad del Administrador</title>
 
     <link rel="icon" href="../images/favicon/favicon.jpeg">
 
@@ -54,52 +54,49 @@
 
 
         <nav class="sidebar-nav">
-
+            <span class="sidebar-titulo">GENERAL</span>
             <a href="admin.html" class="nav-item">
-                <i class="fa-solid fa-gauge-high"></i>
-                Dashboard
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
             </a>
-
-            <a href="admin-productos.html" class="nav-item">
-                <i class="fa-solid fa-hat-wizard"></i>
-                Productos
-            </a>
-
-            <a href="admin-pedidos.html" class="nav-item">
-                <i class="fa-solid fa-scroll"></i>
-                Pedidos
-            </a>
-
             <a href="admin-promociones.html" class="nav-item">
-                <i class="fa-solid fa-wand-sparkles"></i>
-                Promociones
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
             </a>
-
             <a href="admin-clientes.html" class="nav-item">
-                <i class="fa-solid fa-users"></i>
-                CRM
+                <i class="fa-solid fa-users"></i> Clientes
             </a>
-
-            <a href="admin-actividadesadmin.html" class="nav-item active">
-                <i class="fa-solid fa-clock"></i>
-                Actividad Admin
-            </a>
-
             <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                Historial
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
             </a>
-
-            <a href="admin-reportes.html" class="nav-item">
-                <i class="fa-solid fa-chart-simple"></i>
-                Reportes
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
             </a>
-
             <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i>
-                Configuración
+                <i class="fa-solid fa-gear"></i> Configuración
             </a>
 
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
+            <a href="admin-productos.html" class="nav-item active">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
+            <a href="admin-reportes.html" class="nav-item">
+                <i class="fa-solid fa-chart-simple"></i> Reportes
+            </a>
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
         </nav>
 
 
@@ -252,11 +249,11 @@
                                 </th>
 
                                 <th>
-                                    Módulo
+                                    MÃ³dulo
                                 </th>
 
                                 <th>
-                                    Acción
+                                    AcciÃ³n
                                 </th>
 
                                 <th>
@@ -300,7 +297,7 @@
 
 
             <!-- ==========================================
-                 MENSAJE VACÍO
+                 MENSAJE VACÃO
             =========================================== -->
 
             <div
@@ -379,7 +376,7 @@
 
 
         /* ==========================================
-           CONFIGURACIÓN FIREBASE
+           CONFIGURACIÃ“N FIREBASE
         ========================================== */
 
         const firebaseConfig = {
@@ -471,7 +468,7 @@
 
 
         /* ==========================================
-           AUTENTICACIÓN
+           AUTENTICACIÃ“N
         ========================================== */
 
         onAuthStateChanged(
@@ -479,7 +476,7 @@
             async (usuario) => {
 
 
-                /* NO HAY SESIÓN */
+                /* NO HAY SESIÃ“N */
 
                 if (!usuario) {
 
@@ -575,8 +572,8 @@
 
 
                 /*
-                 * ORDENAR DE MÁS RECIENTE
-                 * A MÁS ANTIGUO
+                 * ORDENAR DE MÃS RECIENTE
+                 * A MÃS ANTIGUO
                  */
 
                 actividades.sort(
@@ -606,7 +603,7 @@
 
 
                 mostrarToast(
-                    "⚠️ No se pudo cargar tu actividad.",
+                    "âš ï¸ No se pudo cargar tu actividad.",
                     "error"
                 );
 
@@ -792,7 +789,7 @@
 
 
 
-                    /* CLASE DEL MÓDULO */
+                    /* CLASE DEL MÃ“DULO */
 
                     let claseModulo =
                         "tipo-dashboard";
@@ -877,7 +874,7 @@
 
                                 ${escaparHTML(
                                     actividad.accion ||
-                                    "Actualización"
+                                    "ActualizaciÃ³n"
                                 )}
 
                             </span>
@@ -1115,7 +1112,7 @@
 
 
     <!-- ==========================================
-         ESTILOS ESPECÍFICOS
+         ESTILOS ESPECÃFICOS
     =========================================== -->
 
     <style>
@@ -1287,7 +1284,7 @@
 
 
         /* ==========================================
-           BOTÓN LIMPIAR
+           BOTÃ“N LIMPIAR
         =========================================== */
 
         .btn-filtro-limpiar {
@@ -1454,7 +1451,7 @@
 
 
         /* ==========================================
-           MENSAJE VACÍO
+           MENSAJE VACÃO
         =========================================== */
 
         .actividad-vacia {

@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly — Reportes</title>
+    <title>Wizardly â€” Reportes</title>
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     
-    <!-- Estilos unificados para la sección de Reportes -->
+    <!-- Estilos unificados para la secciÃ³n de Reportes -->
     <style>
         .stats-container {
             display: grid;
@@ -87,34 +87,49 @@
             </div>
         </div>
         <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
             <a href="admin.html" class="nav-item">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard
-            </a>
-            <a href="admin-productos.html" class="nav-item">
-                <i class="fa-solid fa-hat-wizard"></i> Productos
-            </a>
-            <a href="admin-pedidos.html" class="nav-item">
-                <i class="fa-solid fa-scroll"></i> Pedidos
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
             </a>
             <a href="admin-promociones.html" class="nav-item">
                 <i class="fa-solid fa-wand-sparkles"></i> Promociones
             </a>
             <a href="admin-clientes.html" class="nav-item">
-                <i class="fa-solid fa-users"></i> CRM
+                <i class="fa-solid fa-users"></i> Clientes
             </a>
-            <a href="admin-actividadesadmin.html" class="nav-item">
-                <i class="fa-solid fa-clock"></i> Actividad Admin
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
             </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
             </a>
-                        <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i> Historial
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
             </a>
 
-            <a href="admin-reporte.html" class="nav-item active">
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
+            <a href="admin-productos.html" class="nav-item active">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
+            <a href="admin-reportes.html" class="nav-item">
                 <i class="fa-solid fa-chart-simple"></i> Reportes
             </a>
-             <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Configuración
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
         </nav>
         <div class="sidebar-footer">
             <a href="../index.html" class="nav-item">
@@ -133,7 +148,7 @@
             </div>
         </div>
 
-        <!-- TARJETAS DE ESTADÍSTICAS ADAPTADAS -->
+        <!-- TARJETAS DE ESTADÃSTICAS ADAPTADAS -->
         <div class="stats-container">
             <div class="stat-card">
                 <h3>Efectividad de Hechizos</h3>
@@ -145,39 +160,39 @@
             </div>
             <div class="stat-card">
                 <h3>Rendimiento General</h3>
-                <p style="color: #d4af37;">Óptimo</p>
+                <p style="color: #d4af37;">Ã“ptimo</p>
             </div>
         </div>
 
         <!-- TABLA DE REPORTES CORREGIDA -->
         <div class="admin-bloque" style="padding: 24px;">
-            <h2>Rendimiento de Artefactos Mágicos</h2>
+            <h2>Rendimiento de Artefactos MÃ¡gicos</h2>
             
             <div class="table-responsive">
                 <table class="reports-table">
                     <thead>
                         <tr>
                             <th>Artefacto</th>
-                            <th>Categoría</th>
+                            <th>CategorÃ­a</th>
                             <th>Unidades Vendidas</th>
-                            <th>Rendimiento Energético</th>
+                            <th>Rendimiento EnergÃ©tico</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Varita de Saúco</strong></td>
+                            <td><strong>Varita de SaÃºco</strong></td>
                             <td>Varitas</td>
                             <td>1</td>
                             <td><span class="badge badge-excellent">Excelente</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Poción de Invisibilidad</strong></td>
+                            <td><strong>PociÃ³n de Invisibilidad</strong></td>
                             <td>Pociones</td>
                             <td>1</td>
                             <td><span class="badge badge-medium">Medio</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Cristal de Adivinación</strong></td>
+                            <td><strong>Cristal de AdivinaciÃ³n</strong></td>
                             <td>Cristales</td>
                             <td>1</td>
                             <td><span class="badge badge-stable">Estable</span></td>
