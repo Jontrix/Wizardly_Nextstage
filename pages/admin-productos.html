@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly â€” GestiÃ³n de Productos</title>
+    <title>Wizardly — Gestión de Productos</title>
 
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -80,7 +80,7 @@
     <main class="admin-main">
 
         <div class="admin-topbar">
-            <h1>GestiÃ³n de Productos</h1>
+            <h1>Productos</h1>
             <div class="topbar-usuario">
                 <i class="fa-solid fa-circle-user"></i>
                 <span>Archimaga Seraphina</span>
@@ -90,24 +90,22 @@
         <!-- BLOQUE PRINCIPAL -->
         <div class="admin-bloque">
             <div class="bloque-header">
-                <h2>
-                    CatÃ¡logo completo
-                    <span class="count-badge" id="productos-count">0 productos</span>
-                </h2>
-                <button class="btn-admin" onclick="abrirModal()">
-                    <i class="fa-solid fa-plus"></i> Agregar producto
+                <h2><!-- Espacio intencionalmente vacío para igualar diseño visual --></h2>
+                <button class="btn-admin" onclick="abrirModal()" style="background-color: #0f766e; color: white; border-radius: 6px;">
+                    <i class="fa-solid fa-plus"></i> Nuevo producto
                 </button>
             </div>
 
-            <!-- FILTROS Y BÃšSQUEDA -->
-            <div class="admin-filtros">
-                <div class="admin-buscador" style="flex:2;">
+            <!-- FILTROS Y BÚSQUEDA -->
+            <div class="admin-filtros" style="border-bottom: none; padding-bottom: 0;">
+                <div class="admin-buscador" style="flex:2; border-radius: 8px;">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="admin-buscar" placeholder="Buscar por nombre..." oninput="aplicarFiltros()" />
+                    <input type="text" id="admin-buscar" placeholder="Buscar producto..." oninput="aplicarFiltros()" />
                 </div>
-                <div class="admin-filtro-select">
-                    <select id="filtro-categoria" onchange="aplicarFiltros()">
-                        <option value="">Todas las categorÃ­as</option>
+                <div class="admin-filtro-select" style="display: flex; align-items: center; gap: 10px;">
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Categoría</label>
+                    <select id="filtro-categoria" onchange="aplicarFiltros()" style="border-radius: 8px;">
+                        <option value="">Todas</option>
                         <option>Varitas</option>
                         <option>Pociones</option>
                         <option>Libros</option>
@@ -118,13 +116,6 @@
                         <option>Reliquias</option>
                     </select>
                 </div>
-                <div class="admin-filtro-select">
-                    <select id="filtro-estado" onchange="aplicarFiltros()">
-                        <option value="">Todos los estados</option>
-                        <option value="Disponible">Disponible</option>
-                        <option value="Agotado">Agotado</option>
-                    </select>
-                </div>
             </div>
 
             <!-- TABLA -->
@@ -132,13 +123,12 @@
                 <table class="admin-tabla" id="tabla-productos">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Imagen</th>
                             <th>Nombre</th>
-                            <th>CategorÃ­a</th>
-                            <th>Precio</th>
-                            <th>Existencia</th>
-                            <th>Estado</th>
+                            <th>Categoría</th>
+                            <th>Stock</th>
+                            <th>Stock min.</th>
+                            <th>Estrategia</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -153,25 +143,27 @@
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <h3 id="modal-titulo">Agregar Producto</h3>
+                <h3 id="modal-titulo">Nuevo producto</h3>
                 <button class="modal-cerrar" onclick="cerrarModal()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="campo-modal">
-                    <label>Nombre del producto</label>
-                    <input type="text" id="m-nombre" placeholder="Ej. Varita de SaÃºco" />
+                    <label>Nombre</label>
+                    <input type="text" id="m-nombre" placeholder="Nombre del producto" />
                 </div>
+                
+                <div class="campo-modal">
+                    <label>Descripción</label>
+                    <textarea id="m-descripcion" rows="3" placeholder="Descripción..."></textarea>
+                </div>
+                
                 <div class="campo-modal-fila">
                     <div class="campo-modal">
-                        <label>Precio (MXN)</label>
-                        <input type="number" id="m-precio" placeholder="0.00" min="0" step="0.01" />
-                    </div>
-                    <div class="campo-modal">
-                        <label>CategorÃ­a</label>
+                        <label>Categoría</label>
                         <select id="m-categoria">
-                            <option value="">Seleccionar...</option>
+                            <option value="">Selecciona una categoría</option>
                             <option>Varitas</option>
                             <option>Pociones</option>
                             <option>Libros</option>
@@ -182,47 +174,55 @@
                             <option>Reliquias</option>
                         </select>
                     </div>
-                </div>
-                <div class="campo-modal-fila">
                     <div class="campo-modal">
-                        <label>Existencia</label>
-                        <input type="number" id="m-existencia" placeholder="0" min="0" step="1" />
-                    </div>
-                    <div class="campo-modal">
-                        <label>Estado</label>
-                        <select id="m-estado">
-                            <option value="Activo">Activo</option>
-                            <option value="Inactivo">Inactivo</option>
+                        <label>Proveedor</label>
+                        <select id="m-proveedor">
+                            <option value="">Selecciona un proveedor</option>
+                            <option value="Ollivanders">Ollivanders</option>
+                            <option value="Borgin y Burkes">Borgin y Burkes</option>
+                            <option value="Independiente">Independiente</option>
                         </select>
                     </div>
                 </div>
-                <div class="campo-modal">
-                    <label>Etiqueta (opcional)</label>
-                    <select id="m-etiqueta">
-                        <option value="">Sin etiqueta</option>
-                        <option value="Nuevo">Nuevo</option>
-                        <option value="Oferta">Oferta</option>
-                    </select>
+
+                <div class="campo-modal-fila">
+                    <div class="campo-modal">
+                        <label>Stock actual</label>
+                        <input type="number" id="m-existencia" placeholder="0" min="0" step="1" />
+                    </div>
+                    <div class="campo-modal">
+                        <label>Stock mínimo</label>
+                        <input type="number" id="m-stock-min" placeholder="0" min="0" step="1" />
+                    </div>
                 </div>
-                <div class="campo-modal">
-                    <label>DescripciÃ³n</label>
-                    <textarea id="m-descripcion" rows="3" placeholder="Describe el artefacto..."></textarea>
+
+                <div class="campo-modal-fila">
+                    <div class="campo-modal">
+                        <label>Estrategia logística</label>
+                        <select id="m-estrategia">
+                            <option value="PUSH">PUSH</option>
+                            <option value="PULL">PULL</option>
+                        </select>
+                    </div>
+                    <div class="campo-modal">
+                        <label>Costo unitario</label>
+                        <input type="number" id="m-precio" placeholder="0.00" min="0" step="0.01" />
+                    </div>
                 </div>
+
                 <div class="campo-modal">
-                    <label>URL de imagen</label>
+                    <label>URL de imagen (Opcional)</label>
                     <input type="text" id="m-imagen" placeholder="../images/mi-producto.jpg" />
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-modal-cancelar" onclick="cerrarModal()">Cancelar</button>
-                <button class="btn-modal-guardar" onclick="guardarProducto()">
-                    <i class="fa-solid fa-floppy-disk"></i> Guardar
-                </button>
+            <div class="modal-footer" style="justify-content: flex-end; gap: 15px;">
+                <button class="btn-modal-cancelar" onclick="cerrarModal()" style="background: none; border: 1px solid var(--border); color: var(--text-main);">Cancelar</button>
+                <button class="btn-modal-guardar" onclick="guardarProducto()" style="background-color: #0f766e; color: white;">Guardar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: VER DETALLE -->
+    <!-- MODAL: VER DETALLE (Mantenido funcional aunque no esté en la vista principal de la tabla) -->
     <div class="modal-overlay" id="detalle-overlay">
         <div class="modal-card" style="max-width:600px;">
             <div class="modal-header">
@@ -232,7 +232,7 @@
                 </button>
             </div>
             <div class="modal-body" id="detalle-body">
-                <!-- Se llena dinÃ¡micamente -->
+                <!-- Se llena dinámicamente -->
             </div>
             <div class="modal-footer">
                 <button class="btn-modal-cancelar" onclick="cerrarDetalle()">Cerrar</button>
@@ -244,21 +244,21 @@
     <div class="modal-overlay" id="confirm-overlay">
         <div class="modal-card confirm-card">
             <div class="modal-header">
-                <h3>Â¿Eliminar producto?</h3>
+                <h3>¿Eliminar producto?</h3>
                 <button class="modal-cerrar" onclick="cerrarConfirm()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <p class="confirm-texto">
-                    Esta acciÃ³n no se puede deshacer.<br />
-                    Â¿Seguro que deseas eliminar <strong id="confirm-nombre"></strong>?
+                    Esta acción no se puede deshacer.<br />
+                    ¿Seguro que deseas eliminar <strong id="confirm-nombre"></strong>?
                 </p>
             </div>
             <div class="modal-footer">
                 <button class="btn-modal-cancelar" onclick="cerrarConfirm()">Cancelar</button>
                 <button class="btn-modal-eliminar" onclick="confirmarEliminar()">
-                    <i class="fa-solid fa-trash"></i> SÃ­, eliminar
+                    <i class="fa-solid fa-trash"></i> Sí, eliminar
                 </button>
             </div>
         </div>
@@ -268,201 +268,134 @@
     <div class="toast-admin" id="toast-admin"></div>
 
     <script>
-        // â”€â”€ Base de productos con nuevos campos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Base de productos ORIGINAL INTACTA ──
         var productos = [
-            { id: 1, nombre: "Varita de SaÃºco", precio: 350.00, categoria: "Varitas", etiqueta: "Nuevo", existencia: 12, estado: "Activo", descripcion: "La varita mÃ¡s poderosa.", imagen: "../images/varita sauco.webp" },
-            { id: 2, nombre: "PociÃ³n de Invisibilidad", precio: 85.50, categoria: "Pociones", etiqueta: "Oferta", existencia: 0, estado: "Inactivo", descripcion: "Vuelve invisible por 1 hora.", imagen: "../images/pocion invisiobilidad.jpg" },
-            { id: 3, nombre: "Grimorio de Hechizos Antiguos", precio: 420.00, categoria: "Libros", etiqueta: "Nuevo", existencia: 5, estado: "Activo", descripcion: "Conjuro de protecciÃ³n.", imagen: "../images/grimorio.jpg" },
-            { id: 4, nombre: "Cristal de AdivinaciÃ³n", precio: 199.99, categoria: "Cristales", etiqueta: "", existencia: 3, estado: "Activo", descripcion: "Vislumbra el futuro.", imagen: "../images/cristal de adivinacion.webp" },
-            { id: 5, nombre: "Amuleto de ProtecciÃ³n", precio: 65.00, categoria: "Amuletos", etiqueta: "Oferta", existencia: 8, estado: "Activo", descripcion: "Escudo mÃ¡gico contra maleficios.", imagen: "../images/Amuleto de proteccion.jpeg" },
+            { id: 1, nombre: "Varita de Saúco", precio: 350.00, categoria: "Varitas", etiqueta: "Nuevo", existencia: 12, estado: "Activo", descripcion: "La varita más poderosa.", imagen: "../images/varita sauco.webp" },
+            { id: 2, nombre: "Poción de Invisibilidad", precio: 85.50, categoria: "Pociones", etiqueta: "Oferta", existencia: 0, estado: "Inactivo", descripcion: "Vuelve invisible por 1 hora.", imagen: "../images/pocion invisiobilidad.jpg" },
+            { id: 3, nombre: "Grimorio de Hechizos Antiguos", precio: 420.00, categoria: "Libros", etiqueta: "Nuevo", existencia: 5, estado: "Activo", descripcion: "Conjuro de protección.", imagen: "../images/grimorio.jpg" },
+            { id: 4, nombre: "Cristal de Adivinación", precio: 199.99, categoria: "Cristales", etiqueta: "", existencia: 3, estado: "Activo", descripcion: "Vislumbra el futuro.", imagen: "../images/cristal de adivinacion.webp" },
+            { id: 5, nombre: "Amuleto de Protección", precio: 65.00, categoria: "Amuletos", etiqueta: "Oferta", existencia: 8, estado: "Activo", descripcion: "Escudo mágico contra maleficios.", imagen: "../images/Amuleto de proteccion.jpeg" },
             { id: 6, nombre: "Caldero de Cobre", precio: 275.00, categoria: "Calderos", etiqueta: "", existencia: 2, estado: "Activo", descripcion: "Ideal para pociones complejas.", imagen: "../images/Caldero.jpg" },
-            { id: 7, nombre: "Mapa del Tesoro Escondido", precio: 120.00, categoria: "Pergaminos", etiqueta: "Nuevo", existencia: 0, estado: "Inactivo", descripcion: "SeÃ±ala el camino.", imagen: "../images/mapa del tesoro.jpg" },
-            { id: 8, nombre: "Pluma de FÃ©nix", precio: 450.00, categoria: "Reliquias", etiqueta: "Nuevo", existencia: 1, estado: "Activo", descripcion: "Pluma mÃ¡gica de fÃ©nix.", imagen: "../images/pluma de fenix.jpg" }
+            { id: 7, nombre: "Mapa del Tesoro Escondido", precio: 120.00, categoria: "Pergaminos", etiqueta: "Nuevo", existencia: 0, estado: "Inactivo", descripcion: "Señala el camino.", imagen: "../images/mapa del tesoro.jpg" },
+            { id: 8, nombre: "Pluma de Fénix", precio: 450.00, categoria: "Reliquias", etiqueta: "Nuevo", existencia: 1, estado: "Activo", descripcion: "Pluma mágica de fénix.", imagen: "../images/pluma de fenix.jpg" }
         ];
 
         var editandoId = null;
         var eliminandoId = null;
 
-        // â”€â”€ Referencias DOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Referencias DOM ──
         var tbody = document.getElementById('tbody-productos');
         var inputBuscar = document.getElementById('admin-buscar');
         var filtroCategoria = document.getElementById('filtro-categoria');
-        var filtroEstado = document.getElementById('filtro-estado');
+        
         var modalOverlay = document.getElementById('modal-overlay');
         var modalTitulo = document.getElementById('modal-titulo');
         var mNombre = document.getElementById('m-nombre');
-        var mPrecio = document.getElementById('m-precio');
-        var mCategoria = document.getElementById('m-categoria');
-        var mEtiqueta = document.getElementById('m-etiqueta');
         var mDescripcion = document.getElementById('m-descripcion');
-        var mImagen = document.getElementById('m-imagen');
+        var mCategoria = document.getElementById('m-categoria');
+        var mProveedor = document.getElementById('m-proveedor');
         var mExistencia = document.getElementById('m-existencia');
-        var mEstado = document.getElementById('m-estado');
+        var mStockMin = document.getElementById('m-stock-min');
+        var mEstrategia = document.getElementById('m-estrategia');
+        var mPrecio = document.getElementById('m-precio');
+        var mImagen = document.getElementById('m-imagen');
+        
         var confirmOverlay = document.getElementById('confirm-overlay');
         var confirmNombre = document.getElementById('confirm-nombre');
         var toast = document.getElementById('toast-admin');
-        var countBadge = document.getElementById('productos-count');
         var detalleOverlay = document.getElementById('detalle-overlay');
         var detalleBody = document.getElementById('detalle-body');
 
-        // â”€â”€ Renderizar tabla â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Renderizar tabla ──
         function renderTabla(lista) {
             lista = lista || productos;
             tbody.innerHTML = '';
             lista.forEach(function(p) {
-                var disponibilidad = (p.existencia > 0) ? 'Disponible' : 'Agotado';
-                var estadoClase = (disponibilidad === 'Disponible') ? 'entregado' : 'pendiente';
+                // Fallback para los datos predeterminados que no tienen estrategia ni stock mínimo
+                var estrategiaObj = p.estrategia || "PUSH";
+                var stockMinObj = p.stock_min || 10;
+                
+                // Clases de color para igualar el ejemplo (Push = verde, Pull = azul)
+                var claseEstrategia = (estrategiaObj === 'PUSH') ? 'badge-activo' : 'badge-frecuente';
+                
                 var tr = document.createElement('tr');
                 tr.innerHTML =
-                    '<td class="td-id">#' + p.id + '</td>' +
                     '<td><img src="' + p.imagen + '" alt="' + p.nombre + '" class="tabla-thumb" onerror="this.src=\'../images/logo/Logo.png\'"></td>' +
-                    '<td class="td-nombre">' + p.nombre + '</td>' +
+                    '<td class="td-nombre" style="font-weight: 500;">' + p.nombre + '</td>' +
                     '<td>' + p.categoria + '</td>' +
-                    '<td class="td-precio">$' + p.precio.toFixed(2) + '</td>' +
                     '<td>' + p.existencia + '</td>' +
-                    '<td><span class="estado ' + estadoClase + '">' + disponibilidad + '</span></td>' +
+                    '<td>' + stockMinObj + '</td>' +
+                    '<td><span class="badge ' + claseEstrategia + '">' + estrategiaObj + '</span></td>' +
                     '<td><div class="acciones-wrap">' +
-                        '<button class="btn-icono detalle" onclick="verDetalle(' + p.id + ')" title="Ver detalle"><i class="fa-solid fa-eye"></i></button>' +
-                        '<button class="btn-icono editar" onclick="abrirEditar(' + p.id + ')"><i class="fa-solid fa-pen"></i></button>' +
-                        '<button class="btn-icono eliminar" onclick="abrirConfirm(' + p.id + ')"><i class="fa-solid fa-trash"></i></button>' +
+                        '<button class="btn-icono ver" style="color: #10b981;" onclick="abrirDetalle(' + p.id + ')"><i class="fa-solid fa-eye"></i></button>' +
+                        '<button class="btn-icono editar" style="color: #3b82f6;" onclick="abrirEditar(' + p.id + ')"><i class="fa-solid fa-pen"></i></button>' +
+                        '<button class="btn-icono eliminar" style="color: #ef4444;" onclick="abrirConfirm(' + p.id + ')"><i class="fa-solid fa-trash"></i></button>' +
                     '</div></td>';
                 tbody.appendChild(tr);
             });
-            actualizarContador();
         }
 
-        // â”€â”€ Actualizar contador â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        function actualizarContador() {
-            var total = productos.length;
-            countBadge.textContent = total + ' producto' + (total !== 1 ? 's' : '');
-        }
-
-        // â”€â”€ Filtros combinados â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Filtros combinados ──
         function aplicarFiltros() {
             var texto = inputBuscar.value.toLowerCase();
             var cat = filtroCategoria.value;
-            var est = filtroEstado.value;
             var filtrados = productos.filter(function(p) {
                 var coincideNombre = p.nombre.toLowerCase().includes(texto);
                 var coincideCat = (cat === '' || p.categoria === cat);
-                var disp = (p.existencia > 0) ? 'Disponible' : 'Agotado';
-                var coincideEst = (est === '' || disp === est);
-                return coincideNombre && coincideCat && coincideEst;
+                return coincideNombre && coincideCat;
             });
             renderTabla(filtrados);
         }
 
-        // â”€â”€ Abrir modal AGREGAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Abrir modal AGREGAR ──
         function abrirModal() {
             editandoId = null;
-            modalTitulo.textContent = 'Agregar Producto';
+            modalTitulo.textContent = 'Nuevo producto';
             limpiarCampos();
             modalOverlay.classList.add('visible');
         }
 
-        // â”€â”€ Abrir modal EDITAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Abrir modal EDITAR ──
         function abrirEditar(id) {
             var p = productos.find(function(x) { return x.id === id; });
             if (!p) return;
             editandoId = id;
             modalTitulo.textContent = 'Editar Producto';
+            
             mNombre.value = p.nombre;
-            mPrecio.value = p.precio;
-            mCategoria.value = p.categoria;
-            mEtiqueta.value = p.etiqueta || '';
             mDescripcion.value = p.descripcion || '';
-            mImagen.value = p.imagen;
+            mCategoria.value = p.categoria;
+            mProveedor.value = p.proveedor || '';
             mExistencia.value = p.existencia || 0;
-            mEstado.value = p.estado || 'Activo';
+            mStockMin.value = p.stock_min || 10;
+            mEstrategia.value = p.estrategia || 'PUSH';
+            mPrecio.value = p.precio;
+            mImagen.value = p.imagen;
+            
             modalOverlay.classList.add('visible');
         }
 
-        function limpiarCampos() {
-            mNombre.value = '';
-            mPrecio.value = '';
-            mCategoria.value = '';
-            mEtiqueta.value = '';
-            mDescripcion.value = '';
-            mImagen.value = '';
-            mExistencia.value = 0;
-            mEstado.value = 'Activo';
-        }
-
-        function cerrarModal() {
-            modalOverlay.classList.remove('visible');
-        }
-
-        // â”€â”€ Guardar (agregar o editar) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        function guardarProducto() {
-            var nombre = mNombre.value.trim();
-            var precio = parseFloat(mPrecio.value);
-            var categoria = mCategoria.value;
-            var etiqueta = mEtiqueta.value;
-            var descripcion = mDescripcion.value.trim();
-            var imagen = mImagen.value.trim();
-            var existencia = parseInt(mExistencia.value) || 0;
-            var estado = mEstado.value;
-
-            if (!nombre || isNaN(precio) || !categoria) {
-                mostrarToast('âš ï¸ Completa nombre, precio y categorÃ­a.', 'error');
-                return;
-            }
-
-            if (editandoId !== null) {
-                var idx = productos.findIndex(function(p) { return p.id === editandoId; });
-                productos[idx] = {
-                    id: editandoId,
-                    nombre: nombre,
-                    precio: precio,
-                    categoria: categoria,
-                    etiqueta: etiqueta,
-                    descripcion: descripcion,
-                    imagen: imagen,
-                    existencia: existencia,
-                    estado: estado
-                };
-                mostrarToast('âœ¦ Producto actualizado correctamente.', 'ok');
-            } else {
-                var maxId = 0;
-                productos.forEach(function(p) { if (p.id > maxId) maxId = p.id; });
-                var nuevoId = maxId + 1;
-                productos.push({
-                    id: nuevoId,
-                    nombre: nombre,
-                    precio: precio,
-                    categoria: categoria,
-                    etiqueta: etiqueta,
-                    descripcion: descripcion,
-                    imagen: imagen,
-                    existencia: existencia,
-                    estado: estado
-                });
-                mostrarToast('âœ¦ Producto agregado al catÃ¡logo.', 'ok');
-            }
-
-            cerrarModal();
-            aplicarFiltros(); // Refresca la tabla con filtros actuales
-        }
-
-        // â”€â”€ Ver detalle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        function verDetalle(id) {
+        function abrirDetalle(id) {
             var p = productos.find(function(x) { return x.id === id; });
             if (!p) return;
-            detalleBody.innerHTML =
-                '<div style="display:flex; gap:20px; flex-wrap:wrap;">' +
-                    '<div style="flex:1; min-width:150px;">' +
-                        '<img src="' + p.imagen + '" alt="' + p.nombre + '" style="width:100%; max-width:200px; border-radius:12px; border:1px solid var(--border);" onerror="this.src=\'../images/logo/Logo.png\'">' +
-                    '</div>' +
-                    '<div style="flex:2;">' +
-                        '<p><strong>Nombre:</strong> ' + p.nombre + '</p>' +
-                        '<p><strong>CategorÃ­a:</strong> ' + p.categoria + '</p>' +
-                        '<p><strong>Precio:</strong> $' + p.precio.toFixed(2) + '</p>' +
-                        '<p><strong>Existencia:</strong> ' + p.existencia + '</p>' +
-                        '<p><strong>Estado:</strong> ' + (p.estado || 'Activo') + '</p>' +
-                        '<p><strong>Etiqueta:</strong> ' + (p.etiqueta || 'Ninguna') + '</p>' +
-                        '<p><strong>DescripciÃ³n:</strong> ' + (p.descripcion || 'Sin descripciÃ³n') + '</p>' +
+
+            detalleBody.innerHTML = 
+                '<div style="display:flex; gap:18px; align-items:flex-start;">' +
+                    '<img src="' + (p.imagen || '../images/logo/Logo.png') + '" alt="' + p.nombre + '" style="width:120px; height:120px; object-fit:cover; border-radius:12px; border:1px solid var(--border);" onerror="this.src=\'../images/logo/Logo.png\'">' +
+                    '<div style="flex:1;">' +
+                        '<h4 style="margin:0 0 8px; color: var(--text-main);">' + p.nombre + '</h4>' +
+                        '<p style="margin:0 0 10px; color: var(--text-soft);">' + (p.descripcion || 'Sin descripción disponible.') + '</p>' +
+                        '<div style="display:grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap:10px; font-size:0.92rem;">' +
+                            '<div><strong>Categoría:</strong><br>' + (p.categoria || '-') + '</div>' +
+                            '<div><strong>Proveedor:</strong><br>' + (p.proveedor || '-') + '</div>' +
+                            '<div><strong>Stock:</strong><br>' + (p.existencia || 0) + '</div>' +
+                            '<div><strong>Stock mínimo:</strong><br>' + (p.stock_min || 0) + '</div>' +
+                            '<div><strong>Estrategia:</strong><br>' + (p.estrategia || 'PUSH') + '</div>' +
+                            '<div><strong>Precio:</strong><br>$' + Number(p.precio || 0).toFixed(2) + '</div>' +
+                        '</div>' +
                     '</div>' +
                 '</div>';
+
             detalleOverlay.classList.add('visible');
         }
 
@@ -470,7 +403,84 @@
             detalleOverlay.classList.remove('visible');
         }
 
-        // â”€â”€ Confirmar ELIMINAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        function limpiarCampos() {
+            mNombre.value = '';
+            mDescripcion.value = '';
+            mCategoria.value = '';
+            mProveedor.value = '';
+            mExistencia.value = 0;
+            mStockMin.value = 0;
+            mEstrategia.value = 'PUSH';
+            mPrecio.value = '';
+            mImagen.value = '';
+        }
+
+        function cerrarModal() {
+            modalOverlay.classList.remove('visible');
+        }
+
+        // ── Guardar (agregar o editar) ──
+        function guardarProducto() {
+            var nombre = mNombre.value.trim();
+            var descripcion = mDescripcion.value.trim();
+            var categoria = mCategoria.value;
+            var proveedor = mProveedor.value;
+            var existencia = parseInt(mExistencia.value) || 0;
+            var stock_min = parseInt(mStockMin.value) || 0;
+            var estrategia = mEstrategia.value;
+            var precio = parseFloat(mPrecio.value);
+            var imagen = mImagen.value.trim();
+
+            if (!nombre || isNaN(precio) || !categoria) {
+                mostrarToast('⚠️ Completa nombre, costo unitario y categoría.', 'error');
+                return;
+            }
+
+            if (editandoId !== null) {
+                var idx = productos.findIndex(function(p) { return p.id === editandoId; });
+                // Mantenemos atributos viejos que no están en el form (como etiqueta, estado)
+                var pActual = productos[idx];
+                productos[idx] = {
+                    id: editandoId,
+                    nombre: nombre,
+                    descripcion: descripcion,
+                    categoria: categoria,
+                    proveedor: proveedor,
+                    existencia: existencia,
+                    stock_min: stock_min,
+                    estrategia: estrategia,
+                    precio: precio,
+                    imagen: imagen,
+                    estado: pActual.estado,
+                    etiqueta: pActual.etiqueta
+                };
+                mostrarToast('✦ Producto actualizado correctamente.', 'ok');
+            } else {
+                var maxId = 0;
+                productos.forEach(function(p) { if (p.id > maxId) maxId = p.id; });
+                var nuevoId = maxId + 1;
+                productos.push({
+                    id: nuevoId,
+                    nombre: nombre,
+                    descripcion: descripcion,
+                    categoria: categoria,
+                    proveedor: proveedor,
+                    existencia: existencia,
+                    stock_min: stock_min,
+                    estrategia: estrategia,
+                    precio: precio,
+                    imagen: imagen,
+                    estado: 'Activo',
+                    etiqueta: 'Nuevo'
+                });
+                mostrarToast('✦ Producto agregado al catálogo.', 'ok');
+            }
+
+            cerrarModal();
+            aplicarFiltros(); 
+        }
+
+        // ── Confirmar ELIMINAR ──
         function abrirConfirm(id) {
             var p = productos.find(function(x) { return x.id === id; });
             if (!p) return;
@@ -489,10 +499,10 @@
             productos = productos.filter(function(p) { return p.id !== eliminandoId; });
             cerrarConfirm();
             aplicarFiltros();
-            mostrarToast('ðŸ—‘ Producto eliminado.', 'error');
+            mostrarToast('🗑 Producto eliminado.', 'error');
         }
 
-        // â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Toast ──
         function mostrarToast(msg, tipo) {
             tipo = tipo || 'ok';
             toast.textContent = msg;
@@ -503,10 +513,9 @@
             }, 3000);
         }
 
-        // â”€â”€ Inicializar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        aplicarFiltros(); // Carga la tabla con filtros por defecto
+        // ── Inicializar ──
+        aplicarFiltros(); 
 
-        // Cerrar modales al hacer clic fuera
         modalOverlay.addEventListener('click', function(e) {
             if (e.target === modalOverlay) cerrarModal();
         });
@@ -518,10 +527,23 @@
         });
     </script>
 
-    <!-- Estilos para los nuevos elementos -->
+    <!-- Estilos de colores referenciados al ejemplo -->
     <style>
-        .estado.entregado { background: rgba(74,222,128,0.15); color: #4ade80; }
-        .estado.pendiente { background: rgba(251,146,60,0.15); color: #fb923c; }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            font-family: 'Lato', sans-serif;
+            text-align: center;
+            min-width: 60px;
+        }
+        /* Estrategia PUSH (Verde) */
+        .badge-activo { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+        /* Estrategia PULL (Azul) */
+        .badge-frecuente { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+
         .admin-filtros {
             display: flex;
             gap: 12px;
@@ -544,12 +566,30 @@
         .admin-filtro-select select:focus {
             border-color: var(--gold-dim);
         }
-        .btn-icono.detalle {
-            color: var(--lilac);
+        .admin-buscador input {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            outline: none;
+            font-family: 'Lato', sans-serif;
         }
-        .btn-icono.detalle:hover {
-            background: rgba(192,132,252,0.12);
-            border-color: var(--lilac);
+        .btn-icono {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin: 0 5px;
+            transition: opacity 0.3s;
+        }
+        .btn-icono:hover {
+            opacity: 0.7;
+        }
+        .tabla-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
         }
     </style>
 
