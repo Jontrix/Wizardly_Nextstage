@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizardly — Inventario</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+</head>
+<body class="admin-body">
+
+    <!-- ── BARRA LATERAL ── -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">
+            <img src="../images/logo/Logo.png" alt="Wizardly" />
+            <div>
+                <span class="brand">Wizardly</span>
+                <span class="sidebar-sub">Panel Arcano</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
+            </a>
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <a href="admin-productos.html" class="nav-item">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
+            <a href="admin-reportes.html" class="nav-item">
+                <i class="fa-solid fa-chart-simple"></i> Reportes
+            </a>
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
+            <a href="admin-inventario.html" class="nav-item active">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── CONTENIDO PRINCIPAL ── -->
+    <main class="admin-main">
+
+        <div class="admin-topbar">
+            <h1 id="titulo-seccion">Inventario</h1>
+            <div class="topbar-usuario">
+                <i class="fa-solid fa-circle-user"></i>
+                <span id="nombre-admin-topbar">Administrador</span>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             VISTA 1: INVENTARIO GENERAL
+        =========================================== -->
+        <div class="admin-bloque" id="vista-inventario">
+            <div class="bloque-header">
+                <h2>Estado de Stock</h2>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-admin" onclick="cambiarVista('movimientos')" style="background-color: transparent; border: 1px solid var(--border); color: var(--text-main);">
+                        <i class="fa-solid fa-list"></i> Ver Movimientos
+                    </button>
+                    <button class="btn-admin" onclick="abrirModalMovimiento()" style="background-color: #0f766e; color: white; border-radius: 6px;">
+                        <i class="fa-solid fa-plus"></i> Nuevo movimiento
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-filtros" style="border-bottom: none; padding-bottom: 0;">
+                <div class="admin-buscador" style="flex:1; border-radius: 8px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="buscar-inventario" placeholder="Buscar producto..." oninput="filtrarInventario()" />
+                </div>
+            </div>
+
+            <div class="admin-tabla-wrap">
+                <table class="admin-tabla" id="tabla-inventario">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Stock actual</th>
+                            <th>Stock mínimo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-inventario"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             VISTA 2: HISTORIAL DE MOVIMIENTOS
+        =========================================== -->
+        <div class="admin-bloque" id="vista-movimientos" style="display: none;">
+            <div class="bloque-header">
+                <h2>Historial de Entradas y Salidas</h2>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-admin" onclick="cambiarVista('inventario')" style="background-color: transparent; border: 1px solid var(--border); color: var(--text-main);">
+                        <i class="fa-solid fa-arrow-left"></i> Volver a Inventario
+                    </button>
+                    <button class="btn-admin" onclick="abrirModalMovimiento()" style="background-color: #0f766e; color: white; border-radius: 6px;">
+                        <i class="fa-solid fa-plus"></i> Nuevo movimiento
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-filtros" style="border-bottom: none; padding-bottom: 0;">
+                <div class="admin-filtro-select" style="display: flex; align-items: center; gap: 10px;">
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Tipo</label>
+                    <select id="filtro-tipo" onchange="filtrarMovimientos()" style="border-radius: 8px;">
+                        <option value="">Todos</option>
+                        <option value="Entrada">Entrada</option>
+                        <option value="Salida">Salida</option>
+                    </select>
+                </div>
+                <div class="admin-filtro-select" style="display: flex; align-items: center; gap: 10px;">
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Producto</label>
+                    <select id="filtro-producto-mov" onchange="filtrarMovimientos()" style="border-radius: 8px;">
+                        <option value="">Todos</option>
+                        <!-- Se llena dinámicamente -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="admin-tabla-wrap">
+                <table class="admin-tabla" id="tabla-movimientos">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Producto</th>
+                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Motivo</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-movimientos"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ── MODAL: NUEVO MOVIMIENTO ── -->
+    <div class="modal-overlay" id="modal-movimiento">
+        <div class="modal-card" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Nuevo Movimiento</h3>
+                <button class="modal-cerrar" onclick="cerrarModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="campo-modal">
+                    <label>Producto</label>
+                    <select id="m-producto" required>
+                        <option value="">Selecciona un producto</option>
+                        <!-- Se llena desde Firebase -->
+                    </select>
+                </div>
+                
+                <div class="campo-modal-fila" style="justify-content: flex-start; gap: 30px;">
+                    <label>Tipo</label>
+                    <label class="radio-label" style="color: #4ade80;">
+                        <input type="radio" name="m-tipo" value="Entrada" checked>
+                        <i class="fa-solid fa-circle-arrow-up"></i> Entrada
+                    </label>
+                    <label class="radio-label" style="color: #f87171;">
+                        <input type="radio" name="m-tipo" value="Salida">
+                        <i class="fa-solid fa-circle-arrow-down"></i> Salida
+                    </label>
+                </div>
+
+                <div class="campo-modal-fila">
+                    <div class="campo-modal">
+                        <label>Cantidad</label>
+                        <input type="number" id="m-cantidad" placeholder="0" min="1" step="1" required />
+                    </div>
+                    <div class="campo-modal">
+                        <label>Motivo</label>
+                        <select id="m-motivo" required>
+                            <option value="">Selecciona un motivo</option>
+                            <option value="Compra">Compra a Proveedor</option>
+                            <option value="Venta">Venta a Cliente</option>
+                            <option value="Pedido">Pedido Interno</option>
+                            <option value="Ajuste">Ajuste de Inventario</option>
+                            <option value="Merma">Merma / Daño</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: flex-end; gap: 15px;">
+                <button class="btn-modal-cancelar" onclick="cerrarModal()" style="background: none; border: 1px solid var(--border); color: var(--text-main);">Cancelar</button>
+                <button class="btn-modal-guardar" onclick="guardarMovimiento()" style="background-color: #0f766e; color: white;">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TOAST ── -->
+    <div class="toast-admin" id="toast-admin"></div>
+
+    <!-- ── LÓGICA DE FIREBASE Y JS ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, Timestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // CREDENCIALES
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Variables Globales
+        window.productos = [];
+        window.movimientos = [];
+        window.adminLogueado = "Administrador";
+
+        // Obtener nombre del admin
+        const datosRaw = localStorage.getItem('usuarioDatos');
+        if (datosRaw) {
+            const usuario = JSON.parse(datosRaw);
+            if (usuario && usuario.nombre) {
+                window.adminLogueado = usuario.nombre;
+                document.getElementById('nombre-admin-topbar').textContent = usuario.nombre;
+            }
+        }
+
+        // Historial General
+        async function registrarHistorialLocal(modulo, accion, descripcion) {
+            try {
+                await addDoc(collection(db, "historial"), {
+                    modulo: modulo, accion: accion, descripcion: descripcion,
+                    adminNombre: window.adminLogueado, adminUid: "desconocido", fecha: Timestamp.now()
+                });
+            } catch (error) { console.error(error); }
+        }
+
+        // ── CARGAR DATOS ──
+        window.cargarDatos = async function() {
+            try {
+                // 1. Cargar Productos
+                const queryProductos = await getDocs(collection(db, "productos"));
+                window.productos = [];
+                const selectModal = document.getElementById('m-producto');
+                const selectFiltro = document.getElementById('filtro-producto-mov');
+                
+                selectModal.innerHTML = '<option value="">Selecciona un producto</option>';
+                selectFiltro.innerHTML = '<option value="">Todos</option>';
+
+                queryProductos.forEach((doc) => {
+                    let data = doc.data();
+                    data.id = doc.id; 
+                    window.productos.push(data);
+
+                    // Llenar selects
+                    let optionHTML = `<option value="${data.id}">${data.nombre}</option>`;
+                    selectModal.innerHTML += optionHTML;
+                    selectFiltro.innerHTML += optionHTML;
+                });
+
+                // 2. Cargar Movimientos
+                const qMov = query(collection(db, "movimientos"), orderBy("fecha", "desc"));
+                const queryMovimientos = await getDocs(qMov);
+                window.movimientos = [];
+                
+                queryMovimientos.forEach((doc) => {
+                    let data = doc.data();
+                    data.id = doc.id; 
+                    window.movimientos.push(data);
+                });
+
+                window.filtrarInventario();
+                window.filtrarMovimientos();
+            } catch (error) {
+                console.error("Error cargando datos:", error);
+                window.mostrarToast('Error al conectar con la Base de Datos', 'error');
+            }
+        };
+
+        // ── RENDER INVENTARIO (Vista 1) ──
+        window.filtrarInventario = function() {
+            const texto = document.getElementById('buscar-inventario').value.toLowerCase();
+            const tbody = document.getElementById('tbody-inventario');
+            tbody.innerHTML = '';
+
+            const filtrados = window.productos.filter(p => p.nombre.toLowerCase().includes(texto));
+
+            filtrados.forEach(p => {
+                const stock = p.existencia || 0;
+                const min = p.stock_min || 10;
+                let estadoHTML = '';
+
+                // Lógica de estado (Normal vs Stock Bajo)
+                if (stock <= min) {
+                    estadoHTML = `<span style="color: #f87171; font-weight:bold;"><i class="fa-solid fa-circle-exclamation"></i> Stock bajo</span>`;
+                } else {
+                    estadoHTML = `<span style="color: #4ade80; font-weight:bold;"><i class="fa-solid fa-circle-check"></i> Normal</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight: 500;">${p.nombre}</td>
+                        <td style="font-size: 1.1rem;">${stock}</td>
+                        <td>${min}</td>
+                        <td>${estadoHTML}</td>
+                        <td>
+                            <button class="btn-icono" style="color: #3b82f6;" onclick="verMovimientosDeProducto('${p.id}')" title="Ver movimientos">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        // ── RENDER MOVIMIENTOS (Vista 2) ──
+        window.filtrarMovimientos = function() {
+            const tipo = document.getElementById('filtro-tipo').value;
+            const productoId = document.getElementById('filtro-producto-mov').value;
+            const tbody = document.getElementById('tbody-movimientos');
+            tbody.innerHTML = '';
+
+            const filtrados = window.movimientos.filter(m => {
+                const coincideTipo = tipo === '' || m.tipo === tipo;
+                const coincideProd = productoId === '' || m.productoId === productoId;
+                return coincideTipo && coincideProd;
+            });
+
+            filtrados.forEach(m => {
+                const fecha = m.fecha.toDate().toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                
+                // Buscar el nombre del producto
+                const prod = window.productos.find(p => p.id === m.productoId);
+                const nombreProd = prod ? prod.nombre : 'Producto Desconocido';
+
+                const colorTipo = m.tipo === 'Entrada' ? '#4ade80' : '#f87171';
+                const signo = m.tipo === 'Entrada' ? '+' : '-';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${fecha}</td>
+                        <td><strong>${nombreProd}</strong></td>
+                        <td style="color: ${colorTipo}; font-weight:bold;">${m.tipo}</td>
+                        <td>${signo}${m.cantidad}</td>
+                        <td>${m.motivo}</td>
+                        <td>${m.usuario}</td>
+                    </tr>
+                `;
+            });
+        };
+
+        // ── CONTROL DE VISTAS ──
+        window.cambiarVista = function(vista) {
+            document.getElementById('vista-inventario').style.display = vista === 'inventario' ? 'block' : 'none';
+            document.getElementById('vista-movimientos').style.display = vista === 'movimientos' ? 'block' : 'none';
+            document.getElementById('titulo-seccion').textContent = vista === 'inventario' ? 'Inventario' : 'Movimientos de Inventario';
+            
+            if (vista === 'inventario') {
+                // Limpiar filtro al regresar
+                document.getElementById('filtro-producto-mov').value = "";
+                window.filtrarMovimientos();
+            }
+        };
+
+        // Cuando se presiona la lupa en el inventario
+        window.verMovimientosDeProducto = function(productoId) {
+            document.getElementById('filtro-producto-mov').value = productoId;
+            window.filtrarMovimientos();
+            window.cambiarVista('movimientos');
+        };
+
+        // ── MODAL NUEVO MOVIMIENTO ──
+        window.abrirModalMovimiento = function() {
+            document.getElementById('m-producto').value = '';
+            document.getElementById('m-cantidad').value = '';
+            document.getElementById('m-motivo').value = '';
+            document.querySelector('input[name="m-tipo"][value="Entrada"]').checked = true;
+            document.getElementById('modal-movimiento').classList.add('visible');
+        };
+
+        window.cerrarModal = function() {
+            document.getElementById('modal-movimiento').classList.remove('visible');
+        };
+
+        // ── GUARDAR MOVIMIENTO Y ACTUALIZAR STOCK ──
+        window.guardarMovimiento = async function() {
+            const productoId = document.getElementById('m-producto').value;
+            const tipo = document.querySelector('input[name="m-tipo"]:checked').value;
+            const cantidad = parseInt(document.getElementById('m-cantidad').value);
+            const motivo = document.getElementById('m-motivo').value;
+
+            if (!productoId || !cantidad || cantidad <= 0 || !motivo) {
+                window.mostrarToast('⚠️ Completa todos los campos correctamente.', 'error');
+                return;
+            }
+
+            try {
+                // 1. Obtener producto actual
+                const prod = window.productos.find(p => p.id === productoId);
+                let nuevoStock = prod.existencia || 0;
+
+                if (tipo === 'Entrada') {
+                    nuevoStock += cantidad;
+                } else if (tipo === 'Salida') {
+                    if (nuevoStock < cantidad) {
+                        window.mostrarToast('⚠️ No hay suficiente stock para esta salida.', 'error');
+                        return;
+                    }
+                    nuevoStock -= cantidad;
+                }
+
+                // 2. Actualizar Stock en la colección 'productos'
+                await updateDoc(doc(db, "productos", productoId), { existencia: nuevoStock });
+
+                // 3. Guardar el registro en la colección 'movimientos'
+                await addDoc(collection(db, "movimientos"), {
+                    productoId: productoId,
+                    tipo: tipo,
+                    cantidad: cantidad,
+                    motivo: motivo,
+                    usuario: window.adminLogueado,
+                    fecha: Timestamp.now()
+                });
+
+                // 4. Registrar en el Historial global
+                await registrarHistorialLocal("inventario", "crear", `Se registró una ${tipo.toLowerCase()} de ${cantidad} unidades para: ${prod.nombre}`);
+
+                window.cerrarModal();
+                window.mostrarToast(`✦ ${tipo} registrada correctamente. Stock actualizado.`, 'ok');
+                
+                // Recargar todo para reflejar cambios
+                await window.cargarDatos();
+
+            } catch (error) {
+                console.error(error);
+                window.mostrarToast('⚠️ Error al registrar movimiento.', 'error');
+            }
+        };
+
+        // Toast
+        window.mostrarToast = function(msg, tipo) {
+            const toast = document.getElementById('toast-admin');
+            toast.textContent = msg;
+            toast.className = 'toast-admin visible ' + tipo;
+            clearTimeout(toast._t);
+            toast._t = setTimeout(() => toast.classList.remove('visible'), 3000);
+        };
+
+        // Inicializar
+        window.cargarDatos();
+
+    </script>
+
+    <!-- ESTILOS ESPECÍFICOS -->
+    <style>
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-icono {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin: 0 5px;
+            transition: opacity 0.3s;
+        }
+        .btn-icono:hover { opacity: 0.7; }
+        
+        .admin-filtros {
+            display: flex;
+            gap: 12px;
+            padding: 12px 24px 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+        .admin-filtro-select select {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 16px;
+            color: var(--text-main);
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+        .admin-filtro-select select:focus {
+            border-color: var(--gold-dim);
+        }
+        .admin-buscador input {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            outline: none;
+            font-family: 'Lato', sans-serif;
+        }
+    </style>
+
+</body>
+</html>
