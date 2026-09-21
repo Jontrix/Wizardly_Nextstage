@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizardly — Dashboard SCM</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <!-- IMPORTANTE: Librería Chart.js para las gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Estilos específicos para el Dashboard SCM */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: 0.3s;
+        }
+        .kpi-card:hover {
+            border-color: var(--gold);
+            background: rgba(255,255,255,0.06);
+            transform: translateY(-3px);
+        }
+        .kpi-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .icon-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        .icon-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .icon-green { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+        .icon-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        
+        .kpi-info h3 { margin: 0; font-size: 1.8rem; color: var(--text-main); font-family: 'Cinzel', serif; }
+        .kpi-info p { margin: 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-container {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modulos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .modulo-btn {
+            background: linear-gradient(145deg, rgba(20,10,35,0.8), rgba(10,5,20,0.9));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.4s;
+            display: block;
+        }
+        .modulo-btn:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+            transform: translateY(-5px);
+        }
+        .modulo-btn i {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 16px;
+        }
+        .modulo-btn h4 {
+            margin: 0 0 8px 0;
+            color: var(--text-main);
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+        }
+        .modulo-btn p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <!-- ── BARRA LATERAL ── -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">
+            <img src="../images/logo/Logo.png" alt="Wizardly" />
+            <div>
+                <span class="brand">Wizardly</span>
+                <span class="sidebar-sub">Panel Arcano</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
+            </a>
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
+            <a href="admin-productos.html" class="nav-item active">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
+            <a href="admin-reportes.html" class="nav-item">
+                <i class="fa-solid fa-chart-simple"></i> Reportes
+            </a>
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── CONTENIDO PRINCIPAL SCM ── -->
+    <main class="admin-main">
+        <div class="admin-topbar">
+            <h1>Cadena de Suministros (SCM)</h1>
+            <div class="topbar-usuario">
+                <i class="fa-solid fa-circle-user"></i>
+                <span id="nombre-administrador">Cargando...</span>
+            </div>
+        </div>
+
+        <!-- TARJETAS DE MÉTRICAS (KPIs) -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon icon-purple"><i class="fa-solid fa-boxes-stacked"></i></div>
+                <div class="kpi-info">
+                    <h3 id="kpi-total">0</h3>
+                    <p>Total en Almacén</p>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="kpi-info">
+                    <h3 id="kpi-critico">0</h3>
+                    <p>Stock Crítico</p>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-green"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
+                <div class="kpi-info">
+                    <h3 id="kpi-push">0</h3>
+                    <p>Estrategia PUSH</p>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon icon-blue"><i class="fa-solid fa-hand-holding-hand"></i></div>
+                <div class="kpi-info">
+                    <h3 id="kpi-pull">0</h3>
+                    <p>Estrategia PULL</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRÁFICAS DEL INVENTARIO -->
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3 style="margin-top: 0; font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem;">Distribución por Categorías</h3>
+                <canvas id="chart-categorias"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 style="margin-top: 0; font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem;">Salud del Inventario</h3>
+                <canvas id="chart-salud"></canvas>
+            </div>
+        </div>
+
+        <!-- ACCESOS RÁPIDOS (SECCIÓN DE 6 BOTONES) -->
+        <div class="admin-bloque">
+            <div class="bloque-header">
+                <h2>Módulos Logísticos</h2>
+            </div>
+            <div class="modulos-grid" style="padding: 24px;">
+                <a href="admin-productos.html" class="modulo-btn">
+                    <i class="fa-solid fa-box"></i>
+                    <h4>Productos</h4>
+                    <p>Gestión de catálogo</p>
+                </a>
+                <a href="admin-proveedores.html" class="modulo-btn">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <h4>Proveedores</h4>
+                    <p>Administrar proveedores</p>
+                </a>
+                <a href="admin-inventario.html" class="modulo-btn">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <h4>Inventario</h4>
+                    <p>Control de existencias</p>
+                </a>
+                <a href="admin-pedidos.html" class="modulo-btn">
+                    <i class="fa-solid fa-scroll"></i>
+                    <h4>Pedidos</h4>
+                    <p>Reposición y suministro</p>
+                </a>
+                <a href="admin-logistica.html" class="modulo-btn">
+                    <i class="fa-solid fa-route"></i>
+                    <h4>Logística</h4>
+                    <p>Estrategias Push / Pull</p>
+                </a>
+                <a href="admin-reportes.html" class="modulo-btn">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <h4>Reportes</h4>
+                    <p>Métricas y análisis</p>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- ── LÓGICA DE FIREBASE Y JAVASCRIPT ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // ⚠️ TUS CREDENCIALES REALES
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Mostrar usuario activo
+        onAuthStateChanged(auth, (usuario) => {
+            const spanNombre = document.getElementById("nombre-administrador");
+            if (usuario) {
+                spanNombre.textContent = usuario.displayName || usuario.email || "Administrador";
+            } else {
+                try {
+                    const datos = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
+                    spanNombre.textContent = datos.nombre || "Admin Supremo";
+                } catch(e) {}
+            }
+        });
+
+        // ── CARGAR DATOS SCM Y DIBUJAR GRÁFICAS ──
+        async function inicializarDashboardSCM() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "productos"));
+                let productos = [];
+                querySnapshot.forEach((doc) => productos.push(doc.data()));
+
+                // Variables para KPIs
+                let totalAlmacen = productos.length;
+                let stockCritico = 0;
+                let conteoPush = 0;
+                let conteoPull = 0;
+
+                // Variables para Gráficas
+                let catPocimas = 0, catIngredientes = 0, catReliquias = 0, catGrimorios = 0;
+
+                productos.forEach(p => {
+                    // Lógica de Stock
+                    let actual = parseInt(p.stock) || 0;
+                    let minimo = parseInt(p.stock_minimo) || 0;
+                    if (actual <= minimo) stockCritico++;
+
+                    // Lógica Estrategia
+                    if (p.estrategia === "PUSH") conteoPush++;
+                    if (p.estrategia === "PULL") conteoPull++;
+
+                    // Lógica Categorías
+                    if (p.categoria === "Pócimas") catPocimas++;
+                    else if (p.categoria === "Ingredientes") catIngredientes++;
+                    else if (p.categoria === "Reliquias") catReliquias++;
+                    else if (p.categoria === "Grimorios") catGrimorios++;
+                    else catReliquias++; // Otros
+                });
+
+                // Inyectar números en las Tarjetas (KPIs)
+                document.getElementById('kpi-total').textContent = totalAlmacen;
+                document.getElementById('kpi-critico').textContent = stockCritico;
+                document.getElementById('kpi-push').textContent = conteoPush;
+                document.getElementById('kpi-pull').textContent = conteoPull;
+
+                // Dibujar Gráfica 1: Categorías
+                new Chart(document.getElementById('chart-categorias').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pócimas', 'Ingredientes', 'Reliquias', 'Grimorios'],
+                        datasets: [{
+                            data: [catPocimas, catIngredientes, catReliquias, catGrimorios],
+                            backgroundColor: ['#a855f7', '#4ade80', '#fbbf24', '#3b82f6'],
+                            borderColor: '#140a24',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'right', labels: { color: '#e2e8f0' } } }
+                    }
+                });
+
+                // Dibujar Gráfica 2: Salud
+                let stockSaludable = totalAlmacen - stockCritico;
+                new Chart(document.getElementById('chart-salud').getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: ['Stock Saludable', 'Stock Crítico'],
+                        datasets: [{
+                            data: [stockSaludable, stockCritico],
+                            backgroundColor: ['#4ade80', '#f87171'],
+                            borderColor: '#140a24',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { color: '#e2e8f0' } } }
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error al cargar el SCM:", error);
+            }
+        }
+
+        // Arrancar Dashboard
+        inicializarDashboardSCM();
+    </script>
+</body>
+</html>

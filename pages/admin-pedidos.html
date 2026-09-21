@@ -3,21 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly — Pedidos</title>
+    <title>Wizardly â€” Pedidos</title>
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    
     <style>
-        .sidebar-titulo {
-            display: block;
-            padding: 16px 20px 8px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: bold;
-            letter-spacing: 0.08em;
-        }
         .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -83,7 +76,7 @@
         .badge-select {
             cursor: pointer;
             outline: none;
-            /* Añadimos un poco de espacio extra a la derecha para la flecha del select */
+            /* AÃ±adimos un poco de espacio extra a la derecha para la flecha del select */
             padding-right: 20px;
             transition: all 0.3s ease;
         }
@@ -118,7 +111,7 @@
         <nav class="sidebar-nav">
             <span class="sidebar-titulo">GENERAL</span>
             <a href="admin.html" class="nav-item">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
             </a>
             <a href="admin-promociones.html" class="nav-item">
                 <i class="fa-solid fa-wand-sparkles"></i> Promociones
@@ -137,10 +130,14 @@
             </a>
 
             <span class="sidebar-titulo">MÓDULO SCM</span>
-            <a href="admin-productos.html" class="nav-item">
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
+            <a href="admin-productos.html" class="nav-item active">
                 <i class="fa-solid fa-hat-wizard"></i> Productos
             </a>
-            <a href="admin-pedidos.html" class="nav-item active">
+            <a href="admin-pedidos.html" class="nav-item">
                 <i class="fa-solid fa-scroll"></i> Pedidos
             </a>
             <a href="admin-reportes.html" class="nav-item">
@@ -165,7 +162,7 @@
 
     <main class="admin-main">
         <div class="admin-topbar">
-            <h1>Gestión de Pedidos</h1>
+            <h1>GestiÃ³n de Pedidos</h1>
             <div class="topbar-usuario">
                 <i class="fa-solid fa-circle-user"></i>
                 <span>Archimaga Seraphina</span>
@@ -205,7 +202,7 @@
                         <tr>
                             <td>#WIZ-9041</td>
                             <td>Albus Dumbledore</td>
-                            <td>1x Varita de Fénix Suprema, 2x Poción de Maná Pura</td>
+                            <td>1x Varita de FÃ©nix Suprema, 2x PociÃ³n de ManÃ¡ Pura</td>
                             <td>350 Oro</td>
                             <td>
                                 <select class="badge badge-select badge-success" onchange="cambiarEstado(this)">
@@ -244,7 +241,7 @@
                         <tr>
                             <td>#WIZ-8755</td>
                             <td>Morgana le Fay</td>
-                            <td>2x Elíxir de Transmutación Prohibida</td>
+                            <td>2x ElÃ­xir de TransmutaciÃ³n Prohibida</td>
                             <td>240 Oro</td>
                             <td>
                                 <select class="badge badge-select badge-danger" onchange="cambiarEstado(this)">
@@ -256,8 +253,8 @@
                         </tr>
                         <tr>
                             <td>#WIZ-8610</td>
-                            <td>Merlín Ambrosius</td>
-                            <td>5x Pergamino de Teletransportación Avanzada</td>
+                            <td>MerlÃ­n Ambrosius</td>
+                            <td>5x Pergamino de TeletransportaciÃ³n Avanzada</td>
                             <td>150 Oro</td>
                             <td>
                                 <select class="badge badge-select badge-success" onchange="cambiarEstado(this)">
@@ -290,7 +287,7 @@
                 selectElement.classList.add('badge-danger');
             }
 
-            // Opcional: Aquí podrías agregar un código Fetch/AJAX en el futuro 
+            // Opcional: AquÃ­ podrÃ­as agregar un cÃ³digo Fetch/AJAX en el futuro 
             // para enviar el nuevo estado directamente a tu base de datos
             // console.log("Estado actualizado a: " + estado);
         }

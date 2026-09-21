@@ -1,37 +1,16 @@
-import { db } from "./firebase-config.js";
+import { registrarActividad } from './firebaseUtils.js';
 
-import {
-    collection,
-    addDoc
-} from
-"https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+async function guardarCliente() {
+  try {
+    // Tu código actual para guardar al cliente (addDoc, setDoc, etc.)
+    // const docRef = await addDoc(collection(db, "clientes"), nuevoCliente);
 
+    console.log("Cliente guardado correctamente en Firestore");
 
-export async function agregarUsuario(nombre, email) {
-
-    try {
-
-        const docRef = await addDoc(
-            collection(db, "usuarios"),
-            {
-                nombre: nombre,
-                email: email,
-                fechaRegistro: new Date()
-            }
-        );
-
-        console.log(
-            "Usuario agregado:",
-            docRef.id
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Error al agregar usuario:",
-            error
-        );
-
-    }
-
+    await registrarActividad("clientes", "crear", "Se agregó un nuevo cliente");
+  } catch (error) {
+    console.error("Error guardando cliente:", error);
+  }
 }
+
+export { guardarCliente };

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly — Panel Admin</title>
+    <title>Wizardly â€” Panel Admin</title>
 
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,16 +13,6 @@
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .sidebar-titulo {
-            display: block;
-            padding: 16px 20px 8px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: bold;
-            letter-spacing: 0.08em;
-        }
-    </style>
 </head>
 <body class="admin-body">
 
@@ -37,8 +27,8 @@
 
         <nav class="sidebar-nav">
             <span class="sidebar-titulo">GENERAL</span>
-            <a href="admin.html" class="nav-item active">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
             </a>
             <a href="admin-promociones.html" class="nav-item">
                 <i class="fa-solid fa-wand-sparkles"></i> Promociones
@@ -57,7 +47,11 @@
             </a>
 
             <span class="sidebar-titulo">MÓDULO SCM</span>
-            <a href="admin-productos.html" class="nav-item">
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
+            <a href="admin-productos.html" class="nav-item active">
                 <i class="fa-solid fa-hat-wizard"></i> Productos
             </a>
             <a href="admin-pedidos.html" class="nav-item">
@@ -123,9 +117,9 @@
                 </div>
                 <div class="card-datos">
                     <span class="card-numero" id="kpi-interacciones">--</span>
-                    <span class="card-label">Interacciones (últimos 30 días)</span>
+                    <span class="card-label">Interacciones (Ãºltimos 30 dÃ­as)</span>
                 </div>
-                <span class="card-badge neutro">30 días</span>
+                <span class="card-badge neutro">30 dÃ­as</span>
             </div>
 
             <div class="admin-card">
@@ -134,37 +128,37 @@
                 </div>
                 <div class="card-datos">
                     <span class="card-numero" id="kpi-clientes-riesgo">--</span>
-                    <span class="card-label">Clientes sin interacción</span>
+                    <span class="card-label">Clientes sin interacciÃ³n</span>
                 </div>
-                <span class="card-badge negativo">+30 días</span>
+                <span class="card-badge negativo">+30 dÃ­as</span>
             </div>
         </div>
 
         <section class="dashboard-distribuciones">
             <div class="admin-bloque dashboard-grafica-resumen">
                 <div class="bloque-header">
-                    <h2>Distribución de Rangos</h2>
+                    <h2>DistribuciÃ³n de Rangos</h2>
                     <span class="count-badge">Clientes</span>
                 </div>
                 <div class="dashboard-canvas-wrap">
-                    <canvas id="dashboard-chart-rangos" aria-label="Distribución de rangos de clientes"></canvas>
+                    <canvas id="dashboard-chart-rangos" aria-label="DistribuciÃ³n de rangos de clientes"></canvas>
                 </div>
             </div>
 
             <div class="admin-bloque dashboard-grafica-resumen">
                 <div class="bloque-header">
-                    <h2>Distribución de Rango de Etapa</h2>
+                    <h2>DistribuciÃ³n de Rango de Etapa</h2>
                     <span class="count-badge">Clientes</span>
                 </div>
                 <div class="dashboard-canvas-wrap">
-                    <canvas id="dashboard-chart-etapas" aria-label="Distribución de rangos de etapa"></canvas>
+                    <canvas id="dashboard-chart-etapas" aria-label="DistribuciÃ³n de rangos de etapa"></canvas>
                 </div>
             </div>
         </section>
 
         <div class="admin-bloque acciones-rapidas">
             <div class="bloque-header">
-                <h2>Acciones rápidas</h2>
+                <h2>Acciones rÃ¡pidas</h2>
             </div>
             <div class="acciones-botones">
                 <a href="admin-productos.html" class="btn-admin">
@@ -174,7 +168,7 @@
                     <i class="fa-solid fa-scroll"></i> Ver pedidos
                 </a>
                 <a href="admin-promociones.html" class="btn-admin" style="background:#fb923c;">
-                    <i class="fa-solid fa-wand-sparkles"></i> Crear promoción
+                    <i class="fa-solid fa-wand-sparkles"></i> Crear promociÃ³n
                 </a>
             </div>
         </div>
@@ -245,8 +239,9 @@
         }
 
         function esClienteActivo(cliente) {
-            const etapa = String(cliente.etapa_crm || '').trim().toLowerCase();
-            return etapa === 'activo' || etapa === 'frecuente';
+            return [cliente.estado, cliente.etapa_crm]
+                .some((valor) => String(valor || '').trim().toLowerCase() === 'activo' ||
+                    String(valor || '').trim().toLowerCase() === 'frecuente');
         }
 
         function calcularDiasSinInteraccion(fecha, ahora) {
@@ -363,7 +358,7 @@
                 renderizarGraficasDistribucion(clientes);
             } catch (error) {
                 console.error('Error cargando el dashboard CRM:', error);
-                document.querySelectorAll('.card-numero').forEach((elemento) => { elemento.textContent = '—'; });
+                document.querySelectorAll('.card-numero').forEach((elemento) => { elemento.textContent = 'â€”'; });
             }
         }
 
