@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizardly — Gestión de Proveedores</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+</head>
+<body class="admin-body">
+
+    <!-- ── BARRA LATERAL ── -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">
+            <img src="../images/logo/Logo.png" alt="Wizardly" />
+            <div>
+                <span class="brand">Wizardly</span>
+                <span class="sidebar-sub">Panel Arcano</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
+            </a>
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <a href="admin-productos.html" class="nav-item">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
+            <a href="admin-reportes.html" class="nav-item">
+                <i class="fa-solid fa-chart-simple"></i> Reportes
+            </a>
+            <a href="admin-proveedores.html" class="nav-item active">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── CONTENIDO PRINCIPAL ── -->
+    <main class="admin-main">
+        <div class="admin-topbar">
+            <h1>Proveedores</h1>
+            <div class="topbar-usuario">
+                <i class="fa-solid fa-circle-user"></i>
+                <span>Archimaga Seraphina</span>
+            </div>
+        </div>
+
+        <div class="admin-bloque">
+            <div class="bloque-header">
+                <h2><!-- Espacio intencionalmente vacío para igualar diseño visual --></h2>
+                <button class="btn-admin" onclick="abrirModalProveedor()" style="background-color: #0f766e; color: white; border-radius: 6px;">
+                    <i class="fa-solid fa-plus"></i> Nuevo proveedor
+                </button>
+            </div>
+
+            <!-- FILTROS Y BÚSQUEDA -->
+            <div class="admin-filtros" style="border-bottom: none; padding-bottom: 0;">
+                <div class="admin-buscador" style="flex:2; border-radius: 8px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="admin-buscar" placeholder="Buscar proveedor por nombre o correo..." oninput="aplicarFiltrosProveedores()" />
+                </div>
+            </div>
+
+            <!-- TABLA -->
+            <div class="admin-tabla-wrap">
+                <table class="admin-tabla" id="tabla-proveedores">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Contacto</th>
+                            <th>Correo</th>
+                            <th>Teléfono</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-proveedores"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ── MODAL: AGREGAR / EDITAR PROVEEDOR ── -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Nuevo proveedor</h3>
+                <button class="modal-cerrar" onclick="cerrarModalProveedor()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="campo-modal">
+                    <label for="m-nombre">Nombre</label>
+                    <input type="text" id="m-nombre" placeholder="Nombre del proveedor" required />
+                </div>
+
+                <div class="campo-modal">
+                    <label for="m-contacto">Contacto</label>
+                    <input type="text" id="m-contacto" placeholder="Nombre de la persona de contacto" required />
+                </div>
+
+                <div class="campo-modal-fila">
+                    <div class="campo-modal">
+                        <label for="m-correo">Correo</label>
+                        <input type="email" id="m-correo" placeholder="correo@ejemplo.com" required />
+                    </div>
+                    <div class="campo-modal">
+                        <label for="m-telefono">Teléfono</label>
+                        <input type="tel" id="m-telefono" placeholder="555 123-4567" required />
+                    </div>
+                </div>
+
+                <div class="campo-modal">
+                    <label for="m-direccion">Dirección</label>
+                    <textarea id="m-direccion" rows="3" placeholder="Dirección del proveedor (opcional)"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: flex-end; gap: 15px;">
+                <button class="btn-modal-cancelar" onclick="cerrarModalProveedor()" style="background: none; border: 1px solid var(--border); color: var(--text-main);">Cancelar</button>
+                <button class="btn-modal-guardar" onclick="guardarProveedor()" style="background-color: #0f766e; color: white;">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CONFIRM: ELIMINAR ── -->
+    <div class="modal-overlay" id="confirm-overlay">
+        <div class="modal-card confirm-card">
+            <div class="modal-header">
+                <h3>¿Eliminar proveedor?</h3>
+                <button class="modal-cerrar" onclick="cerrarConfirmProveedor()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="confirm-texto">
+                    Esta acción no se puede deshacer.<br />
+                    ¿Seguro que deseas eliminar <strong id="confirm-nombre"></strong>?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-cancelar" onclick="cerrarConfirmProveedor()">Cancelar</button>
+                <button class="btn-modal-eliminar" onclick="confirmarEliminarProveedor()">
+                    <i class="fa-solid fa-trash"></i> Sí, eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TOAST ── -->
+    <div class="toast-admin" id="toast-admin"></div>
+
+    <!-- ── LÓGICA DE FIREBASE Y JS ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // TUS CREDENCIALES DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 🔥 FUNCIÓN DEL HISTORIAL 🔥
+        async function registrarHistorialLocal(modulo, accion, descripcion) {
+            try {
+                let adminNombre = "Sistema";
+                const datosRaw = localStorage.getItem('usuarioDatos');
+                if (datosRaw) {
+                    const usuario = JSON.parse(datosRaw);
+                    if (usuario && usuario.nombre) adminNombre = usuario.nombre;
+                }
+
+                await addDoc(collection(db, "historial"), {
+                    modulo: modulo,
+                    accion: accion,
+                    descripcion: descripcion,
+                    adminNombre: adminNombre,
+                    adminUid: "desconocido",
+                    fecha: Timestamp.now()
+                });
+            } catch (error) {
+                console.error("Error al guardar historial:", error);
+            }
+        }
+
+        // Variables Globales
+        window.proveedores = [];
+        window.editandoId = null;
+        window.eliminandoId = null;
+
+        // Referencias DOM
+        var tbody = document.getElementById('tbody-proveedores');
+        var inputBuscar = document.getElementById('admin-buscar');
+        var modalOverlay = document.getElementById('modal-overlay');
+        var modalTitulo = document.getElementById('modal-titulo');
+        var mNombre = document.getElementById('m-nombre');
+        var mContacto = document.getElementById('m-contacto');
+        var mCorreo = document.getElementById('m-correo');
+        var mTelefono = document.getElementById('m-telefono');
+        var mDireccion = document.getElementById('m-direccion');
+        var confirmOverlay = document.getElementById('confirm-overlay');
+        var confirmNombre = document.getElementById('confirm-nombre');
+        var toast = document.getElementById('toast-admin');
+
+        window.cargarProveedoresFirebase = async function() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "proveedores"));
+                window.proveedores = [];
+                querySnapshot.forEach((documento) => {
+                    let data = documento.data();
+                    data.id = documento.id;
+                    window.proveedores.push(data);
+                });
+                window.aplicarFiltrosProveedores();
+            } catch (error) {
+                console.error("Error al obtener datos:", error);
+                window.mostrarToast('Error al conectar con la Base de Datos', 'error');
+            }
+        };
+
+        window.renderTablaProveedores = function(lista) {
+            lista = lista || window.proveedores;
+            tbody.innerHTML = '';
+            lista.forEach(function(proveedor) {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td class="td-nombre" style="font-weight: 500;">' + escaparHtml(proveedor.nombre) + '</td>' +
+                    '<td>' + escaparHtml(proveedor.contacto) + '</td>' +
+                    '<td>' + escaparHtml(proveedor.correo) + '</td>' +
+                    '<td>' + escaparHtml(proveedor.telefono) + '</td>' +
+                    '<td><div class="acciones-wrap">' +
+                        '<button class="btn-icono editar" style="color: #3b82f6;" title="Editar proveedor" onclick="abrirEditarProveedor(\'' + proveedor.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+                        '<button class="btn-icono eliminar" style="color: #ef4444;" title="Eliminar proveedor" onclick="abrirConfirmProveedor(\'' + proveedor.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
+                    '</div></td>';
+                tbody.appendChild(tr);
+            });
+        };
+
+        function escaparHtml(valor) {
+            return String(valor || '').replace(/[&<>'"]/g, function(caracter) {
+                return {'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[caracter];
+            });
+        }
+
+        window.aplicarFiltrosProveedores = function() {
+            var texto = inputBuscar.value.toLowerCase().trim();
+            var filtrados = window.proveedores.filter(function(proveedor) {
+                var coincideNombre = (proveedor.nombre || '').toLowerCase().includes(texto);
+                var coincideCorreo = (proveedor.correo || '').toLowerCase().includes(texto);
+                return coincideNombre || coincideCorreo;
+            });
+            window.renderTablaProveedores(filtrados);
+        };
+
+        window.abrirModalProveedor = function() {
+            window.editandoId = null;
+            modalTitulo.textContent = 'Nuevo proveedor';
+            window.limpiarCamposProveedor();
+            modalOverlay.classList.add('visible');
+        };
+
+        window.abrirEditarProveedor = function(id) {
+            var proveedor = window.proveedores.find(function(item) { return item.id === id; });
+            if (!proveedor) return;
+            window.editandoId = id;
+            modalTitulo.textContent = 'Editar proveedor';
+            mNombre.value = proveedor.nombre || '';
+            mContacto.value = proveedor.contacto || '';
+            mCorreo.value = proveedor.correo || '';
+            mTelefono.value = proveedor.telefono || '';
+            mDireccion.value = proveedor.direccion || '';
+            modalOverlay.classList.add('visible');
+        };
+
+        window.limpiarCamposProveedor = function() {
+            mNombre.value = '';
+            mContacto.value = '';
+            mCorreo.value = '';
+            mTelefono.value = '';
+            mDireccion.value = '';
+        };
+
+        window.cerrarModalProveedor = function() {
+            modalOverlay.classList.remove('visible');
+        };
+
+        window.guardarProveedor = async function() {
+            var nombre = mNombre.value.trim();
+            var contacto = mContacto.value.trim();
+            var correo = mCorreo.value.trim();
+            var telefono = mTelefono.value.trim();
+            var direccion = mDireccion.value.trim();
+            var correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+            var telefonoValido = /^[0-9\s-]+$/.test(telefono) && (telefono.match(/[0-9]/g) || []).length >= 7;
+
+            if (!nombre || !contacto || !correo || !telefono) {
+                window.mostrarToast('⚠️ Completa los campos obligatorios.', 'error');
+                return;
+            }
+            if (!correoValido) {
+                window.mostrarToast('⚠️ Introduce un correo electrónico válido.', 'error');
+                return;
+            }
+            if (!telefonoValido) {
+                window.mostrarToast('⚠️ El teléfono debe tener al menos 7 dígitos y solo usar números, espacios o guiones.', 'error');
+                return;
+            }
+
+            try {
+                if (window.editandoId) {
+                    const proveedorRef = doc(db, "proveedores", window.editandoId);
+                    await updateDoc(proveedorRef, {
+                        nombre: nombre, contacto: contacto, correo: correo,
+                        telefono: telefono, direccion: direccion
+                    });
+                    await registrarHistorialLocal("proveedores", "actualizar", "Se actualizó el proveedor: " + nombre);
+                    window.mostrarToast('✦ Proveedor actualizado correctamente.', 'ok');
+                } else {
+                    await addDoc(collection(db, "proveedores"), {
+                        nombre: nombre, contacto: contacto, correo: correo,
+                        telefono: telefono, direccion: direccion,
+                        fecha_registro: Timestamp.now()
+                    });
+                    await registrarHistorialLocal("proveedores", "crear", "Se agregó el proveedor: " + nombre);
+                    window.mostrarToast('✦ Proveedor agregado correctamente.', 'ok');
+                }
+                window.cerrarModalProveedor();
+                window.cargarProveedoresFirebase();
+            } catch (error) {
+                console.error("Error al guardar: ", error);
+                window.mostrarToast('⚠️ Error al conectar con la base de datos.', 'error');
+            }
+        };
+
+        window.abrirConfirmProveedor = function(id) {
+            var proveedor = window.proveedores.find(function(item) { return item.id === id; });
+            if (!proveedor) return;
+            window.eliminandoId = id;
+            confirmNombre.textContent = proveedor.nombre;
+            confirmOverlay.classList.add('visible');
+        };
+
+        window.cerrarConfirmProveedor = function() {
+            confirmOverlay.classList.remove('visible');
+            window.eliminandoId = null;
+        };
+
+        window.confirmarEliminarProveedor = async function() {
+            if (window.eliminandoId === null) return;
+            try {
+                let nombreEliminado = confirmNombre.textContent;
+                await deleteDoc(doc(db, "proveedores", window.eliminandoId));
+                await registrarHistorialLocal("proveedores", "eliminar", "Se eliminó el proveedor: " + nombreEliminado);
+                window.cerrarConfirmProveedor();
+                window.mostrarToast('🗑 Proveedor eliminado.', 'error');
+                window.cargarProveedoresFirebase();
+            } catch(error) {
+                console.error(error);
+            }
+        };
+
+        window.mostrarToast = function(msg, tipo) {
+            tipo = tipo || 'ok';
+            toast.textContent = msg;
+            toast.className = 'toast-admin visible ' + tipo;
+            clearTimeout(toast._t);
+            toast._t = setTimeout(function() {
+                toast.classList.remove('visible');
+            }, 3000);
+        };
+
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) window.cerrarModalProveedor();
+        });
+        confirmOverlay.addEventListener('click', function(e) {
+            if (e.target === confirmOverlay) window.cerrarConfirmProveedor();
+        });
+
+        window.cargarProveedoresFirebase();
+    </script>
+
+    <!-- ── ESTILOS ESPECÍFICOS ── -->
+    <style>
+        .admin-filtros {
+            display: flex;
+            gap: 12px;
+            padding: 12px 24px 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+        .admin-buscador input {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            outline: none;
+            font-family: 'Lato', sans-serif;
+        }
+        .btn-icono {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin: 0 5px;
+            transition: opacity 0.3s;
+        }
+        .btn-icono:hover {
+            opacity: 0.7;
+        }
+    </style>
+
+</body>
+</html>
