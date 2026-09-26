@@ -3,103 +3,37 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly â€” Pedidos</title>
+    <title>Wizardly — Pedidos SCM</title>
+
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    
-    <style>
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        .stat-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-        }
-        .stat-card h3 {
-            font-family: 'Cinzel', serif;
-            color: #d4af37;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-        .stat-card p {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #fff;
-        }
-        .table-responsive {
-            overflow-x: auto;
-        }
-        .orders-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            text-align: left;
-        }
-        .orders-table th {
-            font-family: 'Cinzel', serif;
-            color: #d4af37;
-            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
-            padding: 12px 16px;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-        }
-        .orders-table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: #e0e0e0;
-            font-size: 0.9rem;
-        }
-        .orders-table tr:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-        
-        /* Estilos base de las insignias */
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        
-        /* Nuevos estilos para el elemento select interactivo */
-        .badge-select {
-            cursor: pointer;
-            outline: none;
-            /* AÃ±adimos un poco de espacio extra a la derecha para la flecha del select */
-            padding-right: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .badge-select:hover {
-            filter: brightness(1.2);
-        }
 
-        /* Colores de estado */
-        .badge-success { background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid #28a745; }
-        .badge-warning { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid #ffc107; }
-        .badge-danger { background: rgba(220, 53, 69, 0.2); color: #dc3545; border: 1px solid #dc3545; }
+    <style>
+        .badge-pedido {
+            display: inline-block; padding: 4px 10px; border-radius: 12px;
+            font-size: 0.75rem; font-weight: bold; font-family: 'Cinzel', serif;
+        }
+        .badge-auto { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+        .badge-manual { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .estado-ok { color: #4ade80; font-weight: bold; display: flex; align-items: center; gap: 5px; }
         
-        /* Opciones dentro del select para que sean legibles sin importar el color de fondo actual */
-        .badge-select option {
-            background-color: #1a1a1a;
-            color: #fff;
-            font-weight: normal;
+        /* Ajuste estricto para los encabezados de la tabla como en tu imagen */
+        .admin-tabla th {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
         }
     </style>
 </head>
 <body class="admin-body">
 
+    <!-- ── BARRA LATERAL CON TODAS LAS PESTAÑAS ── -->
     <aside class="admin-sidebar">
         <div class="sidebar-logo">
             <img src="../images/logo/Logo.png" alt="Wizardly" />
@@ -108,6 +42,7 @@
                 <span class="sidebar-sub">Panel Arcano</span>
             </div>
         </div>
+
         <nav class="sidebar-nav">
             <span class="sidebar-titulo">GENERAL</span>
             <a href="admin.html" class="nav-item">
@@ -133,11 +68,11 @@
             <a href="admin-scm.html" class="nav-item">
                 <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
             </a>
-            <!-- ESTA ES LA PESTAÑA ACTIVA -->
-            <a href="admin-productos.html" class="nav-item active">
+            <a href="admin-productos.html" class="nav-item">
                 <i class="fa-solid fa-hat-wizard"></i> Productos
             </a>
-            <a href="admin-pedidos.html" class="nav-item">
+            <!-- ESTA ES LA PESTAÑA ACTIVA -->
+            <a href="admin-pedidos.html" class="nav-item active">
                 <i class="fa-solid fa-scroll"></i> Pedidos
             </a>
             <a href="admin-reportes.html" class="nav-item">
@@ -156,6 +91,7 @@
                 <i class="fa-solid fa-list-check"></i> Checklist
             </a>
         </nav>
+
         <div class="sidebar-footer">
             <a href="../index.html" class="nav-item">
                 <i class="fa-solid fa-arrow-left"></i> Volver al sitio
@@ -163,137 +99,145 @@
         </div>
     </aside>
 
+    <!-- ── CONTENIDO PRINCIPAL ── -->
     <main class="admin-main">
+
         <div class="admin-topbar">
-            <h1>GestiÃ³n de Pedidos</h1>
+            <h1>Gestión de Pedidos (Reabastecimiento)</h1>
             <div class="topbar-usuario">
                 <i class="fa-solid fa-circle-user"></i>
-                <span>Archimaga Seraphina</span>
+                <span id="nombre-admin-topbar">Administrador</span>
             </div>
         </div>
 
-        <div class="stats-container">
-            <div class="stat-card">
-                <h3>Pedidos Totales</h3>
-                <p>142</p>
+        <div class="admin-bloque">
+            <div class="bloque-header">
+                <h2>
+                    Historial de Abastecimiento SCM
+                    <span class="count-badge" id="pedidos-count">0 pedidos</span>
+                </h2>
+                <a href="admin-inventario.html" class="btn-admin" style="text-decoration: none;">
+                    <i class="fa-solid fa-boxes-stacked"></i> Ir al Inventario
+                </a>
             </div>
-            <div class="stat-card">
-                <h3>Por Enviar</h3>
-                <p style="color: #ffc107;">5</p>
-            </div>
-            <div class="stat-card">
-                <h3>Oro Recaudado</h3>
-                <p style="color: #d4af37;">8,450 Rollos</p>
-            </div>
-        </div>
 
-        <div class="admin-bloque" style="padding: 24px;">
-            <h2>Pergaminos de Compra Recientes</h2>
-            
-            <div class="table-responsive">
-                <table class="orders-table">
+            <div class="admin-tabla-wrap">
+                <table class="admin-tabla" id="tabla-pedidos">
                     <thead>
                         <tr>
-                            <th>ID Pedido</th>
-                            <th>Mago / Cliente</th>
-                            <th>Artefactos Solicitados</th>
-                            <th>Total</th>
-                            <th>Estado del Hechizo</th>
+                            <th>Fecha de Orden</th>
+                            <th>Producto Reabastecido</th>
+                            <th>Cantidad</th>
+                            <th>Origen del Pedido</th>
+                            <th>Responsable</th>
+                            <th>Estado</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>#WIZ-9041</td>
-                            <td>Albus Dumbledore</td>
-                            <td>1x Varita de FÃ©nix Suprema, 2x PociÃ³n de ManÃ¡ Pura</td>
-                            <td>350 Oro</td>
-                            <td>
-                                <select class="badge badge-select badge-success" onchange="cambiarEstado(this)">
-                                    <option value="Enviado" selected>Enviado</option>
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Cancelado">Cancelado</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#WIZ-8932</td>
-                            <td>Luna Lovegood</td>
-                            <td>1x Gafas Espectrales, 3x Polvo de Hada Reluciente</td>
-                            <td>125 Oro</td>
-                            <td>
-                                <select class="badge badge-select badge-warning" onchange="cambiarEstado(this)">
-                                    <option value="Enviado">Enviado</option>
-                                    <option value="Pendiente" selected>Pendiente</option>
-                                    <option value="Cancelado">Cancelado</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#WIZ-8812</td>
-                            <td>Gandalf el Gris</td>
-                            <td>1x Sombrero de Archimago (Gris Tormenta)</td>
-                            <td>500 Oro</td>
-                            <td>
-                                <select class="badge badge-select badge-success" onchange="cambiarEstado(this)">
-                                    <option value="Enviado" selected>Enviado</option>
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Cancelado">Cancelado</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#WIZ-8755</td>
-                            <td>Morgana le Fay</td>
-                            <td>2x ElÃ­xir de TransmutaciÃ³n Prohibida</td>
-                            <td>240 Oro</td>
-                            <td>
-                                <select class="badge badge-select badge-danger" onchange="cambiarEstado(this)">
-                                    <option value="Enviado">Enviado</option>
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Cancelado" selected>Cancelado</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#WIZ-8610</td>
-                            <td>MerlÃ­n Ambrosius</td>
-                            <td>5x Pergamino de TeletransportaciÃ³n Avanzada</td>
-                            <td>150 Oro</td>
-                            <td>
-                                <select class="badge badge-select badge-success" onchange="cambiarEstado(this)">
-                                    <option value="Enviado" selected>Enviado</option>
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Cancelado">Cancelado</option>
-                                </select>
-                            </td>
-                        </tr>
+                    <tbody id="tbody-pedidos">
+                        <!-- Se llena con Firebase -->
                     </tbody>
                 </table>
             </div>
-
         </div>
+
     </main>
 
-    <script>
-        function cambiarEstado(selectElement) {
-            // Removemos todas las clases de estado previas
-            selectElement.classList.remove('badge-success', 'badge-warning', 'badge-danger');
-            
-            // Evaluamos el nuevo valor seleccionado y aplicamos la clase correspondiente
-            const estado = selectElement.value;
-            
-            if (estado === 'Enviado') {
-                selectElement.classList.add('badge-success');
-            } else if (estado === 'Pendiente') {
-                selectElement.classList.add('badge-warning');
-            } else if (estado === 'Cancelado') {
-                selectElement.classList.add('badge-danger');
-            }
+    <!-- ── LÓGICA DE FIREBASE Y JS ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-            // Opcional: AquÃ­ podrÃ­as agregar un cÃ³digo Fetch/AJAX en el futuro 
-            // para enviar el nuevo estado directamente a tu base de datos
-            // console.log("Estado actualizado a: " + estado);
+        // CREDENCIALES
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Obtener nombre del admin
+        const datosRaw = localStorage.getItem('usuarioDatos');
+        if (datosRaw) {
+            const usuario = JSON.parse(datosRaw);
+            if (usuario && usuario.nombre) {
+                document.getElementById('nombre-admin-topbar').textContent = usuario.nombre;
+            }
         }
+
+        async function cargarHistorialPedidos() {
+            const tbody = document.getElementById('tbody-pedidos');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Consultando registros de pedidos...</td></tr>';
+
+            try {
+                // 1. Cargamos el catálogo de productos para cruzar los nombres con los IDs
+                const productosSnap = await getDocs(collection(db, "productos"));
+                const nombresProductos = {};
+                productosSnap.forEach(doc => {
+                    nombresProductos[doc.id] = doc.data().nombre || doc.data().nombre_producto;
+                });
+
+                // 2. Buscamos en Movimientos SOLO las "Entradas" (ignorando las ventas)
+                const q = query(
+                    collection(db, "movimientos"), 
+                    where("tipo", "==", "Entrada")
+                );
+                const movimientosSnap = await getDocs(q);
+
+                let movimientosArray = [];
+                movimientosSnap.forEach(doc => {
+                    movimientosArray.push(doc.data());
+                });
+
+                // 3. Ordenamos por fecha descendente (del más nuevo al más viejo)
+                movimientosArray.sort((a, b) => b.fecha.seconds - a.fecha.seconds);
+
+                tbody.innerHTML = '';
+                let conteo = 0;
+
+                movimientosArray.forEach(data => {
+                    conteo++;
+
+                    const fechaF = data.fecha ? data.fecha.toDate().toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+                    const nombreProd = nombresProductos[data.productoId] || "Artefacto Desconocido";
+                    
+                    // Identificamos si fue el Sistema Automático PUSH o una entrada manual tuya
+                    const esAuto = data.motivo && (data.motivo.includes("Automático") || data.motivo.includes("PUSH"));
+                    const badgeClass = esAuto ? 'badge-auto' : 'badge-manual';
+                    const origenTexto = esAuto ? '<i class="fa-solid fa-wand-magic-sparkles"></i> PUSH Automático' : '<i class="fa-solid fa-user-pen"></i> Solicitud Manual';
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="color: var(--text-muted);">${fechaF}</td>
+                        <td><strong style="color: var(--gold);">${nombreProd}</strong></td>
+                        <td style="font-weight: bold; font-size: 1.1rem; color: white;">+${data.cantidad}</td>
+                        <td><span class="badge-pedido ${badgeClass}">${origenTexto}</span></td>
+                        <td style="color: var(--text-muted);">${data.usuario}</td>
+                        <td><span class="estado-ok"><i class="fa-solid fa-circle-check"></i> Surtido</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                document.getElementById('pedidos-count').textContent = conteo + ' pedidos';
+
+                if(conteo === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">No hay pedidos registrados en el almacén.</td></tr>';
+                }
+
+            } catch (error) {
+                console.error("Error al cargar pedidos:", error);
+                // Aquí replicamos el mensaje de error exacto de tu imagen
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: #ef4444; padding: 20px;">Error al leer los registros logísticos.</td></tr>';
+            }
+        }
+
+        // Iniciar
+        cargarHistorialPedidos();
     </script>
 </body>
 </html>
