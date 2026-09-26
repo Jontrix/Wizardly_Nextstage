@@ -335,8 +335,8 @@
             const filtrados = window.productos.filter(p => p.nombre.toLowerCase().includes(texto));
 
             filtrados.forEach(p => {
-                const stock = p.existencia || 0;
-                const min = p.stock_min || 10;
+                const stock = p.existencia || p.stock || 0;
+                const min = p.stock_min || p.stock_minimo || 10;
                 let estadoHTML = '';
 
                 // Lógica de estado (Normal vs Stock Bajo)
@@ -411,7 +411,6 @@
             }
         };
 
-        // Cuando se presiona la lupa en el inventario
         window.verMovimientosDeProducto = function(productoId) {
             document.getElementById('filtro-producto-mov').value = productoId;
             window.filtrarMovimientos();
@@ -431,6 +430,46 @@
             document.getElementById('modal-movimiento').classList.remove('visible');
         };
 
+        // ================================================================
+        // 🪄 AUTOMATIZACIÓN SCM: REABASTECIMIENTO PUSH AUTOMÁTICO
+        // ================================================================
+        async function verificarReabastecimientoPush(productoId, productoNombre, stockActual, stockMinimo, estrategia) {
+            // Evaluamos si el producto está en estado crítico y su estrategia es PUSH
+            if (estrategia === "PUSH" && stockActual <= stockMinimo) {
+                
+                // Compramos el doble del stock mínimo para devolver el estado a "Normal"
+                const cantidadAComprar = stockMinimo * 2; 
+                const nuevoStockSeguro = stockActual + cantidadAComprar;
+
+                try {
+                    // A. Actualizamos el producto sumando las existencias nuevas
+                    const productoRef = doc(db, "productos", productoId);
+                    await updateDoc(productoRef, { 
+                        existencia: nuevoStockSeguro 
+                    });
+
+                    // B. Registramos la entrada generada de forma automática en 'movimientos'
+                    await addDoc(collection(db, "movimientos"), {
+                        productoId: productoId,
+                        tipo: "Entrada",
+                        cantidad: cantidadAComprar,
+                        motivo: "Reabastecimiento Automático (PUSH)",
+                        fecha: Timestamp.now(),
+                        usuario: "Sistema SCM (Auto)"
+                    });
+
+                    // C. Reporte para el historial de movimientos
+                    await registrarHistorialLocal("inventario", "auto-reabastecimiento", `El sistema reabasteció ${cantidadAComprar} unidades de ${productoNombre} automáticamente.`);
+
+                    // D. Notificamos en pantalla
+                    window.mostrarToast(`✨ ¡Auto-reabastecimiento PUSH para ${productoNombre}! (+${cantidadAComprar})`, 'ok');
+
+                } catch (error) {
+                    console.error("Error al intentar reabastecer:", error);
+                }
+            }
+        }
+
         // ── GUARDAR MOVIMIENTO Y ACTUALIZAR STOCK ──
         window.guardarMovimiento = async function() {
             const productoId = document.getElementById('m-producto').value;
@@ -446,7 +485,9 @@
             try {
                 // 1. Obtener producto actual
                 const prod = window.productos.find(p => p.id === productoId);
-                let nuevoStock = prod.existencia || 0;
+                let nuevoStock = prod.existencia || prod.stock || 0;
+                const min = prod.stock_minimo || prod.stock_min || 10;
+                const estrategia = prod.estrategia || "PUSH"; // Por defecto asumimos PUSH si no tiene
 
                 if (tipo === 'Entrada') {
                     nuevoStock += cantidad;
@@ -458,10 +499,10 @@
                     nuevoStock -= cantidad;
                 }
 
-                // 2. Actualizar Stock en la colección 'productos'
+                // 2. Actualizar Stock manual en la colección 'productos'
                 await updateDoc(doc(db, "productos", productoId), { existencia: nuevoStock });
 
-                // 3. Guardar el registro en la colección 'movimientos'
+                // 3. Guardar el movimiento manual en la colección 'movimientos'
                 await addDoc(collection(db, "movimientos"), {
                     productoId: productoId,
                     tipo: tipo,
@@ -471,13 +512,16 @@
                     fecha: Timestamp.now()
                 });
 
-                // 4. Registrar en el Historial global
+                // 4. Registrar historial
                 await registrarHistorialLocal("inventario", "crear", `Se registró una ${tipo.toLowerCase()} de ${cantidad} unidades para: ${prod.nombre}`);
 
                 window.cerrarModal();
                 window.mostrarToast(`✦ ${tipo} registrada correctamente. Stock actualizado.`, 'ok');
                 
-                // Recargar todo para reflejar cambios
+                // 📢 5. EL VIGILANTE PUSH (Se activa si el stock manual bajó de la alerta)
+                await verificarReabastecimientoPush(productoId, prod.nombre, nuevoStock, min, estrategia);
+                
+                // Recargar todo para reflejar cambios en la tabla
                 await window.cargarDatos();
 
             } catch (error) {
