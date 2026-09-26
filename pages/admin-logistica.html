@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizardly — Logística y Estrategia</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+</head>
+<body class="admin-body">
+
+    <!-- ── BARRA LATERAL ── -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">
+            <img src="../images/logo/Logo.png" alt="Wizardly" />
+            <div>
+                <span class="brand">Wizardly</span>
+                <span class="sidebar-sub">Panel Arcano</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="sidebar-titulo">GENERAL</span>
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
+            </a>
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <a href="admin-productos.html" class="nav-item">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-pedidos.html" class="nav-item">
+                <i class="fa-solid fa-scroll"></i> Pedidos
+            </a>
+            <a href="admin-reportes.html" class="nav-item">
+                <i class="fa-solid fa-chart-simple"></i> Reportes
+            </a>
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-logistica.html" class="nav-item active">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
+            <a href="admin-checklist.html" class="nav-item">
+                <i class="fa-solid fa-list-check"></i> Checklist
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── CONTENIDO PRINCIPAL ── -->
+    <main class="admin-main">
+
+        <div class="admin-topbar">
+            <h1>Logística - Estrategia de reposición</h1>
+            <div class="topbar-usuario">
+                <i class="fa-solid fa-circle-user"></i>
+                <span>Archimaga Seraphina</span>
+            </div>
+        </div>
+
+        <!-- ── COMPARATIVA PUSH VS PULL ── -->
+        <div class="admin-bloque" style="margin-bottom: 24px;">
+            <div class="bloque-header" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 20px;">
+                <h2>Comparativa de Estrategias</h2>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; padding: 0 10px 10px 10px;">
+                <!-- Tarjeta PUSH -->
+                <div style="background: rgba(74, 222, 128, 0.05); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 12px; padding: 24px; display: flex; align-items: center; gap: 20px;">
+                    <div style="background: rgba(74, 222, 128, 0.15); color: #4ade80; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; color: var(--text-main); font-size: 1.1rem;">Estrategia PUSH</h3>
+                        <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9rem;"><strong id="count-push" style="color: #4ade80; font-size: 1.2rem;">0</strong> productos en stock anticipado</p>
+                    </div>
+                </div>
+                <!-- Tarjeta PULL -->
+                <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; padding: 24px; display: flex; align-items: center; gap: 20px;">
+                    <div style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; color: var(--text-main); font-size: 1.1rem;">Estrategia PULL</h3>
+                        <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9rem;"><strong id="count-pull" style="color: #60a5fa; font-size: 1.2rem;">0</strong> productos bajo demanda</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-bloque">
+            <!-- FILTROS Y BÚSQUEDA -->
+            <div class="admin-filtros" style="border-bottom: none; padding-bottom: 0;">
+                <div class="admin-buscador" style="flex:2; border-radius: 8px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="admin-buscar" placeholder="Buscar producto..." oninput="aplicarFiltros()" />
+                </div>
+                <div class="admin-filtro-select" style="display: flex; align-items: center; gap: 10px;">
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Categoría</label>
+                    <select id="filtro-categoria" onchange="aplicarFiltros()" style="border-radius: 8px;">
+                        <option value="">Todas</option>
+                        <option>Varitas</option>
+                        <option>Pociones</option>
+                        <option>Libros</option>
+                        <option>Cristales</option>
+                        <option>Amuletos</option>
+                        <option>Calderos</option>
+                        <option>Pergaminos</option>
+                        <option>Reliquias</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- TABLA -->
+            <div class="admin-tabla-wrap">
+                <table class="admin-tabla" id="tabla-productos">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Stock</th>
+                            <th>Stock min.</th>
+                            <th>Estrategia</th>
+                            <th>Modificar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-productos"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ── MODAL: EDITAR ESTRATEGIA SOLAMENTE ── -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Configurar Estrategia</h3>
+                <button class="modal-cerrar" onclick="cerrarModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="campo-modal">
+                    <label>Producto</label>
+                    <input type="text" id="m-nombre" readonly style="background: rgba(255,255,255,0.05); border-color: transparent; color: var(--text-muted); cursor: not-allowed;" />
+                </div>
+                
+                <div class="campo-modal">
+                    <label>Estrategia logística</label>
+                    <select id="m-estrategia">
+                        <option value="PUSH">PUSH (Producción/compra anticipada)</option>
+                        <option value="PULL">PULL (Según demanda real)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: flex-end; gap: 15px;">
+                <button class="btn-modal-cancelar" onclick="cerrarModal()" style="background: none; border: 1px solid var(--border); color: var(--text-main);">Cancelar</button>
+                <button class="btn-modal-guardar" onclick="guardarEstrategia()" style="background-color: #0f766e; color: white;">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TOAST ── -->
+    <div class="toast-admin" id="toast-admin"></div>
+
+    <!-- ── LÓGICA DE FIREBASE Y JS ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Variables Globales
+        window.productos = [];
+        window.editandoId = null;
+
+        // Referencias DOM
+        var tbody = document.getElementById('tbody-productos');
+        var inputBuscar = document.getElementById('admin-buscar');
+        var filtroCategoria = document.getElementById('filtro-categoria');
+        
+        var modalOverlay = document.getElementById('modal-overlay');
+        var mNombre = document.getElementById('m-nombre');
+        var mEstrategia = document.getElementById('m-estrategia');
+        
+        var toast = document.getElementById('toast-admin');
+
+        async function registrarHistorialLocal(modulo, accion, descripcion) {
+            try {
+                let adminNombre = "Sistema";
+                const datosRaw = localStorage.getItem('usuarioDatos');
+                if (datosRaw) {
+                    const usuario = JSON.parse(datosRaw);
+                    if (usuario && usuario.nombre) adminNombre = usuario.nombre;
+                }
+
+                await addDoc(collection(db, "historial"), {
+                    modulo: modulo,
+                    accion: accion,
+                    descripcion: descripcion,
+                    adminNombre: adminNombre,
+                    adminUid: "desconocido",
+                    fecha: Timestamp.now()
+                });
+            } catch (error) {
+                console.error("Error al guardar historial:", error);
+            }
+        }
+
+        window.cargarProductosFirebase = async function() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "productos"));
+                
+                window.productos = [];
+                querySnapshot.forEach((doc) => {
+                    let data = doc.data();
+                    data.id = doc.id; 
+                    window.productos.push(data);
+                });
+                
+                window.aplicarFiltros(); 
+            } catch (error) {
+                console.error("Error al obtener datos:", error);
+                window.mostrarToast('Error al conectar con la Base de Datos', 'error');
+            }
+        };
+
+        // tabla y actualizar comparativa Push/Pull
+        window.renderTabla = function(lista) {
+            lista = lista || window.productos;
+            tbody.innerHTML = '';
+            
+            let pushCount = 0;
+            let pullCount = 0;
+
+            lista.forEach(function(p) {
+                var estrategiaObj = p.estrategia || "PUSH";
+                var stockMinObj = p.stock_min || 10;
+                var claseEstrategia = (estrategiaObj === 'PUSH') ? 'badge-activo' : 'badge-frecuente';
+                
+                // Contabilizar para los indicadores superiores
+                if (estrategiaObj === 'PUSH') { pushCount++; } 
+                else { pullCount++; }
+                
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td><img src="' + (p.imagen || '../images/logo/Logo.png') + '" alt="' + p.nombre + '" class="tabla-thumb" onerror="this.src=\'../images/logo/Logo.png\'"></td>' +
+                    '<td class="td-nombre" style="font-weight: 500;">' + p.nombre + '</td>' +
+                    '<td>' + p.categoria + '</td>' +
+                    '<td>' + (p.existencia || 0) + '</td>' +
+                    '<td>' + stockMinObj + '</td>' +
+                    '<td><span class="badge ' + claseEstrategia + '">' + estrategiaObj + '</span></td>' +
+                    '<td><div class="acciones-wrap">' +
+                        '<button class="btn-icono editar" style="color: #3b82f6;" onclick="abrirEditar(\'' + p.id + '\')"><i class="fa-solid fa-gear"></i></button>' +
+                    '</div></td>';
+                tbody.appendChild(tr);
+            });
+
+            // Actualizar contadores del Dashboard Superior
+            document.getElementById('count-push').textContent = pushCount;
+            document.getElementById('count-pull').textContent = pullCount;
+        };
+
+        window.aplicarFiltros = function() {
+            var texto = inputBuscar.value.toLowerCase();
+            var cat = filtroCategoria.value;
+            var filtrados = window.productos.filter(function(p) {
+                var coincideNombre = p.nombre.toLowerCase().includes(texto);
+                var coincideCat = (cat === '' || p.categoria === cat);
+                return coincideNombre && coincideCat;
+            });
+            window.renderTabla(filtrados);
+        };
+
+        window.abrirEditar = function(id) {
+            var p = window.productos.find(function(x) { return x.id === id; });
+            if (!p) return;
+            window.editandoId = id;
+            
+            mNombre.value = p.nombre;
+            mEstrategia.value = p.estrategia || 'PUSH';
+            
+            modalOverlay.classList.add('visible');
+        };
+
+        window.cerrarModal = function() {
+            modalOverlay.classList.remove('visible');
+            window.editandoId = null;
+        };
+
+        // Función simplificada para guardar ÚNICAMENTE la estrategia
+        window.guardarEstrategia = async function() {
+            if (!window.editandoId) return;
+            
+            var estrategiaNueva = mEstrategia.value;
+            var nombreProd = mNombre.value;
+
+            try {
+                const productoRef = doc(db, "productos", window.editandoId);
+                await updateDoc(productoRef, {
+                    estrategia: estrategiaNueva
+                });
+                
+                await registrarHistorialLocal("logistica", "actualizar", "Se cambió la estrategia del producto " + nombreProd + " a " + estrategiaNueva);
+                window.mostrarToast('✦ Estrategia actualizada.', 'ok');
+                
+                window.cerrarModal();
+                window.cargarProductosFirebase();
+            } catch (error) {
+                console.error("Error al actualizar estrategia: ", error);
+                window.mostrarToast('⚠️ Error al guardar los cambios.', 'error');
+            }
+        };
+
+        window.mostrarToast = function(msg, tipo) {
+            tipo = tipo || 'ok';
+            toast.textContent = msg;
+            toast.className = 'toast-admin visible ' + tipo;
+            clearTimeout(toast._t);
+            toast._t = setTimeout(function() {
+                toast.classList.remove('visible');
+            }, 3000);
+        };
+
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) window.cerrarModal();
+        });
+
+        window.cargarProductosFirebase();
+    </script>
+
+    <!-- ── ESTILOS ESPECÍFICOS ── -->
+    <style>
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            font-family: 'Lato', sans-serif;
+            text-align: center;
+            min-width: 60px;
+        }
+        /* Estrategia PUSH (Verde) */
+        .badge-activo { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+        /* Estrategia PULL (Azul) */
+        .badge-frecuente { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        .admin-filtros {
+            display: flex;
+            gap: 12px;
+            padding: 12px 24px 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+        .admin-filtro-select select {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 16px;
+            color: var(--text-main);
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+        .admin-filtro-select select:focus {
+            border-color: var(--gold-dim);
+        }
+        .admin-buscador input {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            outline: none;
+            font-family: 'Lato', sans-serif;
+        }
+        .btn-icono {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin: 0 5px;
+            transition: opacity 0.3s;
+        }
+        .btn-icono:hover {
+            opacity: 0.7;
+        }
+        .tabla-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+    </style>
+
+</body>
+</html>
