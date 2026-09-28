@@ -18,22 +18,40 @@
             display: inline-block; padding: 4px 10px; border-radius: 12px;
             font-size: 0.75rem; font-weight: bold; font-family: 'Cinzel', serif;
         }
-        .badge-auto { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
-        .badge-manual { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-        .estado-ok { color: #4ade80; font-weight: bold; display: flex; align-items: center; gap: 5px; }
-        
-        /* Ajuste estricto para los encabezados de la tabla como en tu imagen */
+        .origen-auto { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .origen-manual { background: rgba(156, 163, 175, 0.15); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.3); }
+
+        /* Colores de Estados */
+        .estado-pendiente { background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
+        .estado-proceso { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .estado-surtido { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+        .estado-cancelado { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
         .admin-tabla th {
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.05em;
             color: var(--text-muted);
         }
+
+        /* Estilos básicos para el Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.visible { display: flex; }
+        .modal-card { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 90%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .modal-header h3 { margin: 0; font-family: 'Cinzel', serif; color: var(--gold); }
+        .modal-cerrar { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; }
+        .campo-modal { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .campo-modal label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
+        .campo-modal select, .campo-modal input { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: white; font-family: 'Lato', sans-serif; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn-guardar { background: #0f766e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-cancelar { background: transparent; color: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body class="admin-body">
 
-    <!-- ── BARRA LATERAL CON TODAS LAS PESTAÑAS ── -->
+    <!-- ── BARRA LATERAL ── -->
     <aside class="admin-sidebar">
         <div class="sidebar-logo">
             <img src="../images/logo/Logo.png" alt="Wizardly" />
@@ -45,63 +63,30 @@
 
         <nav class="sidebar-nav">
             <span class="sidebar-titulo">GENERAL</span>
-            <a href="admin.html" class="nav-item">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
-            </a>
-            <a href="admin-promociones.html" class="nav-item">
-                <i class="fa-solid fa-wand-sparkles"></i> Promociones
-            </a>
-            <a href="admin-clientes.html" class="nav-item">
-                <i class="fa-solid fa-users"></i> Clientes
-            </a>
-            <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
-            </a>
-            <a href="admin-historial.html" class="nav-item">
-                <i class="fa-solid fa-book-skull"></i> Historial
-            </a>
-            <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Configuración
-            </a>
+            <a href="admin.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard CRM</a>
+            <a href="admin-promociones.html" class="nav-item"><i class="fa-solid fa-wand-sparkles"></i> Promociones</a>
+            <a href="admin-clientes.html" class="nav-item"><i class="fa-solid fa-users"></i> Clientes</a>
+            <a href="admin-actividad.html" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i> Actividad</a>
+            <a href="admin-historial.html" class="nav-item"><i class="fa-solid fa-book-skull"></i> Historial</a>
+            <a href="admin-configuracion.html" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
 
             <span class="sidebar-titulo">MÓDULO SCM</span>
-            <a href="admin-scm.html" class="nav-item">
-                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
-            </a>
-            <a href="admin-productos.html" class="nav-item">
-                <i class="fa-solid fa-hat-wizard"></i> Productos
-            </a>
-            <!-- ESTA ES LA PESTAÑA ACTIVA -->
-            <a href="admin-pedidos.html" class="nav-item active">
-                <i class="fa-solid fa-scroll"></i> Pedidos
-            </a>
-            <a href="admin-reportes.html" class="nav-item">
-                <i class="fa-solid fa-chart-simple"></i> Reportes
-            </a>
-            <a href="admin-proveedores.html" class="nav-item">
-                <i class="fa-solid fa-truck-fast"></i> Proveedores
-            </a>
-            <a href="admin-inventario.html" class="nav-item">
-                <i class="fa-solid fa-boxes-stacked"></i> Inventario
-            </a>
-            <a href="admin-logistica.html" class="nav-item">
-                <i class="fa-solid fa-route"></i> Logística
-            </a>
-            <a href="admin-checklist.html" class="nav-item">
-                <i class="fa-solid fa-list-check"></i> Checklist
-            </a>
+            <a href="admin-scm.html" class="nav-item"><i class="fa-solid fa-boxes-packing"></i> Dashboard SCM</a>
+            <a href="admin-productos.html" class="nav-item"><i class="fa-solid fa-hat-wizard"></i> Productos</a>
+            <a href="admin-pedidos.html" class="nav-item active"><i class="fa-solid fa-scroll"></i> Pedidos</a>
+            <a href="admin-reportes.html" class="nav-item"><i class="fa-solid fa-chart-simple"></i> Reportes</a>
+            <a href="admin-proveedores.html" class="nav-item"><i class="fa-solid fa-truck-fast"></i> Proveedores</a>
+            <a href="admin-inventario.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+            <a href="admin-logistica.html" class="nav-item"><i class="fa-solid fa-route"></i> Logística</a>
+            <a href="admin-checklist.html" class="nav-item"><i class="fa-solid fa-list-check"></i> Checklist</a>
         </nav>
-
         <div class="sidebar-footer">
-            <a href="../index.html" class="nav-item">
-                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
-            </a>
+            <a href="../index.html" class="nav-item"><i class="fa-solid fa-arrow-left"></i> Volver al sitio</a>
         </div>
     </aside>
 
     <!-- ── CONTENIDO PRINCIPAL ── -->
     <main class="admin-main">
-
         <div class="admin-topbar">
             <h1>Gestión de Pedidos (Reabastecimiento)</h1>
             <div class="topbar-usuario">
@@ -113,41 +98,86 @@
         <div class="admin-bloque">
             <div class="bloque-header">
                 <h2>
-                    Historial de Abastecimiento SCM
+                    Ciclo de Pedidos SCM
                     <span class="count-badge" id="pedidos-count">0 pedidos</span>
                 </h2>
-                <a href="admin-inventario.html" class="btn-admin" style="text-decoration: none;">
-                    <i class="fa-solid fa-boxes-stacked"></i> Ir al Inventario
-                </a>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-admin" onclick="abrirModalPedido()" style="background-color: #0f766e; color: white; border: none; cursor: pointer;">
+                        <i class="fa-solid fa-plus"></i> Generar Pedido
+                    </button>
+                    <a href="admin-inventario.html" class="btn-admin" style="text-decoration: none;">
+                        <i class="fa-solid fa-boxes-stacked"></i> Inventario
+                    </a>
+                </div>
             </div>
 
             <div class="admin-tabla-wrap">
                 <table class="admin-tabla" id="tabla-pedidos">
                     <thead>
                         <tr>
-                            <th>Fecha de Orden</th>
-                            <th>Producto Reabastecido</th>
+                            <th>Folio</th>
+                            <th>Fecha</th>
+                            <th>Producto</th>
                             <th>Cantidad</th>
-                            <th>Origen del Pedido</th>
-                            <th>Responsable</th>
+                            <th>Origen</th>
                             <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-pedidos">
-                        <!-- Se llena con Firebase -->
+                        <!-- Llenado dinámico -->
                     </tbody>
                 </table>
             </div>
         </div>
-
     </main>
+
+    <!-- ── MODAL DE PEDIDO ── -->
+    <div class="modal-overlay" id="modal-pedido">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Nuevo Pedido</h3>
+                <button class="modal-cerrar" onclick="cerrarModalPedido()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="campo-modal">
+                    <label>Artefacto / Producto</label>
+                    <select id="p-producto" required>
+                        <option value="">Cargando catálogo...</option>
+                    </select>
+                </div>
+                <div class="campo-modal">
+                    <label>Cantidad a solicitar</label>
+                    <input type="number" id="p-cantidad" min="1" placeholder="Ej. 20" required>
+                </div>
+                <div class="campo-modal">
+                    <label>Estado del pedido</label>
+                    <select id="p-estado">
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En proceso">En proceso</option>
+                        <option value="Surtido">Surtido</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <p id="aviso-surtido" style="color: #4ade80; font-size: 0.8rem; display: none; margin-top: -5px;">
+                    <i class="fa-solid fa-circle-info"></i> Al marcar como "Surtido", la cantidad se sumará al inventario permanentemente.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancelar" onclick="cerrarModalPedido()">Cancelar</button>
+                <button class="btn-guardar" onclick="guardarPedido()">Guardar Pedido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-admin" id="toast-admin"></div>
 
     <!-- ── LÓGICA DE FIREBASE Y JS ── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc, query, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // CREDENCIALES
         const firebaseConfig = {
             apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
             authDomain: "wizardly-nextstage.firebaseapp.com",
@@ -161,83 +191,216 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Obtener nombre del admin
+        window.productosMap = {};
+        window.pedidosActuales = [];
+        window.editandoPedidoId = null;
+        window.adminLogueado = "Administrador";
+
+        // Obtener usuario
         const datosRaw = localStorage.getItem('usuarioDatos');
         if (datosRaw) {
             const usuario = JSON.parse(datosRaw);
             if (usuario && usuario.nombre) {
+                window.adminLogueado = usuario.nombre;
                 document.getElementById('nombre-admin-topbar').textContent = usuario.nombre;
             }
         }
 
-        async function cargarHistorialPedidos() {
+        async function inicializar() {
+            // 1. Cargar catálogo de productos para el select y los nombres
+            const productosSnap = await getDocs(collection(db, "productos"));
+            const selectProd = document.getElementById('p-producto');
+            selectProd.innerHTML = '<option value="">Selecciona un producto</option>';
+            
+            productosSnap.forEach(doc => {
+                const data = doc.data();
+                window.productosMap[doc.id] = data.nombre;
+                selectProd.innerHTML += `<option value="${doc.id}">${data.nombre}</option>`;
+            });
+
+            // 2. Cargar los pedidos
+            await window.cargarPedidos();
+        }
+
+        window.cargarPedidos = async function() {
             const tbody = document.getElementById('tbody-pedidos');
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Consultando registros de pedidos...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Consultando registros...</td></tr>';
 
             try {
-                // 1. Cargamos el catálogo de productos para cruzar los nombres con los IDs
-                const productosSnap = await getDocs(collection(db, "productos"));
-                const nombresProductos = {};
-                productosSnap.forEach(doc => {
-                    nombresProductos[doc.id] = doc.data().nombre || doc.data().nombre_producto;
-                });
-
-                // 2. Buscamos en Movimientos SOLO las "Entradas" (ignorando las ventas)
-                const q = query(
-                    collection(db, "movimientos"), 
-                    where("tipo", "==", "Entrada")
-                );
-                const movimientosSnap = await getDocs(q);
-
-                let movimientosArray = [];
-                movimientosSnap.forEach(doc => {
-                    movimientosArray.push(doc.data());
-                });
-
-                // 3. Ordenamos por fecha descendente (del más nuevo al más viejo)
-                movimientosArray.sort((a, b) => b.fecha.seconds - a.fecha.seconds);
-
+                // Ahora leemos de la colección 'pedidos' y no de movimientos
+                const q = query(collection(db, "pedidos"), orderBy("fecha", "desc"));
+                const pedidosSnap = await getDocs(q);
+                
+                window.pedidosActuales = [];
                 tbody.innerHTML = '';
                 let conteo = 0;
 
-                movimientosArray.forEach(data => {
+                pedidosSnap.forEach(documento => {
+                    const data = documento.data();
+                    data.id = documento.id;
+                    window.pedidosActuales.push(data);
                     conteo++;
 
-                    const fechaF = data.fecha ? data.fecha.toDate().toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
-                    const nombreProd = nombresProductos[data.productoId] || "Artefacto Desconocido";
+                    const folio = `PC-${String(conteo).padStart(3, '0')}`;
+                    const fechaF = data.fecha ? data.fecha.toDate().toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
+                    const nombreProd = window.productosMap[data.productoId] || "Desconocido";
                     
-                    // Identificamos si fue el Sistema Automático PUSH o una entrada manual tuya
-                    const esAuto = data.motivo && (data.motivo.includes("Automático") || data.motivo.includes("PUSH"));
-                    const badgeClass = esAuto ? 'badge-auto' : 'badge-manual';
-                    const origenTexto = esAuto ? '<i class="fa-solid fa-wand-magic-sparkles"></i> PUSH Automático' : '<i class="fa-solid fa-user-pen"></i> Solicitud Manual';
+                    const origenClase = data.origen === "PUSH Automático" ? "origen-auto" : "origen-manual";
+                    
+                    let estadoClase = "";
+                    if(data.estado === "Pendiente") estadoClase = "estado-pendiente";
+                    else if(data.estado === "En proceso") estadoClase = "estado-proceso";
+                    else if(data.estado === "Surtido") estadoClase = "estado-surtido";
+                    else if(data.estado === "Cancelado") estadoClase = "estado-cancelado";
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td style="color: var(--text-muted);">${fechaF}</td>
-                        <td><strong style="color: var(--gold);">${nombreProd}</strong></td>
-                        <td style="font-weight: bold; font-size: 1.1rem; color: white;">+${data.cantidad}</td>
-                        <td><span class="badge-pedido ${badgeClass}">${origenTexto}</span></td>
-                        <td style="color: var(--text-muted);">${data.usuario}</td>
-                        <td><span class="estado-ok"><i class="fa-solid fa-circle-check"></i> Surtido</span></td>
+                    // Bloquear edición si ya está surtido o cancelado
+                    const deshabilitado = (data.estado === "Surtido" || data.estado === "Cancelado") ? 'style="opacity:0.3; cursor:not-allowed;" disabled' : '';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="color: var(--text-muted);">${folio}</td>
+                            <td>${fechaF}</td>
+                            <td><strong>${nombreProd}</strong></td>
+                            <td style="font-size:1.1rem;">${data.cantidad}</td>
+                            <td><span class="badge-pedido ${origenClase}">${data.origen || 'Reposición'}</span></td>
+                            <td><span class="badge-pedido ${estadoClase}">${data.estado}</span></td>
+                            <td>
+                                <button class="btn-icono" onclick="abrirEditarPedido('${data.id}')" title="Modificar estado" ${deshabilitado} style="color: #60a5fa; background:none; border:none; cursor:pointer;">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </td>
+                        </tr>
                     `;
-                    tbody.appendChild(tr);
                 });
 
                 document.getElementById('pedidos-count').textContent = conteo + ' pedidos';
-
-                if(conteo === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">No hay pedidos registrados en el almacén.</td></tr>';
-                }
+                if(conteo === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No hay pedidos registrados.</td></tr>';
 
             } catch (error) {
-                console.error("Error al cargar pedidos:", error);
-                // Aquí replicamos el mensaje de error exacto de tu imagen
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: #ef4444; padding: 20px;">Error al leer los registros logísticos.</td></tr>';
+                console.error(error);
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#ef4444;">Error al leer los pedidos.</td></tr>';
+            }
+        };
+
+        // ── CONTROL DEL MODAL ──
+        window.abrirModalPedido = function() {
+            window.editandoPedidoId = null;
+            document.getElementById('modal-titulo').textContent = 'Generar Nuevo Pedido';
+            document.getElementById('p-producto').value = '';
+            document.getElementById('p-producto').disabled = false;
+            document.getElementById('p-cantidad').value = '';
+            document.getElementById('p-cantidad').disabled = false;
+            document.getElementById('p-estado').value = 'Pendiente';
+            document.getElementById('aviso-surtido').style.display = 'none';
+            document.getElementById('modal-pedido').classList.add('visible');
+        };
+
+        window.abrirEditarPedido = function(id) {
+            const pedido = window.pedidosActuales.find(p => p.id === id);
+            if (!pedido || pedido.estado === "Surtido" || pedido.estado === "Cancelado") return;
+
+            window.editandoPedidoId = id;
+            document.getElementById('modal-titulo').textContent = 'Actualizar Estado del Pedido';
+            document.getElementById('p-producto').value = pedido.productoId;
+            document.getElementById('p-producto').disabled = true; // No se cambia el producto
+            document.getElementById('p-cantidad').value = pedido.cantidad;
+            document.getElementById('p-cantidad').disabled = true; // No se cambia la cantidad
+            document.getElementById('p-estado').value = pedido.estado;
+            document.getElementById('modal-pedido').classList.add('visible');
+        };
+
+        window.cerrarModalPedido = function() {
+            document.getElementById('modal-pedido').classList.remove('visible');
+        };
+
+        // Mostrar aviso visual si se selecciona "Surtido"
+        document.getElementById('p-estado').addEventListener('change', (e) => {
+            document.getElementById('aviso-surtido').style.display = e.target.value === 'Surtido' ? 'block' : 'none';
+        });
+
+        // ── GUARDAR Y APLICAR LÓGICA DE INVENTARIO ──
+        window.guardarPedido = async function() {
+            const productoId = document.getElementById('p-producto').value;
+            const cantidad = parseInt(document.getElementById('p-cantidad').value);
+            const estado = document.getElementById('p-estado').value;
+
+            if (!productoId || isNaN(cantidad) || cantidad <= 0) {
+                mostrarToast('Completa los campos correctamente', 'error');
+                return;
+            }
+
+            try {
+                if (window.editandoPedidoId) {
+                    // MODO EDICIÓN (Cambiando estado)
+                    const pedidoRef = doc(db, "pedidos", window.editandoPedidoId);
+                    
+                    // Si el nuevo estado es Surtido, sumamos al inventario y registramos movimiento
+                    if (estado === "Surtido") {
+                        await aplicarSurtidoAlInventario(productoId, cantidad);
+                    }
+                    
+                    await updateDoc(pedidoRef, {
+                        estado: estado,
+                        surtido_aplicado: (estado === "Surtido") // Candado para no volver a sumar
+                    });
+                    mostrarToast('✦ Estado del pedido actualizado.', 'ok');
+                } else {
+                    // MODO NUEVO PEDIDO
+                    await addDoc(collection(db, "pedidos"), {
+                        productoId: productoId,
+                        cantidad: cantidad,
+                        estado: estado,
+                        origen: "Reposición", // Origen manual
+                        usuario: window.adminLogueado,
+                        fecha: Timestamp.now(),
+                        surtido_aplicado: (estado === "Surtido")
+                    });
+
+                    // Si se creó directamente como Surtido, lo sumamos al momento
+                    if (estado === "Surtido") {
+                        await aplicarSurtidoAlInventario(productoId, cantidad);
+                    }
+                    mostrarToast('✦ Pedido generado exitosamente.', 'ok');
+                }
+
+                cerrarModalPedido();
+                window.cargarPedidos();
+
+            } catch (error) {
+                console.error(error);
+                mostrarToast('Error al procesar el pedido.', 'error');
+            }
+        };
+
+        // Función auxiliar: Sumar el stock y dejar huella en movimientos
+        async function aplicarSurtidoAlInventario(productoId, cantidad) {
+            const prodRef = doc(db, "productos", productoId);
+            const prodSnap = await getDoc(prodRef);
+            
+            if (prodSnap.exists()) {
+                const stockActual = parseInt(prodSnap.data().existencia || 0);
+                await updateDoc(prodRef, { existencia: stockActual + cantidad });
+
+                // Registramos la entrada oficial en "movimientos"
+                await addDoc(collection(db, "movimientos"), {
+                    productoId: productoId,
+                    tipo: "Entrada",
+                    cantidad: cantidad,
+                    motivo: "Pedido Surtido",
+                    usuario: window.adminLogueado,
+                    fecha: Timestamp.now()
+                });
             }
         }
 
-        // Iniciar
-        cargarHistorialPedidos();
+        function mostrarToast(msg, tipo='ok') {
+            const toast = document.getElementById('toast-admin');
+            toast.textContent = msg;
+            toast.className = 'toast-admin visible ' + (tipo === 'error' ? 'error' : 'ok');
+            setTimeout(() => toast.classList.remove('visible'), 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', inicializar);
     </script>
 </body>
 </html>

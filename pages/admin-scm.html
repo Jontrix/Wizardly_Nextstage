@@ -13,11 +13,9 @@
     <link rel="stylesheet" href="../css/styles.css" />
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    <!-- IMPORTANTE: Librería Chart.js para las gráficas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* Estilos específicos para el Dashboard SCM */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -25,36 +23,37 @@
             margin-bottom: 24px;
         }
         .kpi-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
+            background: #11081a;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 24px 20px;
             display: flex;
             align-items: center;
-            gap: 16px;
-            transition: 0.3s;
+            gap: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: 0.3s ease;
         }
         .kpi-card:hover {
-            border-color: var(--gold);
-            background: rgba(255,255,255,0.06);
+            border-color: rgba(246, 213, 122, 0.4);
             transform: translateY(-3px);
         }
         .kpi-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+            width: 55px;
+            height: 55px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
         }
         .icon-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
         .icon-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
         .icon-green { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
         .icon-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
         
-        .kpi-info h3 { margin: 0; font-size: 1.8rem; color: var(--text-main); font-family: 'Cinzel', serif; }
-        .kpi-info p { margin: 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .kpi-info { display: flex; flex-direction: column; }
+        .kpi-info h3 { margin: 0; font-size: 2.2rem; color: #ffffff; font-family: 'Cinzel', serif; line-height: 1.1; }
+        .kpi-info p { margin: 4px 0 0 0; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.2px; }
 
         .charts-grid {
             display: grid;
@@ -63,52 +62,90 @@
             margin-bottom: 24px;
         }
         .chart-container {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            height: 300px;
+            background: #11081a;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px 18px 16px;
+            height: 320px;
             display: flex;
             flex-direction: column;
+            align-items: stretch;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .chart-container h3 {
+            margin: 0 0 12px 0;
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.15rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: calc(100% - 42px);
+            min-height: 210px;
+            display: flex;
             align-items: center;
+            justify-content: center;
+        }
+        .chart-wrapper canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .chart-container {
+                height: 280px;
+            }
         }
 
         .modulos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
         }
         .modulo-btn {
-            background: linear-gradient(145deg, rgba(20,10,35,0.8), rgba(10,5,20,0.9));
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
+            background: linear-gradient(145deg, #160a24, #0b0512);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 24px 15px;
             text-align: center;
             cursor: pointer;
             text-decoration: none;
-            transition: 0.4s;
+            transition: all 0.3s ease;
             display: block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
         .modulo-btn:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
-            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 8px 25px rgba(246, 213, 122, 0.15);
+            transform: translateY(-4px);
         }
         .modulo-btn i {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             color: var(--gold);
-            margin-bottom: 16px;
+            margin-bottom: 15px;
+            display: block;
         }
         .modulo-btn h4 {
-            margin: 0 0 8px 0;
-            color: var(--text-main);
+            margin: 0 0 6px 0;
+            color: #ffffff;
             font-family: 'Cinzel', serif;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
         }
         .modulo-btn p {
             margin: 0;
             color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
     </style>
 </head>
@@ -125,56 +162,25 @@
         </div>
         <nav class="sidebar-nav">
             <span class="sidebar-titulo">GENERAL</span>
-            <a href="admin.html" class="nav-item">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
-            </a>
-            <a href="admin-promociones.html" class="nav-item">
-                <i class="fa-solid fa-wand-sparkles"></i> Promociones
-            </a>
-            <a href="admin-clientes.html" class="nav-item">
-                <i class="fa-solid fa-users"></i> Clientes
-            </a>
-            <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
-            </a>
-            <a href="admin-historial.html" class="nav-item">
-                <i class="fa-solid fa-book-skull"></i> Historial
-            </a>
-            <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Configuración
-            </a>
+            <a href="admin.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard CRM</a>
+            <a href="admin-promociones.html" class="nav-item"><i class="fa-solid fa-wand-sparkles"></i> Promociones</a>
+            <a href="admin-clientes.html" class="nav-item"><i class="fa-solid fa-users"></i> Clientes</a>
+            <a href="admin-actividad.html" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i> Actividad</a>
+            <a href="admin-historial.html" class="nav-item"><i class="fa-solid fa-book-skull"></i> Historial</a>
+            <a href="admin-configuracion.html" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
 
             <span class="sidebar-titulo">MÓDULO SCM</span>
-            <a href="admin-scm.html" class="nav-item">
-                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
-            </a>
-            <!-- ESTA ES LA PESTAÑA ACTIVA -->
-            <a href="admin-productos.html" class="nav-item active">
-                <i class="fa-solid fa-hat-wizard"></i> Productos
-            </a>
-            <a href="admin-pedidos.html" class="nav-item">
-                <i class="fa-solid fa-scroll"></i> Pedidos
-            </a>
-            <a href="admin-reportes.html" class="nav-item">
-                <i class="fa-solid fa-chart-simple"></i> Reportes
-            </a>
-            <a href="admin-proveedores.html" class="nav-item">
-                <i class="fa-solid fa-truck-fast"></i> Proveedores
-            </a>
-            <a href="admin-inventario.html" class="nav-item">
-                <i class="fa-solid fa-boxes-stacked"></i> Inventario
-            </a>
-            <a href="admin-logistica.html" class="nav-item">
-                <i class="fa-solid fa-route"></i> Logística
-            </a>
-            <a href="admin-checklist.html" class="nav-item">
-                <i class="fa-solid fa-list-check"></i> Checklist
-            </a>
+            <a href="admin-scm.html" class="nav-item active"><i class="fa-solid fa-boxes-packing"></i> Dashboard SCM</a>
+            <a href="admin-productos.html" class="nav-item"><i class="fa-solid fa-hat-wizard"></i> Productos</a>
+            <a href="admin-pedidos.html" class="nav-item"><i class="fa-solid fa-scroll"></i> Pedidos</a>
+            <a href="admin-reportes.html" class="nav-item"><i class="fa-solid fa-chart-simple"></i> Reportes</a>
+            <a href="admin-proveedores.html" class="nav-item"><i class="fa-solid fa-truck-fast"></i> Proveedores</a>
+            <a href="admin-inventario.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+            <a href="admin-logistica.html" class="nav-item"><i class="fa-solid fa-route"></i> Logística</a>
+            <a href="admin-checklist.html" class="nav-item"><i class="fa-solid fa-list-check"></i> Checklist</a>
         </nav>
         <div class="sidebar-footer">
-            <a href="../index.html" class="nav-item">
-                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
-            </a>
+            <a href="../index.html" class="nav-item"><i class="fa-solid fa-arrow-left"></i> Volver al sitio</a>
         </div>
     </aside>
 
@@ -223,21 +229,25 @@
         <!-- GRÁFICAS DEL INVENTARIO -->
         <div class="charts-grid">
             <div class="chart-container">
-                <h3 style="margin-top: 0; font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem;">Distribución por Categorías</h3>
-                <canvas id="chart-categorias"></canvas>
+                <h3>Distribución por Categorías</h3>
+                <div class="chart-wrapper">
+                    <canvas id="chart-categorias"></canvas>
+                </div>
             </div>
             <div class="chart-container">
-                <h3 style="margin-top: 0; font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem;">Salud del Inventario</h3>
-                <canvas id="chart-salud"></canvas>
+                <h3>Salud del Inventario</h3>
+                <div class="chart-wrapper">
+                    <canvas id="chart-salud"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- ACCESOS RÁPIDOS (SECCIÓN DE 6 BOTONES) -->
-        <div class="admin-bloque">
-            <div class="bloque-header">
-                <h2>Módulos Logísticos</h2>
+        <!-- ACCESOS RÁPIDOS -->
+        <div class="admin-bloque" style="background: transparent; border: none; box-shadow: none; padding: 0;">
+            <div class="bloque-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 20px;">
+                <h2 style="font-size: 1.1rem; color: var(--gold);">Módulos Logísticos</h2>
             </div>
-            <div class="modulos-grid" style="padding: 24px;">
+            <div class="modulos-grid">
                 <a href="admin-productos.html" class="modulo-btn">
                     <i class="fa-solid fa-box"></i>
                     <h4>Productos</h4>
@@ -246,7 +256,7 @@
                 <a href="admin-proveedores.html" class="modulo-btn">
                     <i class="fa-solid fa-truck-fast"></i>
                     <h4>Proveedores</h4>
-                    <p>Administrar proveedores</p>
+                    <p>Administrar contactos</p>
                 </a>
                 <a href="admin-inventario.html" class="modulo-btn">
                     <i class="fa-solid fa-boxes-stacked"></i>
@@ -256,7 +266,7 @@
                 <a href="admin-pedidos.html" class="modulo-btn">
                     <i class="fa-solid fa-scroll"></i>
                     <h4>Pedidos</h4>
-                    <p>Reposición y suministro</p>
+                    <p>Reposición de stock</p>
                 </a>
                 <a href="admin-logistica.html" class="modulo-btn">
                     <i class="fa-solid fa-route"></i>
@@ -293,6 +303,14 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // Estilos Globales para que Chart.js combine con el Dark Mode
+        Chart.defaults.color = '#9ca3af';
+        Chart.defaults.font.family = 'Lato, sans-serif';
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(20, 10, 35, 0.9)';
+        Chart.defaults.plugins.tooltip.titleColor = '#f6d57a';
+        Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.1)';
+        Chart.defaults.plugins.tooltip.borderWidth = 1;
+
         // Mostrar usuario activo
         onAuthStateChanged(auth, (usuario) => {
             const spanNombre = document.getElementById("nombre-administrador");
@@ -313,26 +331,22 @@
                 let productos = [];
                 querySnapshot.forEach((doc) => productos.push(doc.data()));
 
-                // Variables para KPIs
                 let totalAlmacen = productos.length;
                 let stockCritico = 0;
                 let conteoPush = 0;
                 let conteoPull = 0;
-
-                // Variables para Gráficas
                 let catPocimas = 0, catIngredientes = 0, catReliquias = 0, catGrimorios = 0;
 
                 productos.forEach(p => {
-                    // Lógica de Stock
-                    let actual = parseInt(p.stock) || 0;
+                    // Prevenir errores si los valores son strings en la BD
+                    let actual = parseInt(p.existencia || p.stock) || 0;
                     let minimo = parseInt(p.stock_minimo) || 0;
-                    if (actual <= minimo) stockCritico++;
+                    
+                    if (actual <= minimo && actual >= 0) stockCritico++;
 
-                    // Lógica Estrategia
                     if (p.estrategia === "PUSH") conteoPush++;
                     if (p.estrategia === "PULL") conteoPull++;
 
-                    // Lógica Categorías
                     if (p.categoria === "Pócimas") catPocimas++;
                     else if (p.categoria === "Ingredientes") catIngredientes++;
                     else if (p.categoria === "Reliquias") catReliquias++;
@@ -340,7 +354,7 @@
                     else catReliquias++; // Otros
                 });
 
-                // Inyectar números en las Tarjetas (KPIs)
+                // Inyectar números en las Tarjetas
                 document.getElementById('kpi-total').textContent = totalAlmacen;
                 document.getElementById('kpi-critico').textContent = stockCritico;
                 document.getElementById('kpi-push').textContent = conteoPush;
@@ -354,14 +368,15 @@
                         datasets: [{
                             data: [catPocimas, catIngredientes, catReliquias, catGrimorios],
                             backgroundColor: ['#a855f7', '#4ade80', '#fbbf24', '#3b82f6'],
-                            borderColor: '#140a24',
-                            borderWidth: 2
+                            borderWidth: 0,
+                            hoverOffset: 4
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { position: 'right', labels: { color: '#e2e8f0' } } }
+                        cutout: '65%', // Ancho de la dona igual al de tu diseño
+                        plugins: { legend: { position: 'right', labels: { padding: 20, usePointStyle: true } } }
                     }
                 });
 
@@ -373,15 +388,15 @@
                         labels: ['Stock Saludable', 'Stock Crítico'],
                         datasets: [{
                             data: [stockSaludable, stockCritico],
-                            backgroundColor: ['#4ade80', '#f87171'],
-                            borderColor: '#140a24',
-                            borderWidth: 2
+                            backgroundColor: ['#f87171', '#4ade80'], // Invertido: Crítico=Rojo, Saludable=Verde
+                            borderWidth: 0,
+                            hoverOffset: 4
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom', labels: { color: '#e2e8f0' } } }
+                        plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } }
                     }
                 });
 
@@ -390,7 +405,6 @@
             }
         }
 
-        // Arrancar Dashboard
         inicializarDashboardSCM();
     </script>
 </body>
