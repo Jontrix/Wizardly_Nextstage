@@ -46,6 +46,7 @@
 
 <body data-page="detalle">
     <div id="navbar-placeholder"></div>
+    
     <!-- HERO -->
     <section class="hero-detalle">
         <div class="hero-content">
@@ -56,7 +57,9 @@
 
     <!-- DETALLE -->
     <section class="detalle-section">
-        <div class="detalle-container" id="detalle-container"></div>
+        <div class="detalle-container" id="detalle-container">
+            <!-- Cargando contenido dinámicamente -->
+        </div>
     </section>
 
     <!-- PRODUCTOS RELACIONADOS -->
@@ -65,137 +68,218 @@
             <span class="section-eyebrow">✦ También te puede interesar ✦</span>
             <h3>Productos Relacionados</h3>
         </div>
-        <div class="catalogo-grid" id="relacionados-container"></div>
+        <div class="catalogo-grid" id="relacionados-container">
+            <!-- Cargando contenido dinámicamente -->
+        </div>
     </section>
 
     <!-- FOOTER -->
     <footer class="footer-mini">
-
-    <p>
-        © 2026 <span>Wizardly</span> — Mercado Arcano
-        &nbsp;✦&nbsp; Todos los derechos mágicos reservados
-    </p>
-
-    <div class="footer-links">
-        <a href="politicas.html">Políticas de Compra y Venta</a>
-    </div>
-
-</footer>
+        <p>
+            © 2026 <span>Wizardly</span> — Mercado Arcano
+            &nbsp;✦&nbsp; Todos los derechos mágicos reservados
+        </p>
+        <div class="footer-links">
+            <a href="politicas.html">Políticas de Compra y Venta</a>
+        </div>
+    </footer>
 
     <!-- Scripts-->
     <script src="../js/carrito.js"></script>
     <script src="../js/cargar-navbar.js"></script>
     <script src="../js/script.js"></script>
-    <script>
-        // ── Base de productos (única fuente de verdad) ──
-        const productos = [
-            { id: 1, nombre: "Varita de Saúco",              precio: 350.00, categoria: "Varitas",     etiqueta: "Nuevo",  imagen: "../images/varita sauco.webp",              descripcion: "Tallada en madera de saúco con núcleo de pluma de fénix. Ideal para hechizos de protección y combate arcano de alto nivel." },
-            { id: 2, nombre: "Poción de Invisibilidad",      precio: 85.50,  categoria: "Pociones",    etiqueta: "Oferta", imagen: "../images/pocion invisiobilidad.jpg",       descripcion: "Elaborada con extracto de cola de tritón y polvo de luna nueva. Oculta al portador durante exactamente una hora." },
-            { id: 3, nombre: "Grimorio de Hechizos Antiguos",precio: 420.00, categoria: "Libros",      etiqueta: "Nuevo",  imagen: "../images/grimorio.jpg",                    descripcion: "Recopilación de conjuros olvidados, escrito en pergamino de dragón. Incluye sellos de protección y notas del autor original." },
-            { id: 4, nombre: "Cristal de Adivinación",       precio: 199.99, categoria: "Cristales",   etiqueta: "",       imagen: "../images/cristal de adivinacion.webp",     descripcion: "Cuarzo transparente de las montañas de Zafiro. Permite vislumbrar futuros posibles con práctica adecuada." },
-            { id: 5, nombre: "Amuleto de Protección",        precio: 65.00,  categoria: "Amuletos",    etiqueta: "Oferta", imagen: "../images/Amuleto de proteccion.jpeg",      descripcion: "Colgante de plata con runas élficas grabadas a mano. Repelente de energías negativas y mal de ojo garantizado." },
-            { id: 6, nombre: "Caldero de Cobre",             precio: 275.00, categoria: "Calderos",    etiqueta: "",       imagen: "../images/Caldero.jpg",                     descripcion: "Caldero reforzado con anillos de bronce encantado, apto para pociones de alto nivel y conjuros de área." },
-            { id: 7, nombre: "Mapa del Tesoro Escondido",    precio: 120.00, categoria: "Pergaminos",  etiqueta: "Nuevo",  imagen: "../images/mapa del tesoro.jpg",             descripcion: "Pergamino encantado que revela la ubicación de objetos perdidos. Se actualiza automáticamente con cada luna llena." },
-            { id: 8, nombre: "Pluma de Fénix",               precio: 450.00, categoria: "Reliquias",   etiqueta: "Nuevo",  imagen: "../images/pluma de fenix.jpg",              descripcion: "Pluma auténtica de un fénix milenario. Utilizada en varitas y grimorios de alto rango. Certificado de autenticidad incluido." }
-        ];
+    
+    <!-- ── SCRIPT CONECTADO A FIREBASE ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // ── Mostrar producto principal ──
-        function mostrarDetalle() {
-            const id = parseInt(new URLSearchParams(window.location.search).get('id'), 10);
+        // Tus credenciales reales de Wizardly
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Variables globales para manejar cantidad y el producto que estamos viendo
+        let cantidadLocal = 1;
+        let productoActualGlobal = null;
+
+        // Exponemos las funciones al entorno global para que los botones HTML "onclick" las encuentren
+        window.cambiarCantidadLocal = (delta) => {
+            cantidadLocal = Math.max(1, cantidadLocal + delta);
+            document.getElementById('cantidad-valor').textContent = cantidadLocal;
+        };
+
+        window.agregarEsteProducto = () => {
+            if (productoActualGlobal) {
+                // agregarAlCarrito viene de tu script carrito.js
+                agregarAlCarrito(productoActualGlobal, cantidadLocal);
+                
+                // Efecto visual en el botón
+                const btn = document.getElementById('btn-agregar');
+                const textoOriginal = btn.innerHTML;
+                btn.innerHTML = `<i class="fa-solid fa-check"></i> ¡Hechizo Exitoso!`;
+                btn.style.background = "var(--success, #4ade80)";
+                btn.style.color = "#111";
+                setTimeout(() => {
+                    btn.innerHTML = textoOriginal;
+                    btn.style.background = "";
+                    btn.style.color = "";
+                }, 2000);
+            }
+        };
+
+        async function cargarDetalle() {
+            // Extraer el ID alfanumérico que manda Firebase desde el catálogo
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
             const container = document.getElementById('detalle-container');
-            const producto = productos.find(p => p.id === id);
 
-            if (!producto) {
-                container.innerHTML = `<p class="detalle-error">⚠️ Producto no encontrado.</p>`;
+            if (!id) {
+                container.innerHTML = `<p class="detalle-error" style="text-align:center; color: var(--text-muted); font-family: 'Cinzel', serif;">⚠️ Artefacto no especificado en el grimorio.</p>`;
                 return;
             }
 
-            container.innerHTML = `
-                <div class="detalle-card">
-                    <div class="detalle-imagen">
-                        ${producto.etiqueta ? `<span class="detalle-etiqueta ${producto.etiqueta.toLowerCase()}">${producto.etiqueta}</span>` : ''}
-                        <img src="${producto.imagen}" alt="${producto.nombre}">
-                    </div>
-                    <div class="detalle-info">
-                        <p class="detalle-categoria">${producto.categoria}</p>
-                        <h3>${producto.nombre}</h3>
-                        <p class="detalle-precio">$${producto.precio.toFixed(2)} <span>MXN</span></p>
-                        <p class="detalle-descripcion">${producto.descripcion}</p>
+            container.innerHTML = "<p style='text-align: center; color: var(--gold); font-family: Cinzel, serif;'><i class='fa-solid fa-wand-magic-sparkles fa-spin'></i> Revelando secretos del artefacto...</p>";
 
-                        <!-- Selector de cantidad -->
-                        <div class="cantidad-wrap">
-                            <span class="cantidad-label">Cantidad</span>
-                            <div class="cantidad-control">
-                                <button class="cantidad-btn" id="btn-menos" onclick="cambiarCantidadLocal(-1)">−</button>
-                                <span class="cantidad-valor" id="cantidad-valor">1</span>
-                                <button class="cantidad-btn" id="btn-mas"  onclick="cambiarCantidadLocal(1)">+</button>
+            try {
+                // Buscamos el documento exacto en Firestore
+                const docRef = doc(db, "productos", id);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    container.innerHTML = `<p class="detalle-error" style="text-align:center; color: #f87171; font-family: 'Cinzel', serif;">⚠️ Artefacto perdido en el tiempo. No encontrado.</p>`;
+                    return;
+                }
+
+                const producto = docSnap.data();
+                producto.id = docSnap.id; 
+                productoActualGlobal = producto;
+
+                // Validaciones para que no falle si algún dato está en blanco
+                const imagenSegura = producto.imagen ? producto.imagen : "../images/logo/Logo.png";
+                const precioSeguro = parseFloat(producto.precio) || 0;
+                const descSegura = producto.descripcion || "Un misterioso artefacto cuyas propiedades aún están siendo estudiadas por nuestros magos.";
+                const tieneEtiqueta = producto.etiqueta && producto.etiqueta.trim() !== "";
+
+                // Inyectamos el diseño con los datos reales
+                container.innerHTML = `
+                    <div class="detalle-card">
+                        <div class="detalle-imagen">
+                            ${tieneEtiqueta ? `<span class="detalle-etiqueta ${producto.etiqueta.toLowerCase()}">${producto.etiqueta}</span>` : ''}
+                            <img src="${imagenSegura}" alt="${producto.nombre}">
+                        </div>
+                        <div class="detalle-info">
+                            <p class="detalle-categoria">${producto.categoria || 'Artefacto Mágico'}</p>
+                            <h3>${producto.nombre}</h3>
+                            <p class="detalle-precio">$${precioSeguro.toFixed(2)} <span>MXN</span></p>
+                            <p class="detalle-descripcion">${descSegura}</p>
+
+                            <!-- Selector de cantidad -->
+                            <div class="cantidad-wrap">
+                                <span class="cantidad-label">Cantidad</span>
+                                <div class="cantidad-control">
+                                    <button class="cantidad-btn" id="btn-menos" onclick="cambiarCantidadLocal(-1)">−</button>
+                                    <span class="cantidad-valor" id="cantidad-valor">1</span>
+                                    <button class="cantidad-btn" id="btn-mas" onclick="cambiarCantidadLocal(1)">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="detalle-btns">
+                                <button class="btn" id="btn-agregar" onclick="agregarEsteProducto()">
+                                    <i class="fa-solid fa-cart-plus"></i> Agregar al carrito
+                                </button>
+                                
+                                <a href="opiniones.html" class="btn-opinion">
+                                    <i class="fa-solid fa-pen-fancy"></i> Dejar opinión
+                                </a>
+
+                                <a href="catalogo.html" class="btn-regresar">
+                                    <i class="fa-solid fa-arrow-left"></i> Regresar
+                                </a>
                             </div>
                         </div>
-
-                        <!-- Botones -->
-                        <div class="detalle-btns">
-                            <button class="btn" id="btn-agregar" onclick="agregarEsteProducto()">
-                                <i class="fa-solid fa-cart-plus"></i> Agregar al carrito
-                            </button>
-                            
-                            <!-- SE AÑADIÓ EL BOTÓN DE OPINIÓN AQUÍ -->
-                            <a href="opiniones.html" class="btn-opinion">
-                                <i class="fa-solid fa-pen-fancy"></i> Dejar opinión
-                            </a>
-
-                            <a href="catalogo.html" class="btn-regresar">
-                                <i class="fa-solid fa-arrow-left"></i> Regresar
-                            </a>
-                        </div>
                     </div>
-                </div>
-            `;
-
-            // Lógica de cantidad local
-            let cantidadLocal = 1;
-
-            window.cambiarCantidadLocal = (delta) => {
-                cantidadLocal = Math.max(1, cantidadLocal + delta);
-                document.getElementById('cantidad-valor').textContent = cantidadLocal;
-            };
-
-            window.agregarEsteProducto = () => {
-                agregarAlCarrito(producto, cantidadLocal);
-            };
-
-            // Relacionados
-            mostrarRelacionados(producto);
-        }
-
-        // ── Productos relacionados ──
-        function mostrarRelacionados(productoActual) {
-            const relacionados = productos
-                .filter(p => p.id !== productoActual.id && p.categoria === productoActual.categoria)
-                .slice(0, 4);
-
-            // Si no hay de la misma categoría, tomar cualquiera
-            const lista = relacionados.length >= 2
-                ? relacionados
-                : productos.filter(p => p.id !== productoActual.id).slice(0, 4);
-
-            const container = document.getElementById('relacionados-container');
-            container.innerHTML = '';
-
-            lista.forEach(prod => {
-                const card = document.createElement('div');
-                card.className = 'producto-card';
-                card.innerHTML = `
-                    ${prod.etiqueta ? `<span class="etiqueta ${prod.etiqueta.toLowerCase()}">${prod.etiqueta}</span>` : ''}
-                    <img src="${prod.imagen}" alt="${prod.nombre}" loading="lazy">
-                    <h3>${prod.nombre}</h3>
-                    <p class="producto-precio">$${prod.precio.toFixed(2)} MXN</p>
-                    <a href="detalle.html?id=${prod.id}" class="btn-detalle">Ver detalle</a>
                 `;
-                container.appendChild(card);
-            });
+
+                // Mandamos llamar los relacionados pasando la categoría
+                cargarRelacionados(producto.categoria, producto.id);
+
+            } catch (error) {
+                console.error("Error oscuro al obtener detalle:", error);
+                container.innerHTML = `<p class="detalle-error" style="text-align:center; color: #f87171;">⚠️ Ocurrió una interferencia mágica al conectarse a la bóveda.</p>`;
+            }
         }
 
-        mostrarDetalle();
+        async function cargarRelacionados(categoria, currentId) {
+            const container = document.getElementById('relacionados-container');
+            container.innerHTML = "<p style='text-align: center; color: var(--text-muted); font-family: Cinzel, serif; grid-column: 1/-1;'>Buscando ecos mágicos similares...</p>";
+
+            try {
+                // Buscamos productos que sean de la misma categoría que el producto actual
+                let q = query(collection(db, "productos"), where("categoria", "==", categoria), limit(6));
+                let snap = await getDocs(q);
+                
+                let relacionados = [];
+                snap.forEach(doc => {
+                    // Excluimos el producto que ya estamos viendo y evitamos mostrar inactivos
+                    if(doc.id !== currentId && doc.data().estado !== 'Inactivo') {
+                        let data = doc.data();
+                        data.id = doc.id;
+                        relacionados.push(data);
+                    }
+                });
+
+                // Si no hay de la misma categoría, traemos cualquier producto activo
+                if (relacionados.length === 0) {
+                    const fallbackQ = query(collection(db, "productos"), where("estado", "==", "Activo"), limit(5));
+                    const fallbackSnap = await getDocs(fallbackQ);
+                    fallbackSnap.forEach(doc => {
+                        if(doc.id !== currentId) {
+                            let data = doc.data();
+                            data.id = doc.id;
+                            relacionados.push(data);
+                        }
+                    });
+                }
+
+                container.innerHTML = '';
+                
+                // Mostrar máximo 4 tarjetas
+                relacionados.slice(0, 4).forEach(prod => {
+                    const imagenSegura = prod.imagen ? prod.imagen : "../images/logo/Logo.png";
+                    const precioSeguro = parseFloat(prod.precio) || 0;
+                    const tieneEtiqueta = prod.etiqueta && prod.etiqueta.trim() !== "";
+
+                    const card = document.createElement('div');
+                    card.className = 'producto-card';
+                    card.innerHTML = `
+                        ${tieneEtiqueta ? `<span class="etiqueta ${prod.etiqueta.toLowerCase()}">${prod.etiqueta}</span>` : ''}
+                        <img src="${imagenSegura}" alt="${prod.nombre}" loading="lazy">
+                        <h3>${prod.nombre}</h3>
+                        <p class="producto-precio">$${precioSeguro.toFixed(2)} MXN</p>
+                        <a href="detalle.html?id=${prod.id}" class="btn-detalle">Ver detalle</a>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error("Error al cargar relacionados:", error);
+                container.innerHTML = ""; // Simplemente dejamos vacía la sección si falla
+            }
+        }
+
+        // Ejecutar al entrar a la página
+        cargarDetalle();
     </script>
 </body>
 </html>

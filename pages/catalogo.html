@@ -19,7 +19,8 @@
     <link rel="stylesheet" href="../css/catalogo.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <!-- ===== ESTILOS DEL MODAL DE SUBASTA (añadidos) ===== -->
+    
+    <!-- ===== ESTILOS DEL MODAL DE SUBASTA ===== -->
     <style>
         /* ========================================
            ESTILOS DEL MODAL DE SUBASTA
@@ -327,7 +328,7 @@
             opacity: 0.4;
         }
 
-        /* Etiqueta de subasta en el carrito (se puede usar en el detalle también) */
+        /* Etiqueta de subasta en el carrito */
         .etiqueta-subasta {
             display: inline-block;
             background: var(--gold-dim);
@@ -348,7 +349,6 @@
 <body data-page="catalogo">
 
     <div id="navbar-placeholder"></div>
-
 
     <!-- HERO -->
     <section class="hero-catalogo">
@@ -453,26 +453,15 @@
                     <div class="lista-ofertas">
                         <h4><i class="fa-solid fa-gavel"></i> Ofertas registradas</h4>
                         <ul id="lista-ofertas-ul">
-
-    <li class="oferta-item">
-        <span>
-            <i class="fa-solid fa-user-wizard"></i>
-            ArcaneHunter
-        </span>
-
-        <strong>$498.00 MXN</strong>
-    </li>
-
-    <li class="oferta-item">
-        <span>
-            <i class="fa-solid fa-hat-wizard"></i>
-            MysticMage
-        </span>
-
-        <strong>$499.00 MXN</strong>
-    </li>
-
-</ul>
+                            <li class="oferta-item mejor-oferta">
+                                <span><i class="fa-solid fa-hat-wizard"></i> MysticMage</span>
+                                <span class="oferta-monto">$499.00 MXN</span>
+                            </li>
+                            <li class="oferta-item">
+                                <span><i class="fa-solid fa-user-wizard"></i> ArcaneHunter</span>
+                                <span class="oferta-monto">$498.00 MXN</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
@@ -494,134 +483,116 @@
     <script src="../js/cargar-navbar.js"></script>
     <script src="../js/script.js"></script>
 
-    <!-- ===== CÓDIGO ORIGINAL DEL CATÁLOGO ===== -->
-    <script>
-        const productos = [
-            {
-                id: 1,
-                nombre: "Varita de Saúco",
-                precio: 350,
-                categoria: "Varitas",
-                etiqueta: "Nuevo",
-                imagen: "../images/varita sauco.webp"
-            },
-            {
-                id: 2,
-                nombre: "Poción de Invisibilidad",
-                precio: 85.50,
-                categoria: "Pociones",
-                etiqueta: "Oferta",
-                imagen: "../images/pocion invisiobilidad.jpg"
-            },
-            {
-                id: 3,
-                nombre: "Grimorio de Hechizos Antiguos",
-                precio: 420,
-                categoria: "Libros",
-                etiqueta: "Nuevo",
-                imagen: "../images/grimorio.jpg"
-            },
-            {
-                id: 4,
-                nombre: "Cristal de Adivinación",
-                precio: 199.99,
-                categoria: "Cristales",
-                etiqueta: "",
-                imagen: "../images/cristal de adivinacion.webp"
-            },
-            {
-                id: 5,
-                nombre: "Amuleto de Protección",
-                precio: 65,
-                categoria: "Amuletos",
-                etiqueta: "Oferta",
-                imagen: "../images/Amuleto de proteccion.jpeg"
-            },
-            {
-                id: 6,
-                nombre: "Caldero de Cobre",
-                precio: 275,
-                categoria: "Calderos",
-                etiqueta: "",
-                imagen: "../images/Caldero.jpg"
-            },
-            {
-                id: 7,
-                nombre: "Mapa del Tesoro Escondido",
-                precio: 120,
-                categoria: "Pergaminos",
-                etiqueta: "Nuevo",
-                imagen: "../images/mapa del tesoro.jpg"
-            },
-            {
-                id: 8,
-                nombre: "Pluma de Fénix",
-                precio: 450,
-                categoria: "Reliquias",
-                etiqueta: "Nuevo",
-                imagen: "../images/pluma de fenix.jpg"
-            }
-        ];
+    <!-- ===== CÓDIGO CONECTADO A FIREBASE PARA EL CATÁLOGO ===== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+        // Tus credenciales reales de Wizardly
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let productos = [];
         const container = document.getElementById("productos-container");
+        const buscador = document.getElementById("buscador");
+        const categoria = document.getElementById("filtroCategoria");
+        const precio = document.getElementById("filtroPrecio");
 
         function mostrarProductos(lista) {
             container.innerHTML = "";
+            
+            if (lista.length === 0) {
+                container.innerHTML = "<p style='grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-family: Cinzel, serif;'>No se encontraron artefactos con esos criterios.</p>";
+                return;
+            }
+
             lista.forEach(prod => {
+                const tieneEtiqueta = prod.etiqueta && prod.etiqueta.trim() !== "";
+                const imagenSegura = prod.imagen ? prod.imagen : "../images/logo/Logo.png";
+                const precioSeguro = parseFloat(prod.precio) || 0;
+
                 const card = document.createElement("div");
                 card.className = "producto-card";
                 card.innerHTML = `
-                    ${prod.etiqueta != "" ?
-                        `<span class="etiqueta ${prod.etiqueta.toLowerCase()}">${prod.etiqueta}</span>` : ""}
-                    <img src="${prod.imagen}" alt="${prod.nombre}">
+                    ${tieneEtiqueta ? `<span class="etiqueta ${prod.etiqueta.toLowerCase()}">${prod.etiqueta}</span>` : ""}
+                    <img src="${imagenSegura}" alt="${prod.nombre}">
                     <h3>${prod.nombre}</h3>
-                    <p class="producto-precio">$${prod.precio.toFixed(2)} MXN</p>
+                    <p class="producto-precio">$${precioSeguro.toFixed(2)} MXN</p>
                     <a href="detalle.html?id=${prod.id}" class="btn-detalle">Ver detalle</a>
                 `;
                 container.appendChild(card);
             });
         }
 
-        mostrarProductos(productos);
-
-        const buscador = document.getElementById("buscador");
-        const categoria = document.getElementById("filtroCategoria");
-        const precio = document.getElementById("filtroPrecio");
-
         function filtrar() {
             let lista = productos;
             const texto = buscador.value.toLowerCase();
-            if (texto != "") {
+            
+            if (texto !== "") {
                 lista = lista.filter(producto =>
-                    producto.nombre.toLowerCase().includes(texto)
+                    producto.nombre && producto.nombre.toLowerCase().includes(texto)
                 );
             }
-            if (categoria.value != "Todos") {
+            if (categoria.value !== "Todos") {
                 lista = lista.filter(producto =>
                     producto.categoria === categoria.value
                 );
             }
-            if (precio.value == "100") {
-                lista = lista.filter(producto => producto.precio < 100);
-            } else if (precio.value == "300") {
-                lista = lista.filter(producto => producto.precio >= 100 && producto.precio <= 300);
-            } else if (precio.value == "9999") {
-                lista = lista.filter(producto => producto.precio > 300);
+            if (precio.value === "100") {
+                lista = lista.filter(producto => parseFloat(producto.precio) < 100);
+            } else if (precio.value === "300") {
+                lista = lista.filter(producto => parseFloat(producto.precio) >= 100 && parseFloat(producto.precio) <= 300);
+            } else if (precio.value === "9999") {
+                lista = lista.filter(producto => parseFloat(producto.precio) > 300);
             }
+            
             mostrarProductos(lista);
+        }
+
+        async function cargarCatalogoFirebase() {
+            container.innerHTML = "<p style='grid-column: 1 / -1; text-align: center; color: var(--gold); font-family: Cinzel, serif;'><i class='fa-solid fa-wand-magic-sparkles fa-spin'></i> Invocando catálogo desde el grimorio...</p>";
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "productos"));
+                productos = [];
+                
+                querySnapshot.forEach((doc) => {
+                    let data = doc.data();
+                    data.id = doc.id; 
+                    if (data.estado !== 'Inactivo') {
+                        productos.push(data);
+                    }
+                });
+                
+                mostrarProductos(productos);
+            } catch (error) {
+                console.error("Error oscuro al obtener los productos:", error);
+                container.innerHTML = "<p style='grid-column: 1 / -1; text-align: center; color: #f87171;'>Error de conexión con la bóveda. Intenta de nuevo.</p>";
+            }
         }
 
         buscador.addEventListener("input", filtrar);
         categoria.addEventListener("change", filtrar);
         precio.addEventListener("change", filtrar);
+
+        cargarCatalogoFirebase();
     </script>
 
-    <!-- ===== SCRIPT DE LA SUBASTA (actualizado) ===== -->
+    <!-- ===== SCRIPT DE LA SUBASTA ===== -->
     <script>
         (function() {
             'use strict';
 
-            // ── Elementos del DOM ──
             const overlay = document.getElementById('subastaOverlay');
             const contadorEl = document.getElementById('contador');
             const temporizadorEl = document.getElementById('temporizador');
@@ -633,9 +604,8 @@
             const btnCerrar2 = document.getElementById('cerrarSubastaBtn');
             const btnCarrito = document.getElementById('agregarCarritoSubasta');
 
-            // ── Datos de la subasta (Pluma de Fénix) ──
             const PRODUCTO_SUBASTA = {
-                id: 9999, // ID único para no confundir con el catálogo
+                id: 9999,
                 nombre: 'Pluma de Fénix (Subasta)',
                 precioBase: 450,
                 imagen: '../images/pluma de fenix.jpg',
@@ -643,22 +613,18 @@
                 descripcion: 'Edición limitada de la subasta mágica.'
             };
 
-            // ── Estado ──
-            let tiempoRestante = 120; // 2 minutos
+            let tiempoRestante = 120;
             let temporizadorInterval = null;
             let ofertas = [];
             let subastaFinalizada = false;
             let subastaMostrada = false;
-            let ultimaOfertaUsuario = null; // guardará el monto de la última oferta del usuario
+            let ultimaOfertaUsuario = null;
 
-            // Nombres de postores simulados
             const postores = [
                 'Merlín G.', 'Hermione L.', 'Gandalf R.',
                 'Sabrina M.', 'Dumbledore V.', 'Morgana L.',
                 'Salazar S.', 'Rowena R.', 'Godric G.'
             ];
-
-            // ── Funciones ──
 
             function formatearTiempo(segundos) {
                 const m = Math.floor(segundos / 60);
@@ -697,57 +663,30 @@
                 }, 1000);
             }
 
-          function renderOfertas() {
+            function renderOfertas() {
+                listaOfertas.innerHTML = "";
+                const ofertasIniciales = [
+                    { nombre: "ArcaneHunter", monto: 498 },
+                    { nombre: "MysticMage", monto: 499 }
+                ];
 
-    listaOfertas.innerHTML = "";
+                const todasLasOfertas = [...ofertasIniciales, ...ofertas];
+                todasLasOfertas.sort((a, b) => b.monto - a.monto);
 
-    // Ofertas precargadas
-    const ofertasIniciales = [
-
-        {
-            nombre: " ArcaneHunter",
-            monto: 498
-        },
-
-        {
-            nombre: " MysticMage",
-            monto: 499
-        }
-
-    ];
-
-    // Unimos las ofertas iniciales con las del usuario
-    const todasLasOfertas = [...ofertasIniciales, ...ofertas];
-
-    // Ordenar de mayor a menor
-    todasLasOfertas.sort((a, b) => b.monto - a.monto);
-
-    // Mostrar solamente las últimas 8
-    todasLasOfertas.slice(0,8).forEach((o, index) => {
-
-        const li = document.createElement("li");
-
-        // La mejor oferta tendrá un estilo especial
-        li.className = index === 0 ? "oferta-item mejor-oferta" : "oferta-item";
-
-        li.innerHTML = `
-            <span>${o.nombre}</span>
-
-            <span class="oferta-monto">
-                $${o.monto.toFixed(2)} MXN
-            </span>
-        `;
-
-        listaOfertas.appendChild(li);
-
-    });
-
-}
+                todasLasOfertas.slice(0,8).forEach((o, index) => {
+                    const li = document.createElement("li");
+                    li.className = index === 0 ? "oferta-item mejor-oferta" : "oferta-item";
+                    li.innerHTML = `
+                        <span>${o.nombre}</span>
+                        <span class="oferta-monto">$${o.monto.toFixed(2)} MXN</span>
+                    `;
+                    listaOfertas.appendChild(li);
+                });
+            }
 
             function registrarOferta(monto) {
                 const nombre = postores[Math.floor(Math.random() * postores.length)];
                 ofertas.push({ nombre, monto });
-                // Guardamos la última oferta del usuario (asumimos que el usuario es el que hizo clic)
                 ultimaOfertaUsuario = monto;
                 renderOfertas();
                 mensajeOferta.textContent = `✅ Oferta registrada — ${nombre} ofertó $${monto.toFixed(2)}`;
@@ -757,8 +696,6 @@
                     mensajeOferta.className = '';
                 }, 4000);
             }
-
-            // ── Eventos ──
 
             btnOfertar.addEventListener('click', function() {
                 if (subastaFinalizada) {
@@ -782,9 +719,7 @@
                 }
             });
 
-            // ── Agregar al carrito con el precio de la última oferta ──
             btnCarrito.addEventListener('click', function() {
-                // Determinar el precio a usar: si hay ofertas, usar la última oferta del usuario, sino el precio base
                 let precioFinal = PRODUCTO_SUBASTA.precioBase;
                 let mensajePrecio = '';
 
@@ -792,7 +727,6 @@
                     precioFinal = ultimaOfertaUsuario;
                     mensajePrecio = ` (precio de subasta: $${precioFinal.toFixed(2)})`;
                 } else if (ofertas.length > 0) {
-                    // Si no hay oferta del usuario pero hay ofertas de otros, tomamos la más alta
                     const ofertaMasAlta = ofertas.reduce((max, o) => o.monto > max.monto ? o : max, ofertas[0]);
                     precioFinal = ofertaMasAlta.monto;
                     mensajePrecio = ` (precio de subasta: $${precioFinal.toFixed(2)})`;
@@ -800,14 +734,12 @@
                     mensajePrecio = ' (precio base)';
                 }
 
-                // Crear el objeto producto con el precio dinámico y nombre especial
                 const productoSubasta = {
                     id: PRODUCTO_SUBASTA.id,
-                    nombre: PRODUCTO_SUBASTA.nombre, // ya incluye "(Subasta)"
+                    nombre: PRODUCTO_SUBASTA.nombre,
                     precio: precioFinal,
                     imagen: PRODUCTO_SUBASTA.imagen,
                     categoria: PRODUCTO_SUBASTA.categoria,
-                    // Añadimos una propiedad extra para identificar que es subastado (opcional)
                     esSubasta: true
                 };
 
@@ -822,7 +754,6 @@
                 }
             });
 
-            // ── Cerrar modal ──
             function cerrarModal() {
                 overlay.classList.remove('visible');
                 if (temporizadorInterval) {
@@ -836,7 +767,6 @@
                 if (e.target === overlay) cerrarModal();
             });
 
-            // ── Mostrar subasta después de 5 segundos ──
             setTimeout(function() {
                 if (!subastaMostrada) {
                     overlay.classList.add('visible');
@@ -845,14 +775,12 @@
                 }
             }, 2500);
 
-            // ── Inicializar contador del carrito ──
             document.addEventListener('DOMContentLoaded', function() {
                 if (typeof actualizarContador === 'function') {
                     actualizarContador();
                 }
             });
 
-            console.log('✨ Subasta simulada (Pluma de Fénix) cargada. Aparecerá en 5 segundos.');
         })();
     </script>
 
