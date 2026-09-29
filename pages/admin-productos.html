@@ -180,9 +180,7 @@
                         <label>Proveedor</label>
                         <select id="m-proveedor">
                             <option value="">Selecciona un proveedor</option>
-                            <option value="Ollivanders">Ollivanders</option>
-                            <option value="Borgin y Burkes">Borgin y Burkes</option>
-                            <option value="Independiente">Independiente</option>
+                            <!-- Opciones cargadas dinámicamente desde Firebase -->
                         </select>
                     </div>
                 </div>
@@ -330,6 +328,23 @@
         var confirmOverlay = document.getElementById('confirm-overlay');
         var confirmNombre = document.getElementById('confirm-nombre');
         var toast = document.getElementById('toast-admin');
+
+        // 🔥 NUEVO: Cargar los proveedores dinámicamente 🔥
+        window.cargarProveedoresFirebase = async function() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "proveedores"));
+                mProveedor.innerHTML = '<option value="">Selecciona un proveedor</option>';
+                
+                querySnapshot.forEach((doc) => {
+                    let prov = doc.data();
+                    if (prov.nombre) {
+                        mProveedor.innerHTML += `<option value="${prov.nombre}">${prov.nombre}</option>`;
+                    }
+                });
+            } catch (error) {
+                console.error("Error al cargar proveedores:", error);
+            }
+        };
 
         // Leer datos desde Firebase y Auto-Migrar si está vacío
         window.cargarProductosFirebase = async function() {
@@ -554,7 +569,8 @@
             if (e.target === confirmOverlay) window.cerrarConfirm();
         });
 
-        // Inicializar lectura de Firebase
+        // 🔥 Ejecutar funciones de carga al iniciar 🔥
+        window.cargarProveedoresFirebase();
         window.cargarProductosFirebase();
     </script>
 
