@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizardly — Dashboard ERP</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-body">
+
+    <!-- ── BARRA LATERAL ── -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">
+            <img src="../images/logo/Logo.png" alt="Wizardly" />
+            <div>
+                <span class="brand">Wizardly</span>
+                <span class="sidebar-sub">Panel Arcano</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <!-- SECCIÓN GENERAL (CRM) -->
+            <span class="sidebar-titulo">GENERAL</span>
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
+            </a>
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+
+            <!-- SECCIÓN SCM -->
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <a href="admin-productos.html" class="nav-item">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
+            <a href="admin-checklist.html" class="nav-item">
+                <i class="fa-solid fa-list-check"></i> Checklist
+            </a>
+
+            <!-- NUEVA SECCIÓN ERP (INTEGRADOR DESPLEGABLE) -->
+            <div class="sidebar-titulo" id="btn-toggle-erp" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+                <span>MÓDULO ERP</span>
+                <i class="fa-solid fa-chevron-down" id="icono-erp" style="transition: transform 0.3s;"></i>
+            </div>
+            <div id="submenu-erp" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px;">
+                <a href="admin-erp.html" class="nav-item active">
+                    <i class="fa-solid fa-house-chimney-window"></i> Inicio
+                </a>
+                <a href="admin-clientes.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i> Clientes (CRM)
+                </a>
+                <a href="admin-productos.html" class="nav-item">
+                    <i class="fa-solid fa-hat-wizard"></i> Productos (SCM)
+                </a>
+                <a href="admin-inventario.html" class="nav-item">
+                    <i class="fa-solid fa-boxes-stacked"></i> Inventario (SCM)
+                </a>
+                <a href="admin-pedidos.html" class="nav-item">
+                    <i class="fa-solid fa-file-invoice"></i> Órdenes (ERP)
+                </a>
+                <a href="admin-reportes.html" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i> Reportes
+                </a>
+                <a href="admin-erp-nivel.html" class="nav-item">
+                    <i class="fa-solid fa-layer-group"></i> Nivel ERP
+                </a>
+                <a href="admin-usuarios.html" class="nav-item">
+                    <i class="fa-solid fa-user-shield"></i> Usuarios
+                </a>
+                <a href="admin-configuracion.html" class="nav-item">
+                    <i class="fa-solid fa-gear"></i> Configuración
+                </a>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── CONTENIDO PRINCIPAL ERP ── -->
+    <main class="admin-main">
+        <div class="admin-topbar">
+            <h1>Dashboard ERP (Vista Integrada)</h1>
+            <div class="topbar-usuario">
+                <i class="fa-solid fa-circle-user"></i>
+                <span id="nombre-admin-topbar">Administrador</span>
+            </div>
+        </div>
+
+        <!-- KPI's DEL ERP (Conectados a Firebase) -->
+        <div class="kpi-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px;">
+            <div class="admin-bloque" style="padding: 20px; display: flex; align-items: center; gap: 15px; margin: 0;">
+                <i class="fa-solid fa-user-tie" style="font-size: 2.5rem; color: #3b82f6;"></i>
+                <div>
+                    <h2 id="erp-kpi-clientes" style="margin: 0; font-size: 1.8rem; color: var(--gold);">0</h2>
+                    <p style="margin: 0; color: var(--text-muted);">Clientes activos</p>
+                </div>
+            </div>
+            <div class="admin-bloque" style="padding: 20px; display: flex; align-items: center; gap: 15px; margin: 0;">
+                <i class="fa-solid fa-envelope-open-text" style="font-size: 2.5rem; color: #a855f7;"></i>
+                <div>
+                    <h2 id="erp-kpi-ordenes" style="margin: 0; font-size: 1.8rem; color: var(--gold);">0</h2>
+                    <p style="margin: 0; color: var(--text-muted);">Órdenes de clientes</p>
+                </div>
+            </div>
+            <div class="admin-bloque" style="padding: 20px; display: flex; align-items: center; gap: 15px; margin: 0;">
+                <i class="fa-solid fa-dollar-sign" style="font-size: 2.5rem; color: #eab308;"></i>
+                <div>
+                    <h2 id="erp-kpi-ventas" style="margin: 0; font-size: 1.8rem; color: var(--gold);">$0</h2>
+                    <p style="margin: 0; color: var(--text-muted);">Ventas totales</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRÁFICAS DEL ERP -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+            <div class="admin-bloque" style="margin-top: 0;">
+                <div class="bloque-header">
+                    <h2>Ventas (últimos 6 meses)</h2>
+                </div>
+                <div style="padding: 20px; height: 300px;">
+                    <canvas id="chart-ventas-erp"></canvas>
+                </div>
+            </div>
+
+            <div class="admin-bloque" style="margin-top: 0;">
+                <div class="bloque-header">
+                    <h2>Productos más vendidos</h2>
+                </div>
+                <div style="padding: 20px; height: 300px;">
+                    <canvas id="chart-productos-erp"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ACCIÓN PARA EL SIGUIENTE PASO DEL ERP -->
+        <div class="admin-bloque" style="margin-top: 24px; text-align: center; padding: 40px;">
+            <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 15px;">Flujo de Pantallas ERP</h2>
+            <p style="color: var(--text-muted); margin-bottom: 25px;">Para iniciar la integración, selecciona un cliente del CRM y agrégale productos del SCM.</p>
+            <a href="admin-erp-nueva-orden.html" class="btn-admin" style="background-color: #0f766e; color: white; padding: 12px 24px; font-size: 1.1rem; text-decoration: none; border-radius: 8px;">
+                <i class="fa-solid fa-cart-plus"></i> Siguiente Paso: Nueva Orden
+            </a>
+        </div>
+    </main>
+
+    <!-- ── LÓGICA DE FIREBASE Y GRÁFICAS ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // Tus credenciales reales
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Mostrar nombre del admin activo
+        onAuthStateChanged(auth, (usuario) => {
+            const spanNombre = document.getElementById("nombre-admin-topbar");
+            if (usuario) {
+                spanNombre.textContent = usuario.displayName || usuario.email || "Administrador";
+            } else {
+                try {
+                    const datos = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
+                    spanNombre.textContent = datos.nombre || "Admin Supremo";
+                } catch(e) {}
+            }
+        });
+
+        // 1. Gráfica de Ventas
+        const ctxVentas = document.getElementById('chart-ventas-erp').getContext('2d');
+        new Chart(ctxVentas, {
+            type: 'bar',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Ventas Totales ($)',
+                    data: [1200, 1800, 3000, 2400, 3100, 4200], // Valores representativos
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+                    x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                }
+            }
+        });
+
+        // 2. Gráfica de Productos más vendidos
+        const ctxProductos = document.getElementById('chart-productos-erp').getContext('2d');
+        new Chart(ctxProductos, {
+            type: 'bar',
+            data: {
+                labels: ['Pócima Curativa', 'Grimorio Oscuro', 'Varita de Saúco', 'Polvos Flu'],
+                datasets: [{
+                    label: 'Unidades Vendidas',
+                    data: [45, 38, 25, 18],
+                    backgroundColor: ['#a855f7', '#3b82f6', '#10b981', '#f59e0b'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y', // La vuelve horizontal
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+                    y: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                }
+            }
+        });
+
+        // 3. Consultar a Firebase para llenar los KPIs del ERP
+        async function cargarKPIs() {
+            try {
+                // Obtener clientes del CRM
+                const clientesSnap = await getDocs(collection(db, "clientes"));
+                document.getElementById('erp-kpi-clientes').textContent = clientesSnap.size;
+
+                // Obtener órdenes de la colección "movimientos" (simulando las ventas)
+                const movsSnap = await getDocs(collection(db, "movimientos"));
+                let totalOrdenes = 0;
+                let ventasTotales = 0;
+
+                movsSnap.forEach(doc => {
+                    let data = doc.data();
+                    if (data.tipo === "Salida" || data.motivo === "Venta") {
+                        totalOrdenes++;
+                        ventasTotales += (parseInt(data.cantidad) || 0) * 150; 
+                    }
+                });
+
+                document.getElementById('erp-kpi-ordenes').textContent = totalOrdenes;
+                document.getElementById('erp-kpi-ventas').textContent = "$" + ventasTotales.toLocaleString();
+
+            } catch (error) {
+                console.error("Error al cargar KPIs del ERP:", error);
+            }
+        }
+
+        cargarKPIs();
+    </script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnErp = document.getElementById('btn-toggle-erp');
+        const submenuErp = document.getElementById('submenu-erp');
+        const iconoErp = document.getElementById('icono-erp');
+
+        if(btnErp && submenuErp && iconoErp) {
+            // Si algún enlace dentro del submenu tiene la clase 'active', ábrelo por defecto
+            if (submenuErp.querySelector('.active')) {
+                submenuErp.style.display = 'flex';
+                iconoErp.style.transform = 'rotate(180deg)';
+            }
+
+            btnErp.addEventListener('click', () => {
+                if (submenuErp.style.display === 'none' || submenuErp.style.display === '') {
+                    submenuErp.style.display = 'flex';
+                    iconoErp.style.transform = 'rotate(180deg)';
+                } else {
+                    submenuErp.style.display = 'none';
+                    iconoErp.style.transform = 'rotate(0deg)';
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
