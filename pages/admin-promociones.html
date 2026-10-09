@@ -27,90 +27,99 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            <div class="sidebar-titulo" id="btn-toggle-general" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
-                <span>GENERAL</span>
-                <i class="fa-solid fa-chevron-down" id="icono-general" style="transition: transform 0.3s;"></i>
-            </div>
-            <div id="submenu-general" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px; margin-bottom: 10px;">
-            <a href="admin.html" class="nav-item">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
-            </a>
-            <a href="admin-promociones.html" class="nav-item active">
-                <i class="fa-solid fa-wand-sparkles"></i> Promociones
-            </a>
-            <a href="admin-clientes.html" class="nav-item">
-                <i class="fa-solid fa-users"></i> Clientes
-            </a>
-            <a href="admin-actividad.html" class="nav-item">
-                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
-            </a>
-            <a href="admin-historial.html" class="nav-item">
-                <i class="fa-solid fa-book-skull"></i> Historial
-            </a>
-            <a href="admin-configuracion.html" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Configuración
-            </a>
+    <!-- SECCIÓN GENERAL (CRM) DESPLEGABLE -->
+    <div class="sidebar-titulo" id="btn-toggle-general" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+        <span>GENERAL</span>
+        <i class="fa-solid fa-chevron-down" id="icono-general" style="transition: transform 0.3s;"></i>
+    </div>
+    <div id="submenu-general" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px; margin-bottom: 10px;">
+        <a href="admin.html" class="nav-item">
+            <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
+        </a>
+        <a href="admin-promociones.html" class="nav-item active">
+            <i class="fa-solid fa-wand-sparkles"></i> Promociones
+        </a>
+        <a href="admin-clientes.html" class="nav-item">
+            <i class="fa-solid fa-users"></i> Clientes
+        </a>
+        <a href="admin-actividad.html" class="nav-item">
+            <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+        </a>
+        <a href="admin-historial.html" class="nav-item">
+            <i class="fa-solid fa-book-skull"></i> Historial
+        </a>
+        <a href="admin-configuracion.html" class="nav-item">
+            <i class="fa-solid fa-gear"></i> Configuración
+        </a>
+    </div>
 
-            </div>
-            <div class="sidebar-titulo" id="btn-toggle-scm" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
-                <span>MÓDULO SCM</span>
-                <i class="fa-solid fa-chevron-down" id="icono-scm" style="transition: transform 0.3s;"></i>
-            </div>
-            <div id="submenu-scm" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px; margin-bottom: 10px;">
-            <a href="admin-scm.html" class="nav-item">
-                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
-            </a>
-            <a href="admin-productos.html" class="nav-item">
-                <i class="fa-solid fa-hat-wizard"></i> Productos
-            </a>
-            <a href="admin-inventario.html" class="nav-item">
-                <i class="fa-solid fa-boxes-stacked"></i> Inventario
-            </a>
-            <a href="admin-proveedores.html" class="nav-item">
-                <i class="fa-solid fa-truck-fast"></i> Proveedores
-            </a>
-            <a href="admin-logistica.html" class="nav-item">
-                <i class="fa-solid fa-route"></i> Logística
-            </a>
-            <a href="admin-checklist.html" class="nav-item">
-                <i class="fa-solid fa-list-check"></i> Checklist
-            </a>
-            </div>
-            <!-- SECCIÓN ERP DESPLEGABLE -->
-            <div class="sidebar-titulo" id="btn-toggle-erp" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
-                <span>MÓDULO ERP</span>
-                <i class="fa-solid fa-chevron-down" id="icono-erp" style="transition: transform 0.3s;"></i>
-            </div>
-            <div id="submenu-erp" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px;">
-                <a href="admin-erp.html" class="nav-item">
-                    <i class="fa-solid fa-house-chimney-window"></i> Inicio
-                </a>
-                <a href="admin-clientes.html" class="nav-item">
-                    <i class="fa-solid fa-users"></i> Clientes (CRM)
-                </a>
-                <a href="admin-productos.html" class="nav-item">
-                    <i class="fa-solid fa-hat-wizard"></i> Productos (SCM)
-                </a>
-                <a href="admin-inventario.html" class="nav-item">
-                    <i class="fa-solid fa-boxes-stacked"></i> Inventario (SCM)
-                </a>
-                <a href="admin-pedidos.html" class="nav-item">
-                    <i class="fa-solid fa-file-invoice"></i> Órdenes (ERP)
-                </a>
-                <a href="admin-reportes.html" class="nav-item">
-                    <i class="fa-solid fa-chart-pie"></i> Reportes
-                </a>
-                <a href="admin-erp-nivel.html" class="nav-item">
-                    <i class="fa-solid fa-layer-group"></i> Nivel ERP
-                </a>
-                <a href="admin-usuarios.html" class="nav-item">
-                    <i class="fa-solid fa-user-shield"></i> Usuarios
-                </a>
-                <a href="admin-configuracion.html" class="nav-item">
-                    <i class="fa-solid fa-gear"></i> Configuración
-                </a>
-            </div>
-        </nav>
+    <!-- SECCIÓN SCM DESPLEGABLE -->
+    <div class="sidebar-titulo" id="btn-toggle-scm" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+        <span>MÓDULO SCM</span>
+        <i class="fa-solid fa-chevron-down" id="icono-scm" style="transition: transform 0.3s;"></i>
+    </div>
+    <div id="submenu-scm" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px; margin-bottom: 10px;">
+        <a href="admin-scm.html" class="nav-item">
+            <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+        </a>
+        <a href="admin-productos.html" class="nav-item">
+            <i class="fa-solid fa-hat-wizard"></i> Productos
+        </a>
+        <a href="admin-pedidos.html" class="nav-item">
+            <i class="fa-solid fa-scroll"></i> Pedidos
+        </a>
+        <a href="admin-reportes.html" class="nav-item">
+            <i class="fa-solid fa-chart-simple"></i> Reportes
+        </a>
+        <a href="admin-proveedores.html" class="nav-item">
+            <i class="fa-solid fa-truck-fast"></i> Proveedores
+        </a>
+        <a href="admin-inventario.html" class="nav-item">
+            <i class="fa-solid fa-boxes-stacked"></i> Inventario
+        </a>
+        <a href="admin-logistica.html" class="nav-item">
+            <i class="fa-solid fa-route"></i> Logística
+        </a>
+        <a href="admin-checklist.html" class="nav-item">
+            <i class="fa-solid fa-list-check"></i> Checklist
+        </a>
+    </div>
+
+    <!-- SECCIÓN ERP DESPLEGABLE -->
+    <div class="sidebar-titulo" id="btn-toggle-erp" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+        <span>MÓDULO ERP</span>
+        <i class="fa-solid fa-chevron-down" id="icono-erp" style="transition: transform 0.3s;"></i>
+    </div>
+    <div id="submenu-erp" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px;">
+        <a href="admin-erp.html" class="nav-item">
+            <i class="fa-solid fa-house-chimney-window"></i> Inicio
+        </a>
+        <a href="admin-clientes.html" class="nav-item">
+            <i class="fa-solid fa-users"></i> Clientes (CRM)
+        </a>
+        <a href="admin-productos.html" class="nav-item">
+            <i class="fa-solid fa-hat-wizard"></i> Productos (SCM)
+        </a>
+        <a href="admin-inventario.html" class="nav-item">
+            <i class="fa-solid fa-boxes-stacked"></i> Inventario (SCM)
+        </a>
+        <a href="admin-ordenes.html" class="nav-item">
+            <i class="fa-solid fa-file-invoice"></i> Órdenes (ERP)
+        </a>
+        <a href="admin-reporteserp.html" class="nav-item">
+            <i class="fa-solid fa-chart-pie"></i> Reportes
+        </a>
+        <a href="admin-erp-nivel.html" class="nav-item">
+            <i class="fa-solid fa-layer-group"></i> Nivel ERP
+        </a>
+        <a href="admin-usuarios.html" class="nav-item">
+            <i class="fa-solid fa-user-shield"></i> Usuarios
+        </a>
+        <a href="admin-configuracion.html" class="nav-item">
+            <i class="fa-solid fa-gear"></i> Configuración
+        </a>
+    </div>
+</nav>
         <div class="sidebar-footer">
             <a href="../index.html" class="nav-item">
                 <i class="fa-solid fa-arrow-left"></i> Volver al sitio
@@ -527,31 +536,8 @@
         }
     </style>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const btnErp = document.getElementById('btn-toggle-erp-legacy');
-        const submenuErp = document.getElementById('submenu-erp');
-        const iconoErp = document.getElementById('icono-erp');
 
-        if(btnErp && submenuErp && iconoErp) {
-            // Si algún enlace dentro del submenu tiene la clase 'active', ábrelo por defecto
-            if (submenuErp.querySelector('.active')) {
-                submenuErp.style.display = 'flex';
-                iconoErp.style.transform = 'rotate(180deg)';
-            }
 
-            btnErp.addEventListener('click', () => {
-                if (submenuErp.style.display === 'none' || submenuErp.style.display === '') {
-                    submenuErp.style.display = 'flex';
-                    iconoErp.style.transform = 'rotate(180deg)';
-                } else {
-                    submenuErp.style.display = 'none';
-                    iconoErp.style.transform = 'rotate(0deg)';
-                }
-            });
-        }
-    });
-</script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const menus = [
@@ -566,12 +552,10 @@
             const icon = document.getElementById(menu.icon);
 
             if(btn && sub && icon) {
-                // Si la categoría tiene un enlace activo, ábrela por defecto
                 if (sub.querySelector('.active')) {
                     sub.style.display = 'flex';
                     icon.style.transform = 'rotate(180deg)';
                 }
-
                 btn.addEventListener('click', () => {
                     if (sub.style.display === 'none' || sub.style.display === '') {
                         sub.style.display = 'flex';
