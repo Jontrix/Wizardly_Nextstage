@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizardly — Órdenes (ERP)</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+</head>
+<body class="admin-body">
+
+    <!-- ── BARRA LATERAL ── -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">
+            <img src="../images/logo/Logo.png" alt="Wizardly" />
+            <div>
+                <span class="brand">Wizardly</span>
+                <span class="sidebar-sub">Panel Arcano</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <!-- SECCIÓN GENERAL (CRM) DESPLEGABLE -->
+            <div class="sidebar-titulo" id="btn-toggle-general" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+                <span>GENERAL</span>
+                <i class="fa-solid fa-chevron-down" id="icono-general" style="transition: transform 0.3s;"></i>
+            </div>
+            <div id="submenu-general" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px; margin-bottom: 10px;">
+                <a href="admin.html" class="nav-item">
+                    <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
+                </a>
+                <a href="admin-promociones.html" class="nav-item">
+                    <i class="fa-solid fa-wand-sparkles"></i> Promociones
+                </a>
+                <a href="admin-clientes.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i> Clientes
+                </a>
+                <a href="admin-actividad.html" class="nav-item">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+                </a>
+                <a href="admin-historial.html" class="nav-item">
+                    <i class="fa-solid fa-book-skull"></i> Historial
+                </a>
+                <a href="admin-configuracion.html" class="nav-item">
+                    <i class="fa-solid fa-gear"></i> Configuración
+                </a>
+            </div>
+
+            <!-- SECCIÓN SCM DESPLEGABLE -->
+            <div class="sidebar-titulo" id="btn-toggle-scm" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+                <span>MÓDULO SCM</span>
+                <i class="fa-solid fa-chevron-down" id="icono-scm" style="transition: transform 0.3s;"></i>
+            </div>
+            <div id="submenu-scm" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px; margin-bottom: 10px;">
+                <a href="admin-scm.html" class="nav-item">
+                    <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+                </a>
+                <a href="admin-productos.html" class="nav-item">
+                    <i class="fa-solid fa-hat-wizard"></i> Productos
+                </a>
+                <a href="admin-pedidos.html" class="nav-item">
+                    <i class="fa-solid fa-scroll"></i> Pedidos
+                </a>
+                <a href="admin-reportes.html" class="nav-item">
+                    <i class="fa-solid fa-chart-simple"></i> Reportes
+                </a>
+                <a href="admin-proveedores.html" class="nav-item">
+                    <i class="fa-solid fa-truck-fast"></i> Proveedores
+                </a>
+                <a href="admin-inventario.html" class="nav-item">
+                    <i class="fa-solid fa-boxes-stacked"></i> Inventario
+                </a>
+                <a href="admin-logistica.html" class="nav-item">
+                    <i class="fa-solid fa-route"></i> Logística
+                </a>
+                <a href="admin-checklist.html" class="nav-item">
+                    <i class="fa-solid fa-list-check"></i> Checklist
+                </a>
+            </div>
+
+            <!-- SECCIÓN ERP DESPLEGABLE -->
+            <div class="sidebar-titulo" id="btn-toggle-erp" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+                <span>MÓDULO ERP</span>
+                <i class="fa-solid fa-chevron-down" id="icono-erp" style="transition: transform 0.3s;"></i>
+            </div>
+            <div id="submenu-erp" style="display: flex; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px;">
+                <a href="admin-erp.html" class="nav-item">
+                    <i class="fa-solid fa-house-chimney-window"></i> Inicio
+                </a>
+                <a href="admin-clientes.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i> Clientes (CRM)
+                </a>
+                <a href="admin-productos.html" class="nav-item">
+                    <i class="fa-solid fa-hat-wizard"></i> Productos (SCM)
+                </a>
+                <a href="admin-inventario.html" class="nav-item">
+                    <i class="fa-solid fa-boxes-stacked"></i> Inventario (SCM)
+                </a>
+                <a href="admin-ordenes.html" class="nav-item active">
+                    <i class="fa-solid fa-file-invoice"></i> Órdenes (ERP)
+                </a>
+                <a href="admin-reporteserp.html" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i> Reportes
+                </a>
+                <a href="admin-erp-nivel.html" class="nav-item">
+                    <i class="fa-solid fa-layer-group"></i> Nivel ERP
+                </a>
+                <a href="admin-usuarios.html" class="nav-item">
+                    <i class="fa-solid fa-user-shield"></i> Usuarios
+                </a>
+                <a href="admin-configuracion.html" class="nav-item">
+                    <i class="fa-solid fa-gear"></i> Configuración
+                </a>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── CONTENIDO PRINCIPAL ÓRDENES ERP ── -->
+    <main class="admin-main">
+        <div class="admin-topbar">
+            <h1>Órdenes de clientes</h1>
+            <div class="topbar-usuario">
+                <i class="fa-solid fa-circle-user"></i>
+                <span id="nombre-admin-topbar">Administrador</span>
+            </div>
+        </div>
+
+        <div class="admin-bloque" style="margin-top: 24px;">
+            <div class="bloque-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0;">Listado de Órdenes</h2>
+                <!-- El botón ya apunta a admin-erp-nueva-orden.html -->
+                <a href="admin-erp-nueva-orden.html" class="btn-admin" style="background-color: #0f766e; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none;">
+                    <i class="fa-solid fa-plus"></i> Nueva orden
+                </a>
+            </div>
+            
+            <div style="padding: 20px; overflow-x: auto;">
+                <!-- Buscador -->
+                <div style="margin-bottom: 20px; position: relative; width: 300px; max-width: 100%;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted, #9ca3af);"></i>
+                    <input type="text" id="buscar-orden" placeholder="Buscar orden por folio o cliente..." style="width: 100%; padding: 10px 10px 10px 40px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.2); color: white; outline: none; font-family: 'Lato', sans-serif;">
+                </div>
+
+                <!-- Tabla de datos (Se llenará con JS) -->
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-family: 'Lato', sans-serif;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(212, 175, 55, 0.3);">
+                            <th style="padding: 15px; color: var(--gold); font-family: 'Cinzel', serif;">Folio</th>
+                            <th style="padding: 15px; color: var(--gold); font-family: 'Cinzel', serif;">Fecha</th>
+                            <th style="padding: 15px; color: var(--gold); font-family: 'Cinzel', serif;">Cliente</th>
+                            <th style="padding: 15px; color: var(--gold); font-family: 'Cinzel', serif;">Total</th>
+                            <th style="padding: 15px; color: var(--gold); font-family: 'Cinzel', serif;">Estado</th>
+                            <th style="padding: 15px; color: var(--gold); font-family: 'Cinzel', serif;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-ordenes-body">
+                        <!-- Aquí se inyectarán las filas desde Firebase. Por defecto mostramos estado de carga. -->
+                        <tr><td colspan="6" style="text-align:center; padding:20px; color: var(--gold);">Conjocando órdenes arcanas... <i class="fa-solid fa-spinner fa-spin"></i></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ── LÓGICA DE FIREBASE Y MENÚS ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // Tus credenciales
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // 1. Mostrar nombre del admin activo
+        onAuthStateChanged(auth, (usuario) => {
+            const spanNombre = document.getElementById("nombre-admin-topbar");
+            if (usuario) {
+                spanNombre.textContent = usuario.displayName || usuario.email || "Administrador";
+            } else {
+                try {
+                    const datos = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
+                    spanNombre.textContent = datos.nombre || "Admin Supremo";
+                } catch(e) {}
+            }
+        });
+
+        // 2. Cargar las órdenes dinámicamente desde Firebase
+        async function cargarOrdenes() {
+            const tbody = document.getElementById('tabla-ordenes-body');
+            
+            try {
+                // NOTA: Si guardas las ventas en "movimientos" o "pedidos", cambia la palabra "ordenes" de abajo.
+                const querySnapshot = await getDocs(collection(db, "ordenes"));
+                
+                tbody.innerHTML = ''; // Limpiamos el mensaje de carga
+
+                if (querySnapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color: var(--text-muted);">No hay órdenes registradas en los pergaminos.</td></tr>';
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // Colores del Badge dependiendo del estado
+                    let badgeColor = "#10b981"; // Verde (Procesada)
+                    let badgeBg = "rgba(16, 185, 129, 0.2)";
+                    let estadoTexto = data.estado || "Procesada";
+
+                    if(estadoTexto === "Procesando" || estadoTexto === "Pendiente") {
+                        badgeColor = "#f59e0b"; // Naranja
+                        badgeBg = "rgba(245, 158, 11, 0.2)";
+                    } else if (estadoTexto === "Cancelada") {
+                        badgeColor = "#ef4444"; // Rojo
+                        badgeBg = "rgba(239, 68, 68, 0.2)";
+                    }
+
+                    // Formatear la fecha
+                    let fechaMostrada = data.fecha;
+                    if (data.fecha && data.fecha.toDate) {
+                        fechaMostrada = data.fecha.toDate().toLocaleDateString('es-MX');
+                    }
+
+                    const row = `
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.02)'" onmouseout="this.style.backgroundColor='transparent'">
+                            <td style="padding: 15px; color: white; font-weight: bold;">${data.folio || doc.id.substring(0,6).toUpperCase()}</td>
+                            <td style="padding: 15px; color: var(--text-muted, #9ca3af);">${fechaMostrada || 'N/A'}</td>
+                            <td style="padding: 15px; color: white;">${data.cliente || 'Desconocido'}</td>
+                            <td style="padding: 15px; color: white;">$${data.total ? data.total.toLocaleString('es-MX') : '0.00'}</td>
+                            <td style="padding: 15px;">
+                                <span style="background-color: ${badgeBg}; color: ${badgeColor}; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; border: 1px solid ${badgeColor};">${estadoTexto}</span>
+                            </td>
+                            <td style="padding: 15px;">
+                                <button style="background: transparent; border: none; color: var(--gold); cursor: pointer; font-size: 1.1rem; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--gold)'" title="Ver detalle">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Error al leer la bola de cristal (Firebase):", error);
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: #ef4444;">Error al cargar las órdenes. Verifica la consola.</td></tr>';
+            }
+        }
+
+        // Ejecutar al iniciar
+        cargarOrdenes();
+    </script>
+
+    <!-- Script de UI estática (Menús y buscador) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const menus = [
+                { btn: 'btn-toggle-general', sub: 'submenu-general', icon: 'icono-general' },
+                { btn: 'btn-toggle-scm', sub: 'submenu-scm', icon: 'icono-scm' },
+                { btn: 'btn-toggle-erp', sub: 'submenu-erp', icon: 'icono-erp' }
+            ];
+
+            menus.forEach(menu => {
+                const btn = document.getElementById(menu.btn);
+                const sub = document.getElementById(menu.sub);
+                const icon = document.getElementById(menu.icon);
+
+                if(btn && sub && icon) {
+                    if (menu.btn === 'btn-toggle-erp') {
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                    
+                    btn.addEventListener('click', () => {
+                        if (sub.style.display === 'none' || sub.style.display === '') {
+                            sub.style.display = 'flex';
+                            icon.style.transform = 'rotate(180deg)';
+                        } else {
+                            sub.style.display = 'none';
+                            icon.style.transform = 'rotate(0deg)';
+                        }
+                    });
+                }
+            });
+
+            // Buscador del frontend (filtra sobre las filas generadas)
+            document.getElementById('buscar-orden').addEventListener('keyup', function() {
+                let filter = this.value.toLowerCase();
+                let rows = document.querySelectorAll('#tabla-ordenes-body tr');
+                
+                rows.forEach(row => {
+                    let text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(filter) ? '' : 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
