@@ -211,6 +211,15 @@
                         <input type="password" id="nuevo-admin-password" required
                                style="width: 100%; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.06); color: white; border: 1px solid var(--border); outline: none;">
                     </div>
+                    <div class="campo-modal" style="margin-bottom: 32px;">
+                        <label style="color: var(--gold); display: block; margin-bottom: 8px;">Rol</label>
+                        <select id="nuevo-admin-rol" required
+                                style="width: 100%; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.06); color: white; border: 1px solid var(--border); outline: none;">
+                            <option value="Administrador">Administrador</option>
+                            <option value="Ventas">Ventas</option>
+                            <option value="Logística">Logística</option>
+                        </select>
+                    </div>
 
                     <button type="submit" id="btn-crear-admin" class="btn-admin" style="width: 100%; padding: 16px; border-radius: 12px; justify-content: center; background: rgba(74, 222, 128, 0.15); border: 1px solid #4ade80; color: #4ade80; cursor: pointer;">
                         <i class="fa-solid fa-user-plus"></i> Forjar Nuevo Administrador
@@ -333,6 +342,7 @@
             const nombre = document.getElementById('nuevo-admin-nombre').value.trim();
             const correo = document.getElementById('nuevo-admin-correo').value.trim().toLowerCase();
             const password = document.getElementById('nuevo-admin-password').value;
+            const rol = document.getElementById('nuevo-admin-rol').value;
 
             try {
                 btn.textContent = "Forjando en la nube...";
@@ -346,7 +356,7 @@
                 await setDoc(doc(db, "administradores", user.uid), {
                     nombre: nombre,
                     correo: correo,
-                    rol: "Administrador",
+                    rol: rol,
                     estado: "Activo",
                     fecha_registro: Timestamp.now()
                 });
@@ -454,5 +464,6 @@
         });
     });
 </script>
+    <script type="module">import { aplicarRol } from '../js/sidebar.js'; aplicarRol();</script>
 </body>
 </html>
