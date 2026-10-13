@@ -17,9 +17,119 @@
         .paso-formulario { display: none; animation: fadeIn 0.4s ease; }
         .paso-formulario.activo { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Botón de nuevo cliente */
+        .btn-nuevo-cliente {
+            background-color: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 6px;
+            padding: 0 20px;
+            cursor: pointer;
+            font-weight: bold;
+            white-space: nowrap;
+            font-family: 'Lato', sans-serif;
+            transition: background 0.3s;
+        }
+        .btn-nuevo-cliente:hover {
+            background-color: #fcd34d;
+        }
+
+        /* Buscador */
+        .admin-filtros {
+            display: flex; gap: 12px; padding: 12px 0 16px; 
+            border-bottom: 1px solid var(--border); align-items: center;
+        }
+        .admin-buscador input {
+            width: 100%; background: none; border: none;
+            color: var(--text-main); outline: none; font-family: 'Lato', sans-serif;
+        }
+
+        /* Ocultar flechas de los inputs number por defecto del navegador */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Botones personalizados de + y - */
+        .btn-cantidad {
+            border: none;
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: white;
+            transition: transform 0.1s, filter 0.3s;
+        }
+        .btn-cantidad:active { transform: scale(0.9); }
+        .btn-menos { background-color: #ef4444; } 
+        .btn-menos:hover { filter: brightness(1.2); }
+        .btn-mas { background-color: #10b981; } 
+        .btn-mas:hover { filter: brightness(1.2); }
+
+        /* ========================================== */
+        /* ESTILOS DEL TOAST (NOTIFICACIÓN MÁGICA) */
+        /* ========================================== */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            pointer-events: none; /* Para no bloquear clics */
+        }
+
+        .toast-arcano {
+            background-color: #1a1a2e; /* Mismo color de fondo que modales */
+            color: #ffdeb3; /* Dorado suave */
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); /* Resplandor dorado */
+            padding: 12px 30px;
+            border-radius: 30px; /* Bordes muy redondeados tipo píldora */
+            font-family: 'Lato', sans-serif;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInDown 0.4s forwards;
+            pointer-events: auto;
+        }
+
+        .toast-arcano.error {
+            border-color: #ef4444;
+            color: #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); /* Resplandor rojo */
+        }
+
+        .toast-arcano.fade-out {
+            animation: fadeOutUp 0.4s forwards;
+        }
+
+        @keyframes fadeInDown {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOutUp {
+            to { opacity: 0; transform: translateY(-20px); }
+        }
     </style>
 </head>
 <body class="admin-body">
+
+    <!-- CONTENEDOR PARA LAS NOTIFICACIONES (TOASTS) -->
+    <div id="toast-container"></div>
 
     <!-- ── BARRA LATERAL ── -->
     <aside class="admin-sidebar">
@@ -156,45 +266,58 @@
             <div id="paso-1" class="paso-formulario activo" style="padding: 30px;">
                 <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 20px;">Selecciona el Cliente</h2>
                 
-                <div style="margin-bottom: 20px; position: relative; width: 100%; max-width: 400px;">
-                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-                    <input type="text" id="buscar-cliente" placeholder="Buscar cliente por nombre o correo..." style="width: 100%; padding: 12px 12px 12px 40px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.2); color: white; outline: none; font-family: 'Lato', sans-serif;">
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; max-width: 600px;">
+                    <div style="position: relative; flex-grow: 1;">
+                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                        <input type="text" id="buscar-cliente" placeholder="Buscar cliente por nombre o correo..." style="width: 100%; padding: 12px 12px 12px 40px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.2); color: white; outline: none; font-family: 'Lato', sans-serif; box-sizing: border-box;">
+                    </div>
+                    <button type="button" onclick="abrirModalCliente()" class="btn-nuevo-cliente">
+                        <i class="fa-solid fa-plus"></i> Nuevo Cliente
+                    </button>
                 </div>
 
                 <div id="lista-clientes-firebase" style="margin-bottom: 30px; max-height: 300px; overflow-y: auto; padding-right: 10px;">
-                    <!-- Las tarjetas se generan por JS -->
+                    <!-- Tarjetas generadas por JS -->
                 </div>
 
                 <div style="display: flex; justify-content: space-between;">
                     <a href="admin-ordenes.html" style="color: var(--text-muted); text-decoration: none; padding: 10px 20px; border: 1px solid var(--text-muted); border-radius: 8px;">Cancelar</a>
-                    <button onclick="cambiarPaso(2)" style="background-color: #3b82f6; color: white; padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Lato', sans-serif;">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+                    <button type="button" onclick="cambiarPaso(2)" style="background-color: #3b82f6; color: white; padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Lato', sans-serif;">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
                 </div>
             </div>
 
             <!-- ================= PASO 2: AGREGAR PRODUCTOS ================= -->
             <div id="paso-2" class="paso-formulario" style="padding: 30px;">
-                <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 20px;">Agregar Productos</h2>
+                <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 5px;">Agregar Productos</h2>
                 
-                <div style="max-height: 400px; overflow-y: auto; margin-bottom: 30px;">
-                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-family: 'Lato', sans-serif;">
+                <div class="admin-filtros" style="border-bottom: none; margin-bottom: 15px;">
+                    <div class="admin-buscador" style="flex:1; border-radius: 8px;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="buscar-producto-orden" placeholder="Buscar producto en stock..." oninput="window.filtrarProductosOrden()" />
+                    </div>
+                </div>
+                
+                <div class="admin-tabla-wrap" style="max-height: 350px; overflow-y: auto; margin-bottom: 30px;">
+                    <table class="admin-tabla" id="tabla-productos-orden">
                         <thead>
-                            <tr style="border-bottom: 1px solid rgba(212, 175, 55, 0.3);">
-                                <th style="padding: 15px; color: var(--gold);">Producto</th>
-                                <th style="padding: 15px; color: var(--gold);">Stock</th>
-                                <th style="padding: 15px; color: var(--gold);">Precio Unitario</th>
-                                <th style="padding: 15px; color: var(--gold); width: 120px; text-align: center;">Cantidad</th>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Stock actual</th>
+                                <th>Stock mínimo</th>
+                                <th>Estado</th>
+                                <th>Precio Unitario</th>
+                                <th style="text-align: center;">Cantidad</th>
                             </tr>
                         </thead>
                         <tbody id="lista-productos-firebase">
-                            <!-- Aquí se pintarán los productos desde Firebase -->
-                            <tr><td colspan="4" style="text-align:center; padding: 20px; color: var(--gold);">Invocando artefactos mágicos... <i class="fa-solid fa-spinner fa-spin"></i></td></tr>
+                            <tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--gold);">Invocando artefactos mágicos... <i class="fa-solid fa-spinner fa-spin"></i></td></tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div style="display: flex; justify-content: space-between;">
-                    <button onclick="cambiarPaso(1)" style="color: var(--text-muted); background: transparent; padding: 10px 20px; border: 1px solid var(--text-muted); border-radius: 8px; cursor: pointer;"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
-                    <button onclick="cambiarPaso(3)" style="background-color: #3b82f6; color: white; padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+                    <button type="button" onclick="cambiarPaso(1)" style="color: var(--text-muted); background: transparent; padding: 10px 20px; border: 1px solid var(--text-muted); border-radius: 8px; cursor: pointer;"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+                    <button type="button" onclick="cambiarPaso(3)" style="background-color: #3b82f6; color: white; padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
                 </div>
             </div>
 
@@ -206,7 +329,6 @@
                     <p style="color: var(--text-muted); margin-top: 0; font-size: 1.1rem;">Cliente: <span id="resumen-nombre-cliente" style="color: white; font-weight: bold;">-- Ninguno --</span></p>
                     <hr style="border: 0; border-top: 1px dashed rgba(255,255,255,0.1); margin: 15px 0;">
                     
-                    <!-- Contenedor dinámico de los productos seleccionados -->
                     <div id="resumen-productos">
                         <p style="color: var(--text-muted);">No has seleccionado ningún producto.</p>
                     </div>
@@ -219,13 +341,35 @@
                 </div>
 
                 <div style="display: flex; justify-content: space-between;">
-                    <button onclick="cambiarPaso(2)" style="color: var(--text-muted); background: transparent; padding: 10px 20px; border: 1px solid var(--text-muted); border-radius: 8px; cursor: pointer;"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
-                    <button id="btn-confirmar-orden" style="background-color: #0f766e; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Confirmar Orden</button>
+                    <button type="button" onclick="cambiarPaso(2)" style="color: var(--text-muted); background: transparent; padding: 10px 20px; border: 1px solid var(--text-muted); border-radius: 8px; cursor: pointer;"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+                    <button type="button" id="btn-confirmar-orden" style="background-color: #0f766e; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Confirmar Orden</button>
                 </div>
             </div>
 
         </div>
     </main>
+
+    <!-- MODAL NUEVO CLIENTE -->
+    <div id="modal-nuevo-cliente" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #1a1a2e; padding: 30px; border-radius: 12px; border: 1px solid var(--gold); width: 100%; max-width: 400px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);">
+            <h3 style="color: var(--gold); font-family: 'Cinzel', serif; margin-top: 0; margin-bottom: 20px;"><i class="fa-solid fa-user-plus"></i> Agregar Nuevo Cliente</h3>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="color: var(--text-muted); display: block; margin-bottom: 5px; font-size: 0.9rem;">Nombre del Cliente *</label>
+                <input type="text" id="nuevo-cliente-nombre" placeholder="Ej. Albus Dumbledore" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box;" required>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="color: var(--text-muted); display: block; margin-bottom: 5px; font-size: 0.9rem;">Correo Electrónico *</label>
+                <input type="email" id="nuevo-cliente-correo" placeholder="Ej. albus@hogwarts.com" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box;" required>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="cerrarModalCliente()" style="background: transparent; color: var(--text-muted); border: 1px solid var(--text-muted); padding: 8px 15px; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                <button type="button" id="btn-guardar-cliente" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;">Guardar Cliente</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ── LÓGICA DE FIREBASE Y FUNCIONALIDAD ── -->
     <script type="module">
@@ -247,10 +391,11 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Variables globales
-        let clienteSeleccionadoNombre = "";
-        let carrito = {}; // Objeto para guardar {id: {nombre, precio, cantidad}}
-        let totalOrdenFinal = 0;
+        // Variables globales protegidas
+        window.clienteSeleccionadoNombre = "";
+        window.carrito = {}; 
+        window.totalOrdenFinal = 0;
+        window.productosGlobal = [];
 
         onAuthStateChanged(auth, (usuario) => {
             const spanNombre = document.getElementById("nombre-admin-topbar");
@@ -258,7 +403,97 @@
         });
 
         // ==========================================
-        // 1. CARGAR CLIENTES DESDE FIREBASE
+        // SISTEMA DE TOASTS (NOTIFICACIONES MAGICAS)
+        // ==========================================
+        window.mostrarToast = function(mensaje, tipo = 'normal') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast-arcano ${tipo === 'error' ? 'error' : ''}`;
+            
+            // Iconos personalizados según el tipo
+            let icono = '✨';
+            if (tipo === 'error') icono = '⚠️';
+            else if (tipo === 'exito') icono = '🪄';
+
+            toast.innerHTML = `<span>${icono}</span> <span>${mensaje}</span> <span>${icono}</span>`;
+            container.appendChild(toast);
+
+            // Desaparece después de 3 segundos
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 400); // Espera la animación para borrarlo del DOM
+            }, 3000);
+        }
+
+        // ==========================================
+        // LÓGICA MANUAL BOTONES +/- SUPER ROBUSTA
+        // ==========================================
+        window.cambiarCantidadManual = function(btnElement, id, delta, maxStock) {
+            delta = parseInt(delta);
+            maxStock = parseInt(maxStock);
+            
+            let divContenedor = btnElement.parentElement;
+            let input = divContenedor.querySelector('input[type="number"]');
+            
+            if(!input) return;
+            
+            let val = parseInt(input.value) || 0;
+            let newVal = val + delta;
+            
+            if (newVal < 0) newVal = 0;
+            if (newVal > maxStock) {
+                newVal = maxStock;
+                // Si el maxStock es 0 y trata de sumar, mostramos el toast de error elegante
+                if(maxStock === 0 && delta > 0) {
+                    window.mostrarToast("No hay stock disponible de este producto.", "error");
+                }
+            }
+            
+            input.value = newVal;
+            
+            const prod = window.productosGlobal.find(p => p.id === id);
+            if(prod) {
+                const nombre = prod.nombre || prod.name || "Producto";
+                const precio = parseFloat(prod.precio || prod.price || 0);
+                window.actualizarCarrito(id, nombre, precio, newVal);
+            }
+        };
+
+        window.validarInputCantidad = function(inputElement, id, maxStock) {
+            maxStock = parseInt(maxStock);
+            let val = parseInt(inputElement.value) || 0;
+            
+            if (val < 0) val = 0;
+            if (val > maxStock) {
+                val = maxStock;
+                if(maxStock === 0) {
+                    window.mostrarToast("No hay stock disponible de este producto.", "error");
+                }
+            }
+            
+            inputElement.value = val;
+            
+            const prod = window.productosGlobal.find(p => p.id === id);
+            if(prod) {
+                const nombre = prod.nombre || prod.name || "Producto";
+                const precio = parseFloat(prod.precio || prod.price || 0);
+                window.actualizarCarrito(id, nombre, precio, val);
+            }
+        };
+
+        window.actualizarCarrito = function(id, nombre, precio, cantidad) {
+            cantidad = parseInt(cantidad) || 0;
+            if (cantidad > 0) {
+                window.carrito[id] = { nombre, precio, cantidad };
+            } else {
+                delete window.carrito[id];
+            }
+        };
+
+        // ==========================================
+        // 1. CARGAR CLIENTES
         // ==========================================
         async function cargarClientes() {
             const contenedor = document.getElementById('lista-clientes-firebase');
@@ -296,7 +531,7 @@
         }
 
         window.seleccionarCliente = function(nombre, elementoTarjeta) {
-            clienteSeleccionadoNombre = nombre;
+            window.clienteSeleccionadoNombre = nombre;
             document.getElementById('resumen-nombre-cliente').textContent = nombre;
 
             document.querySelectorAll('.tarjeta-cliente').forEach(t => {
@@ -313,75 +548,143 @@
         }
 
         // ==========================================
-        // 2. CARGAR PRODUCTOS DESDE FIREBASE
+        // 2. CREAR NUEVO CLIENTE
+        // ==========================================
+        window.abrirModalCliente = function() { document.getElementById('modal-nuevo-cliente').style.display = 'flex'; }
+        window.cerrarModalCliente = function() {
+            document.getElementById('modal-nuevo-cliente').style.display = 'none';
+            document.getElementById('nuevo-cliente-nombre').value = '';
+            document.getElementById('nuevo-cliente-correo').value = '';
+        }
+        document.getElementById('btn-guardar-cliente').addEventListener('click', async () => {
+            const nombre = document.getElementById('nuevo-cliente-nombre').value.trim();
+            const correo = document.getElementById('nuevo-cliente-correo').value.trim();
+            if (!nombre || !correo) {
+                return window.mostrarToast("Por favor, ingresa el nombre y el correo del cliente.", "error");
+            }
+
+            const btn = document.getElementById('btn-guardar-cliente');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+            btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "clientes"), { nombre: nombre, correo: correo, fechaRegistro: new Date() });
+                window.mostrarToast("¡Cliente agregado exitosamente al grimorio!", "exito");
+                window.cerrarModalCliente();
+                await cargarClientes(); 
+            } catch (error) {
+                console.error(error);
+                window.mostrarToast("Hubo un error al guardar el cliente.", "error");
+            } finally {
+                btn.innerHTML = 'Guardar Cliente';
+                btn.disabled = false;
+            }
+        });
+
+        // ==========================================
+        // 3. CARGAR PRODUCTOS Y TABLA
         // ==========================================
         async function cargarProductos() {
             const tbody = document.getElementById('lista-productos-firebase');
             if(!tbody) return;
 
             try {
-                // NOTA: Asegúrate de que la colección de productos se llama "productos"
                 const querySnapshot = await getDocs(collection(db, "productos"));
-                tbody.innerHTML = ''; 
-
+                window.productosGlobal = []; 
                 if (querySnapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: var(--text-muted);">No hay productos registrados en el inventario.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">No hay productos registrados en el inventario.</td></tr>';
                     return;
                 }
-
                 querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const id = doc.id;
-                    const nombreProd = data.nombre || data.name || "Producto desconocido";
-                    const stock = data.stock || data.cantidad || 0;
-                    const precio = parseFloat(data.precio || data.price || 0);
-
-                    const rowHTML = `
-                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                            <td style="padding: 15px; color: white;">${nombreProd}</td>
-                            <td style="padding: 15px; color: #10b981;">${stock}</td>
-                            <td style="padding: 15px; color: white;">$${precio.toFixed(2)}</td>
-                            <td style="padding: 15px; text-align: center;">
-                                <input type="number" min="0" max="${stock}" value="0" oninput="actualizarCarrito('${id}', '${nombreProd}', ${precio}, this.value)" style="width: 70px; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; text-align: center; font-weight: bold;">
-                            </td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += rowHTML;
+                    let data = doc.data(); data.id = doc.id;
+                    window.productosGlobal.push(data);
                 });
+                window.renderizarProductosOrden(""); 
             } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #ef4444;">Error al cargar los productos.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #ef4444;">Error al cargar los productos.</td></tr>';
             }
         }
 
-        // Función que se ejecuta al cambiar la cantidad de un input
-        window.actualizarCarrito = function(id, nombre, precio, cantidad) {
-            cantidad = parseInt(cantidad) || 0;
-            if (cantidad > 0) {
-                carrito[id] = { nombre, precio, cantidad };
-            } else {
-                delete carrito[id]; // Si pone 0, lo quitamos del carrito
+        window.filtrarProductosOrden = function() {
+            const filtro = document.getElementById('buscar-producto-orden').value.toLowerCase();
+            window.renderizarProductosOrden(filtro);
+        }
+
+        window.renderizarProductosOrden = function(filtro) {
+            const tbody = document.getElementById('lista-productos-firebase');
+            tbody.innerHTML = '';
+
+            const filtrados = window.productosGlobal.filter(p => {
+                const nombre = p.nombre || p.name || "";
+                return nombre.toLowerCase().includes(filtro);
+            });
+
+            if(filtrados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">No se encontraron productos.</td></tr>';
+                return;
             }
+
+            filtrados.forEach((data) => {
+                const id = data.id;
+                const nombreProd = data.nombre || data.name || "Producto desconocido";
+                const stock = data.existencia || data.stock || data.cantidad || 0;
+                const min = data.stock_min || data.stock_minimo || 10;
+                const precio = parseFloat(data.precio || data.price || 0);
+
+                let estadoHTML = '';
+                if (stock <= min) {
+                    estadoHTML = `<span style="color: #f87171; font-weight:bold;"><i class="fa-solid fa-circle-exclamation"></i> Stock bajo</span>`;
+                } else {
+                    estadoHTML = `<span style="color: #4ade80; font-weight:bold;"><i class="fa-solid fa-circle-check"></i> Normal</span>`;
+                }
+
+                const cantidadActual = window.carrito[id] ? window.carrito[id].cantidad : 0;
+
+                const rowHTML = `
+                    <tr>
+                        <td style="font-weight: 500;">${nombreProd}</td>
+                        <td style="font-size: 1.1rem;">${stock}</td>
+                        <td>${min}</td>
+                        <td>${estadoHTML}</td>
+                        <td>$${precio.toFixed(2)}</td>
+                        <td style="text-align: center;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <button type="button" class="btn-cantidad btn-menos" onclick="window.cambiarCantidadManual(this, '${id}', -1, ${stock})">
+                                    <i class="fa-solid fa-minus" style="pointer-events: none;"></i>
+                                </button>
+                                
+                                <input type="number" min="0" max="${stock}" value="${cantidadActual}" 
+                                       oninput="window.validarInputCantidad(this, '${id}', ${stock})" 
+                                       style="width: 50px; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; text-align: center; font-weight: bold;">
+                                
+                                <button type="button" class="btn-cantidad btn-mas" onclick="window.cambiarCantidadManual(this, '${id}', 1, ${stock})">
+                                    <i class="fa-solid fa-plus" style="pointer-events: none;"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += rowHTML;
+            });
         }
 
         // ==========================================
-        // 3. ACTUALIZAR RESUMEN (Cálculos dinámicos)
+        // 4. ACTUALIZAR RESUMEN 
         // ==========================================
         window.actualizarResumen = function() {
             const divProductos = document.getElementById('resumen-productos');
             const spanTotal = document.getElementById('resumen-total');
             
             divProductos.innerHTML = '';
-            totalOrdenFinal = 0;
-
-            const items = Object.values(carrito);
+            window.totalOrdenFinal = 0;
+            const items = Object.values(window.carrito);
             
             if (items.length === 0) {
                 divProductos.innerHTML = '<p style="color: var(--text-muted);">No has seleccionado ningún producto.</p>';
             } else {
                 items.forEach(item => {
                     const subtotal = item.precio * item.cantidad;
-                    totalOrdenFinal += subtotal;
-                    
+                    window.totalOrdenFinal += subtotal;
                     divProductos.innerHTML += `
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: white; font-size: 1.05rem;">
                             <span>${item.cantidad}x ${item.nombre}</span>
@@ -390,68 +693,54 @@
                     `;
                 });
             }
-
-            // Mostramos el total formateado con comas y 2 decimales
-            spanTotal.textContent = '$' + totalOrdenFinal.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            spanTotal.textContent = '$' + window.totalOrdenFinal.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
 
         // ==========================================
-        // 4. MAGIA FINAL: GUARDAR LA ORDEN EN FIREBASE
+        // 5. GUARDAR LA ORDEN 
         // ==========================================
         document.getElementById('btn-confirmar-orden').addEventListener('click', async () => {
-            
-            if(clienteSeleccionadoNombre === "") {
-                alert("Por favor, selecciona un cliente en el Paso 1.");
-                return;
-            }
-
-            if(Object.keys(carrito).length === 0) {
-                alert("Por favor, agrega al menos un producto en el Paso 2.");
-                return;
-            }
+            if(window.clienteSeleccionadoNombre === "") return window.mostrarToast("Por favor, selecciona un cliente en el Paso 1.", "error");
+            if(Object.keys(window.carrito).length === 0) return window.mostrarToast("Por favor, agrega al menos un producto en el Paso 2.", "error");
 
             const btn = document.getElementById('btn-confirmar-orden');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
             btn.disabled = true;
 
             try {
-                // Creamos los datos con el total calculado y el arreglo de productos
                 const nuevaOrden = {
                     folio: "OR-" + Math.floor(Math.random() * 9000 + 1000), 
-                    cliente: clienteSeleccionadoNombre,
-                    total: totalOrdenFinal, // Total calculado dinámicamente
-                    productos: Object.values(carrito), // Guardamos los items comprados
+                    cliente: window.clienteSeleccionadoNombre,
+                    total: window.totalOrdenFinal,
+                    productos: Object.values(window.carrito),
                     estado: "Procesando", 
                     fecha: new Date()
                 };
-
                 await addDoc(collection(db, "ordenes"), nuevaOrden);
-
-                alert("¡Hechizo completado! La orden por $" + totalOrdenFinal.toLocaleString() + " se ha guardado exitosamente en el ERP.");
-                window.location.href = "admin-ordenes.html"; 
                 
+                // Mostrar éxito y redirigir luego de 1.5 segundos para que de tiempo a ver el toast
+                window.mostrarToast("¡Hechizo completado! La orden se ha guardado exitosamente.", "exito");
+                setTimeout(() => {
+                    window.location.href = "admin-ordenes.html"; 
+                }, 1500);
+
             } catch (error) {
-                console.error("Error al guardar la orden:", error);
-                alert("Ocurrió una perturbación mágica. No se pudo guardar la orden.");
+                console.error(error);
+                window.mostrarToast("Ocurrió una perturbación mágica. No se pudo guardar la orden.", "error");
                 btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Confirmar Orden';
                 btn.disabled = false;
             }
         });
 
-        // Iniciar las consultas al abrir la página
         document.addEventListener("DOMContentLoaded", () => {
             cargarClientes();
             cargarProductos();
         });
     </script>
 
-    <!-- Script para cambiar de Pasos, Menús y Buscador de Clientes (UI estática) -->
     <script>
         function cambiarPaso(pasoDestino) {
-            // Si vamos al paso 3 (Resumen), actualizamos los cálculos antes de mostrarlo
-            if(pasoDestino === 3 && window.actualizarResumen) {
-                window.actualizarResumen();
-            }
+            if(pasoDestino === 3 && window.actualizarResumen) window.actualizarResumen();
 
             document.querySelectorAll('.paso-formulario').forEach(el => el.classList.remove('activo'));
             document.getElementById('paso-' + pasoDestino).classList.add('activo');
@@ -470,7 +759,6 @@
                 }
             }
         }
-
         function obtenerNombrePaso(num) {
             if(num === 1) return 'Cliente';
             if(num === 2) return 'Productos';
@@ -478,7 +766,6 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Lógica de menús desplegables
             const menus = [
                 { btn: 'btn-toggle-general', sub: 'submenu-general', icon: 'icono-general' },
                 { btn: 'btn-toggle-scm', sub: 'submenu-scm', icon: 'icono-scm' },
@@ -489,12 +776,8 @@
                 const btn = document.getElementById(menu.btn);
                 const sub = document.getElementById(menu.sub);
                 const icon = document.getElementById(menu.icon);
-
                 if(btn && sub && icon) {
-                    if (menu.btn === 'btn-toggle-erp') {
-                        icon.style.transform = 'rotate(180deg)';
-                    }
-                    
+                    if (menu.btn === 'btn-toggle-erp') icon.style.transform = 'rotate(180deg)';
                     btn.addEventListener('click', () => {
                         if (sub.style.display === 'none' || sub.style.display === '') {
                             sub.style.display = 'flex';
@@ -507,7 +790,6 @@
                 }
             });
 
-            // Buscador de Clientes
             document.getElementById('buscar-cliente').addEventListener('keyup', function() {
                 let filter = this.value.toLowerCase();
                 let tarjetas = document.querySelectorAll('.tarjeta-cliente');
