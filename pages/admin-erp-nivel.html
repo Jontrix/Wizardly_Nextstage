@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizardly — Nivel de Implementación ERP</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+    <style>
+        /* ── ESTILOS DEL NIVEL DE IMPLEMENTACIÓN ERP ── */
+        .nivel-erp-card {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        /* Línea de tiempo y Pasos */
+        .timeline-container {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 35px 0 45px 0;
+            padding: 0 15px;
+        }
+
+        .timeline-track-bg {
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            right: 50px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            z-index: 1;
+        }
+
+        .timeline-track-progress {
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            width: 0%;
+            height: 4px;
+            background: #10b981;
+            z-index: 1;
+            transition: width 0.4s ease;
+        }
+
+        .timeline-step {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100px;
+        }
+
+        .step-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .step-badge.completed {
+            background-color: #10b981;
+            border-color: #10b981;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .step-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted, #9ca3af);
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        .timeline-step.completed-step .step-title {
+            color: #ffffff;
+        }
+
+        /* Banner de Estado Actual */
+        .status-banner {
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 22px 26px;
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            margin-bottom: 35px;
+            transition: all 0.3s ease;
+        }
+
+        .status-banner-icon {
+            font-size: 2.8rem;
+            color: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-banner-content h3 {
+            margin: 0 0 6px 0;
+            font-size: 1.25rem;
+            color: #3b82f6;
+            font-weight: 700;
+        }
+
+        .status-banner-content p {
+            margin: 0;
+            color: #e2e8f0;
+            font-size: 0.98rem;
+            line-height: 1.5;
+        }
+
+        /* Checklist de Avance */
+        .checklist-section h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gold, #f59e0b);
+            margin-bottom: 20px;
+            font-family: 'Cinzel', serif;
+        }
+
+        .checklist-group {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 1.02rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            user-select: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .checklist-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            display: none;
+        }
+
+        .check-icon {
+            font-size: 1.4rem;
+            transition: color 0.2s ease;
+        }
+
+        .checklist-item i.check-active {
+            color: #10b981;
+        }
+
+        .checklist-item i.check-inactive {
+            color: rgba(255, 255, 255, 0.25);
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <!-- ── BARRA LATERAL ── -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">
+            <img src="../images/logo/Logo.png" alt="Wizardly" />
+            <div>
+                <span class="brand">Wizardly</span>
+                <span class="sidebar-sub">Panel Arcano</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <!-- GENERAL (CRM) -->
+            <span class="sidebar-titulo">GENERAL</span>
+            <a href="admin.html" class="nav-item">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard CRM
+            </a>
+            <a href="admin-promociones.html" class="nav-item">
+                <i class="fa-solid fa-wand-sparkles"></i> Promociones
+            </a>
+            <a href="admin-clientes.html" class="nav-item">
+                <i class="fa-solid fa-users"></i> Clientes
+            </a>
+            <a href="admin-actividad.html" class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i> Actividad
+            </a>
+            <a href="admin-historial.html" class="nav-item">
+                <i class="fa-solid fa-book-skull"></i> Historial
+            </a>
+            <a href="admin-configuracion.html" class="nav-item">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+
+            <!-- MÓDULO SCM -->
+            <span class="sidebar-titulo">MÓDULO SCM</span>
+            <a href="admin-scm.html" class="nav-item">
+                <i class="fa-solid fa-boxes-packing"></i> Dashboard SCM
+            </a>
+            <a href="admin-productos.html" class="nav-item">
+                <i class="fa-solid fa-hat-wizard"></i> Productos
+            </a>
+            <a href="admin-inventario.html" class="nav-item">
+                <i class="fa-solid fa-boxes-stacked"></i> Inventario
+            </a>
+            <a href="admin-proveedores.html" class="nav-item">
+                <i class="fa-solid fa-truck-fast"></i> Proveedores
+            </a>
+            <a href="admin-logistica.html" class="nav-item">
+                <i class="fa-solid fa-route"></i> Logística
+            </a>
+            <a href="admin-checklist.html" class="nav-item">
+                <i class="fa-solid fa-list-check"></i> Checklist
+            </a>
+
+            <!-- MÓDULO ERP (DESPLEGABLE) -->
+            <div class="sidebar-titulo" id="btn-toggle-erp" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+                <span>MÓDULO ERP</span>
+                <i class="fa-solid fa-chevron-down" id="icono-erp" style="transition: transform 0.3s;"></i>
+            </div>
+            <div id="submenu-erp" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px;">
+                <a href="admin-erp.html" class="nav-item">
+                    <i class="fa-solid fa-house-chimney-window"></i> Inicio
+                </a>
+                <a href="admin-clientes.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i> Clientes (CRM)
+                </a>
+                <a href="admin-productos.html" class="nav-item">
+                    <i class="fa-solid fa-hat-wizard"></i> Productos (SCM)
+                </a>
+                <a href="admin-inventario.html" class="nav-item">
+                    <i class="fa-solid fa-boxes-stacked"></i> Inventario (SCM)
+                </a>
+                <a href="admin-ordenes.html" class="nav-item">
+                    <i class="fa-solid fa-file-invoice"></i> Órdenes (ERP)
+                </a>
+                <a href="admin-reporteserp.html" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i> Reportes
+                </a>
+                <a href="admin-erp-nivel.html" class="nav-item active">
+                    <i class="fa-solid fa-layer-group"></i> Nivel ERP
+                </a>
+                <a href="admin-configuracion.html" class="nav-item">
+                    <i class="fa-solid fa-gear"></i> Configuración
+                </a>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item">
+                <i class="fa-solid fa-arrow-left"></i> Volver al sitio
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── CONTENIDO PRINCIPAL ── -->
+    <main class="admin-main">
+        <div class="admin-topbar">
+            <h1>Nivel de Implementación ERP</h1>
+            <div class="topbar-usuario">
+                <i class="fa-solid fa-circle-user"></i>
+                <span id="nombre-admin-topbar">Administrador</span>
+            </div>
+        </div>
+
+        <div class="admin-bloque nivel-erp-card">
+            <!-- Título Principal -->
+            <h2 style="color: var(--gold); font-family: 'Cinzel', serif; font-size: 1.5rem; margin-bottom: 25px;">
+                Nivel de implementación ERP
+            </h2>
+
+            <!-- LÍNEA DE PROGRESO DINÁMICA -->
+            <div class="timeline-container">
+                <div class="timeline-track-bg"></div>
+                <div class="timeline-track-progress" id="progress-bar"></div>
+
+                <div class="timeline-step" id="step-0">
+                    <div class="step-badge" id="badge-0">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <span class="step-title">Básico</span>
+                </div>
+
+                <div class="timeline-step" id="step-1">
+                    <div class="step-badge" id="badge-1">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <span class="step-title">Integrado</span>
+                </div>
+
+                <div class="timeline-step" id="step-2">
+                    <div class="step-badge" id="badge-2">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <span class="step-title">Automatizado</span>
+                </div>
+
+                <div class="timeline-step" id="step-3">
+                    <div class="step-badge" id="badge-3">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <span class="step-title">Optimizado</span>
+                </div>
+            </div>
+
+            <!-- TARJETA INFORMATIVA DINÁMICA -->
+            <div class="status-banner">
+                <div class="status-banner-icon">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="status-banner-content">
+                    <h3 id="nivel-titulo">Nivel actual: Integrado</h3>
+                    <p id="nivel-descripcion">Los módulos de CRM, SCM y ERP se encuentran integrados y funcionando de manera coordinada.</p>
+                </div>
+            </div>
+
+            <!-- CHECKLIST INTERACTIVO -->
+            <div class="checklist-section">
+                <h2>Checklist de avance</h2>
+                <ul class="checklist-group">
+                    <label class="checklist-item">
+                        <input type="checkbox" class="erp-check" checked />
+                        <i class="fa-solid fa-square-check check-icon check-active"></i>
+                        <span>Clientes integrados (CRM)</span>
+                    </label>
+
+                    <label class="checklist-item">
+                        <input type="checkbox" class="erp-check" checked />
+                        <i class="fa-solid fa-square-check check-icon check-active"></i>
+                        <span>Productos e inventario (SCM)</span>
+                    </label>
+
+                    <label class="checklist-item">
+                        <input type="checkbox" class="erp-check" checked />
+                        <i class="fa-solid fa-square-check check-icon check-active"></i>
+                        <span>Órdenes de clientes funcionando (ERP)</span>
+                    </label>
+
+                    <label class="checklist-item">
+                        <input type="checkbox" class="erp-check" />
+                        <i class="fa-regular fa-square check-icon check-inactive"></i>
+                        <span>Movimientos de inventario automáticos</span>
+                    </label>
+
+                    <label class="checklist-item">
+                        <input type="checkbox" class="erp-check" />
+                        <i class="fa-regular fa-square check-icon check-inactive"></i>
+                        <span>Reportes empresariales completos</span>
+                    </label>
+
+                    <label class="checklist-item">
+                        <input type="checkbox" class="erp-check" />
+                        <i class="fa-regular fa-square check-icon check-inactive"></i>
+                        <span>Procesos optimizados</span>
+                    </label>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- ── LÓGICA DE MENÚ ACORDEÓN Y FUNCIONALIDAD DINÁMICA ── -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // ── Menú Acordeón ──
+            const btnErp = document.getElementById('btn-toggle-erp');
+            const submenuErp = document.getElementById('submenu-erp');
+            const iconoErp = document.getElementById('icono-erp');
+
+            if (btnErp && submenuErp && iconoErp) {
+                if (submenuErp.querySelector('.active') || window.location.pathname.includes('admin-erp-nivel.html') || window.location.pathname.includes('nivel_erp.html')) {
+                    submenuErp.style.display = 'flex';
+                    iconoErp.style.transform = 'rotate(180deg)';
+                }
+
+                btnErp.addEventListener('click', () => {
+                    if (submenuErp.style.display === 'none' || submenuErp.style.display === '') {
+                        submenuErp.style.display = 'flex';
+                        iconoErp.style.transform = 'rotate(180deg)';
+                    } else {
+                        submenuErp.style.display = 'none';
+                        iconoErp.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+
+            // ── Lógica Interactiva del Checklist y Línea de Tiempo ──
+            const checkboxes = document.querySelectorAll('.erp-check');
+            const progressBar = document.getElementById('progress-bar');
+            const nivelTitulo = document.getElementById('nivel-titulo');
+            const nivelDescripcion = document.getElementById('nivel-descripcion');
+
+            // Configuración de textos según el avance[cite: 1]
+            const nivelesConfig = [
+                {
+                    nombre: "Básico",
+                    desc: "Se están integrando las primeras funciones esenciales del sistema."
+                },
+                {
+                    nombre: "Integrado",
+                    desc: "Los módulos de CRM, SCM y ERP se encuentran integrados y funcionando de manera coordinada."
+                },
+                {
+                    nombre: "Automatizado",
+                    desc: "Los movimientos de inventario y generación de reportes clave operan de forma automática."
+                },
+                {
+                    nombre: "Optimizado",
+                    desc: "Todos los procesos empresariales están optimizados de principio a fin."
+                }
+            ];
+
+            function actualizarNivelERP() {
+                const total = checkboxes.length;
+                let completados = 0;
+
+                checkboxes.forEach((chk) => {
+                    const icon = chk.nextElementSibling;
+                    if (chk.checked) {
+                        completados++;
+                        icon.className = "fa-solid fa-square-check check-icon check-active";
+                    } else {
+                        icon.className = "fa-regular fa-square check-icon check-inactive";
+                    }
+                });
+
+                // Porcentaje general de avance (0% al 100%)
+                const porcentaje = completados / total;
+                progressBar.style.width = (porcentaje * 100) + '%';
+
+                // Cálculo de la etapa/nivel activo
+                let nivelIndex = 0;
+                if (completados <= 2) nivelIndex = 0;      // Básico (0-2)
+                else if (completados <= 3) nivelIndex = 1; // Integrado (3)[cite: 1]
+                else if (completados <= 5) nivelIndex = 2; // Automatizado (4-5)
+                else nivelIndex = 3;                       // Optimizado (6)
+
+                // Actualizar badges e iconos de la barra
+                for (let i = 0; i < 4; i++) {
+                    const step = document.getElementById(`step-${i}`);
+                    const badge = document.getElementById(`badge-${i}`);
+
+                    if (i <= nivelIndex) {
+                        step.classList.add('completed-step');
+                        badge.classList.add('completed');
+                        badge.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    } else {
+                        step.classList.remove('completed-step');
+                        badge.classList.remove('completed');
+                        badge.innerHTML = '';
+                    }
+                }
+
+                // Actualizar el texto del cuadro azul
+                const info = nivelesConfig[nivelIndex];
+                nivelTitulo.textContent = `Nivel actual: ${info.nombre}`;
+                nivelDescripcion.textContent = info.desc;
+            }
+
+            // Escuchar clic en cada casilla
+            checkboxes.forEach((chk) => {
+                chk.addEventListener('change', actualizarNivelERP);
+            });
+
+            // Calibrar barra al abrir la página
+            actualizarNivelERP();
+        });
+    </script>
+</body>
+</html>

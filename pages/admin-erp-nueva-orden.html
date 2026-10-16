@@ -17,7 +17,7 @@
         .paso-formulario { display: none; animation: fadeIn 0.4s ease; }
         .paso-formulario.activo { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
+
         /* Botón de nuevo cliente */
         .btn-nuevo-cliente {
             background-color: var(--gold);
@@ -31,13 +31,11 @@
             font-family: 'Lato', sans-serif;
             transition: background 0.3s;
         }
-        .btn-nuevo-cliente:hover {
-            background-color: #fcd34d;
-        }
+        .btn-nuevo-cliente:hover { background-color: #fcd34d; }
 
         /* Buscador */
         .admin-filtros {
-            display: flex; gap: 12px; padding: 12px 0 16px; 
+            display: flex; gap: 12px; padding: 12px 0 16px;
             border-bottom: 1px solid var(--border); align-items: center;
         }
         .admin-buscador input {
@@ -45,17 +43,15 @@
             color: var(--text-main); outline: none; font-family: 'Lato', sans-serif;
         }
 
-        /* Ocultar flechas de los inputs number por defecto del navegador */
+        /* Ocultar flechas de los inputs number */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
+        input[type="number"] { -moz-appearance: textfield; }
 
-        /* Botones personalizados de + y - */
+        /* Botones + y - */
         .btn-cantidad {
             border: none;
             border-radius: 4px;
@@ -70,13 +66,13 @@
             transition: transform 0.1s, filter 0.3s;
         }
         .btn-cantidad:active { transform: scale(0.9); }
-        .btn-menos { background-color: #ef4444; } 
+        .btn-menos { background-color: #ef4444; }
         .btn-menos:hover { filter: brightness(1.2); }
-        .btn-mas { background-color: #10b981; } 
+        .btn-mas { background-color: #10b981; }
         .btn-mas:hover { filter: brightness(1.2); }
 
         /* ========================================== */
-        /* ESTILOS DEL TOAST (NOTIFICACIÓN MÁGICA) */
+        /* TOAST (NOTIFICACIÓN MÁGICA)                */
         /* ========================================== */
         #toast-container {
             position: fixed;
@@ -87,16 +83,16 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            pointer-events: none; /* Para no bloquear clics */
+            pointer-events: none;
         }
 
         .toast-arcano {
-            background-color: #1a1a2e; /* Mismo color de fondo que modales */
-            color: #ffdeb3; /* Dorado suave */
+            background-color: #1a1a2e;
+            color: #ffdeb3;
             border: 1px solid var(--gold);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); /* Resplandor dorado */
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
             padding: 12px 30px;
-            border-radius: 30px; /* Bordes muy redondeados tipo píldora */
+            border-radius: 30px;
             font-family: 'Lato', sans-serif;
             font-size: 1rem;
             display: flex;
@@ -111,19 +107,13 @@
         .toast-arcano.error {
             border-color: #ef4444;
             color: #ef4444;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); /* Resplandor rojo */
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
         }
 
-        .toast-arcano.fade-out {
-            animation: fadeOutUp 0.4s forwards;
-        }
+        .toast-arcano.fade-out { animation: fadeOutUp 0.4s forwards; }
 
-        @keyframes fadeInDown {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeOutUp {
-            to { opacity: 0; transform: translateY(-20px); }
-        }
+        @keyframes fadeInDown { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOutUp { to { opacity: 0; transform: translateY(-20px); } }
     </style>
 </head>
 <body class="admin-body">
@@ -226,9 +216,6 @@
                 <a href="admin-erp-nivel.html" class="nav-item">
                     <i class="fa-solid fa-layer-group"></i> Nivel ERP
                 </a>
-                <a href="admin-usuarios.html" class="nav-item">
-                    <i class="fa-solid fa-user-shield"></i> Usuarios
-                </a>
                 <a href="admin-configuracion.html" class="nav-item">
                     <i class="fa-solid fa-gear"></i> Configuración
                 </a>
@@ -261,11 +248,11 @@
         </div>
 
         <div class="admin-bloque">
-            
+
             <!-- ================= PASO 1: SELECCIONAR CLIENTE ================= -->
             <div id="paso-1" class="paso-formulario activo" style="padding: 30px;">
                 <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 20px;">Selecciona el Cliente</h2>
-                
+
                 <div style="display: flex; gap: 15px; margin-bottom: 20px; max-width: 600px;">
                     <div style="position: relative; flex-grow: 1;">
                         <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
@@ -289,14 +276,14 @@
             <!-- ================= PASO 2: AGREGAR PRODUCTOS ================= -->
             <div id="paso-2" class="paso-formulario" style="padding: 30px;">
                 <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 5px;">Agregar Productos</h2>
-                
+
                 <div class="admin-filtros" style="border-bottom: none; margin-bottom: 15px;">
                     <div class="admin-buscador" style="flex:1; border-radius: 8px;">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="text" id="buscar-producto-orden" placeholder="Buscar producto en stock..." oninput="window.filtrarProductosOrden()" />
                     </div>
                 </div>
-                
+
                 <div class="admin-tabla-wrap" style="max-height: 350px; overflow-y: auto; margin-bottom: 30px;">
                     <table class="admin-tabla" id="tabla-productos-orden">
                         <thead>
@@ -324,15 +311,15 @@
             <!-- ================= PASO 3: RESUMEN Y CONFIRMAR ================= -->
             <div id="paso-3" class="paso-formulario" style="padding: 30px;">
                 <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 20px;">Resumen de la Orden</h2>
-                
+
                 <div style="background: rgba(0,0,0,0.2); border-radius: 10px; padding: 20px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.05);">
                     <p style="color: var(--text-muted); margin-top: 0; font-size: 1.1rem;">Cliente: <span id="resumen-nombre-cliente" style="color: white; font-weight: bold;">-- Ninguno --</span></p>
                     <hr style="border: 0; border-top: 1px dashed rgba(255,255,255,0.1); margin: 15px 0;">
-                    
+
                     <div id="resumen-productos">
                         <p style="color: var(--text-muted);">No has seleccionado ningún producto.</p>
                     </div>
-                    
+
                     <hr style="border: 0; border-top: 1px solid rgba(212, 175, 55, 0.3); margin: 15px 0;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="color: var(--gold); font-family: 'Cinzel', serif; font-size: 1.2rem; font-weight: bold;">TOTAL:</span>
@@ -349,19 +336,51 @@
         </div>
     </main>
 
-    <!-- MODAL NUEVO CLIENTE -->
+    <!-- MODAL NUEVO CLIENTE COMPLETO -->
     <div id="modal-nuevo-cliente" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: #1a1a2e; padding: 30px; border-radius: 12px; border: 1px solid var(--gold); width: 100%; max-width: 400px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);">
-            <h3 style="color: var(--gold); font-family: 'Cinzel', serif; margin-top: 0; margin-bottom: 20px;"><i class="fa-solid fa-user-plus"></i> Agregar Nuevo Cliente</h3>
-            
+        <div style="background: #1a1a2e; padding: 30px; border-radius: 12px; border: 1px solid var(--gold); width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);">
+            <h3 style="color: var(--gold); font-family: 'Cinzel', serif; margin-top: 0; margin-bottom: 20px;">
+                <i class="fa-solid fa-user-plus"></i> Agregar Nuevo Cliente
+            </h3>
+
             <div style="margin-bottom: 15px;">
-                <label style="color: var(--text-muted); display: block; margin-bottom: 5px; font-size: 0.9rem;">Nombre del Cliente *</label>
-                <input type="text" id="nuevo-cliente-nombre" placeholder="Ej. Albus Dumbledore" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box;" required>
+                <label style="color: var(--text-muted); display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase;">Nombre Completo *</label>
+                <input type="text" id="nuevo-cliente-nombre" placeholder="Ej. Hermione Granger" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box;" required />
             </div>
-            
+
+            <div style="margin-bottom: 15px;">
+                <label style="color: var(--text-muted); display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase;">Correo Electrónico *</label>
+                <input type="email" id="nuevo-cliente-correo" placeholder="ejemplo@magic.com" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box;" required />
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color: var(--text-muted); display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase;">Teléfono Mágico</label>
+                <input type="tel" id="nuevo-cliente-telefono" placeholder="Ej. 5551234567" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box;" />
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color: var(--text-muted); display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase;">Facción / Organización</label>
+                <input type="text" id="nuevo-cliente-faccion" placeholder="Ej. Ministerio de Magia o Independiente" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box;" />
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="color: var(--text-muted); display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase;">Rango Alquímico</label>
+                <select id="nuevo-cliente-rango" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: #121225; color: white; outline: none; box-sizing: border-box; cursor: pointer;">
+                    <option value="Iniciado" selected style="background: #1a1a2e; color: white;">Iniciado</option>
+                    <option value="Archimago" style="background: #1a1a2e; color: white;">Archimago</option>
+                    <option value="Maestro" style="background: #1a1a2e; color: white;">Maestro</option>
+                    <option value="Muggle" style="background: #1a1a2e; color: white;">Muggle</option>
+                </select>
+            </div>
+
             <div style="margin-bottom: 25px;">
-                <label style="color: var(--text-muted); display: block; margin-bottom: 5px; font-size: 0.9rem;">Correo Electrónico *</label>
-                <input type="email" id="nuevo-cliente-correo" placeholder="Ej. albus@hogwarts.com" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box;" required>
+                <label style="color: var(--text-muted); display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase;">Rango de Etapa</label>
+                <select id="nuevo-cliente-etapa" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: #121225; color: white; outline: none; box-sizing: border-box; cursor: pointer;">
+                    <option value="Activo" selected style="background: #1a1a2e; color: white;">Activo</option>
+                    <option value="Frecuente" style="background: #1a1a2e; color: white;">Frecuente</option>
+                    <option value="Inactivo" style="background: #1a1a2e; color: white;">Inactivo</option>
+                    <option value="Prospecto" style="background: #1a1a2e; color: white;">Prospecto</option>
+                </select>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px;">
@@ -374,7 +393,7 @@
     <!-- ── LÓGICA DE FIREBASE Y FUNCIONALIDAD ── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -391,11 +410,19 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Variables globales protegidas
+        // Variables globales
         window.clienteSeleccionadoNombre = "";
-        window.carrito = {}; 
+        window.carrito = {};
         window.totalOrdenFinal = 0;
         window.productosGlobal = [];
+        let clientesLista = [];
+
+        // Escapa texto para insertarlo de forma segura en HTML
+        const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        }[c]));
+
+        const fmt = (n) => Number(n).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         onAuthStateChanged(auth, (usuario) => {
             const spanNombre = document.getElementById("nombre-admin-topbar");
@@ -403,87 +430,32 @@
         });
 
         // ==========================================
-        // SISTEMA DE TOASTS (NOTIFICACIONES MAGICAS)
+        // TOASTS (NOTIFICACIONES MÁGICAS)
         // ==========================================
-        window.mostrarToast = function(mensaje, tipo = 'normal') {
+        window.mostrarToast = function (mensaje, tipo = 'normal') {
             const container = document.getElementById('toast-container');
             if (!container) return;
 
             const toast = document.createElement('div');
             toast.className = `toast-arcano ${tipo === 'error' ? 'error' : ''}`;
-            
-            // Iconos personalizados según el tipo
+
             let icono = '✨';
             if (tipo === 'error') icono = '⚠️';
             else if (tipo === 'exito') icono = '🪄';
 
-            toast.innerHTML = `<span>${icono}</span> <span>${mensaje}</span> <span>${icono}</span>`;
+            toast.innerHTML = `<span>${icono}</span> <span>${esc(mensaje)}</span> <span>${icono}</span>`;
             container.appendChild(toast);
 
-            // Desaparece después de 3 segundos
             setTimeout(() => {
                 toast.classList.add('fade-out');
-                setTimeout(() => toast.remove(), 400); // Espera la animación para borrarlo del DOM
+                setTimeout(() => toast.remove(), 400);
             }, 3000);
-        }
-
-        // ==========================================
-        // LÓGICA MANUAL BOTONES +/- SUPER ROBUSTA
-        // ==========================================
-        window.cambiarCantidadManual = function(btnElement, id, delta, maxStock) {
-            delta = parseInt(delta);
-            maxStock = parseInt(maxStock);
-            
-            let divContenedor = btnElement.parentElement;
-            let input = divContenedor.querySelector('input[type="number"]');
-            
-            if(!input) return;
-            
-            let val = parseInt(input.value) || 0;
-            let newVal = val + delta;
-            
-            if (newVal < 0) newVal = 0;
-            if (newVal > maxStock) {
-                newVal = maxStock;
-                // Si el maxStock es 0 y trata de sumar, mostramos el toast de error elegante
-                if(maxStock === 0 && delta > 0) {
-                    window.mostrarToast("No hay stock disponible de este producto.", "error");
-                }
-            }
-            
-            input.value = newVal;
-            
-            const prod = window.productosGlobal.find(p => p.id === id);
-            if(prod) {
-                const nombre = prod.nombre || prod.name || "Producto";
-                const precio = parseFloat(prod.precio || prod.price || 0);
-                window.actualizarCarrito(id, nombre, precio, newVal);
-            }
         };
 
-        window.validarInputCantidad = function(inputElement, id, maxStock) {
-            maxStock = parseInt(maxStock);
-            let val = parseInt(inputElement.value) || 0;
-            
-            if (val < 0) val = 0;
-            if (val > maxStock) {
-                val = maxStock;
-                if(maxStock === 0) {
-                    window.mostrarToast("No hay stock disponible de este producto.", "error");
-                }
-            }
-            
-            inputElement.value = val;
-            
-            const prod = window.productosGlobal.find(p => p.id === id);
-            if(prod) {
-                const nombre = prod.nombre || prod.name || "Producto";
-                const precio = parseFloat(prod.precio || prod.price || 0);
-                window.actualizarCarrito(id, nombre, precio, val);
-            }
-        };
-
-        window.actualizarCarrito = function(id, nombre, precio, cantidad) {
+        // ==========================================
+        // CARRITO: BOTONES +/- E INPUT MANUAL
+        // ==========================================
+        window.actualizarCarrito = function (id, nombre, precio, cantidad) {
             cantidad = parseInt(cantidad) || 0;
             if (cantidad > 0) {
                 window.carrito[id] = { nombre, precio, cantidad };
@@ -492,73 +464,154 @@
             }
         };
 
+        window.cambiarCantidadManual = function (btnElement, id, delta, maxStock) {
+            delta = parseInt(delta);
+            maxStock = parseInt(maxStock);
+
+            const input = btnElement.parentElement.querySelector('input[type="number"]');
+            if (!input) return;
+
+            let newVal = (parseInt(input.value) || 0) + delta;
+
+            if (newVal < 0) newVal = 0;
+            if (newVal > maxStock) {
+                newVal = maxStock;
+                if (delta > 0) {
+                    window.mostrarToast(maxStock === 0
+                        ? "No hay stock disponible de este producto."
+                        : `Solo hay ${maxStock} unidades disponibles.`, "error");
+                }
+            }
+
+            input.value = newVal;
+
+            const prod = window.productosGlobal.find(p => p.id === id);
+            if (prod) {
+                window.actualizarCarrito(id, prod.nombreMostrar, prod.precioNum, newVal);
+            }
+        };
+
+        window.validarInputCantidad = function (inputElement, id, maxStock) {
+            maxStock = parseInt(maxStock);
+            let val = parseInt(inputElement.value) || 0;
+
+            if (val < 0) val = 0;
+            if (val > maxStock) {
+                val = maxStock;
+                window.mostrarToast(maxStock === 0
+                    ? "No hay stock disponible de este producto."
+                    : `Solo hay ${maxStock} unidades disponibles.`, "error");
+            }
+
+            inputElement.value = val;
+
+            const prod = window.productosGlobal.find(p => p.id === id);
+            if (prod) {
+                window.actualizarCarrito(id, prod.nombreMostrar, prod.precioNum, val);
+            }
+        };
+
         // ==========================================
         // 1. CARGAR CLIENTES
         // ==========================================
         async function cargarClientes() {
             const contenedor = document.getElementById('lista-clientes-firebase');
-            if(!contenedor) return; 
+            if (!contenedor) return;
 
             try {
                 const querySnapshot = await getDocs(collection(db, "clientes"));
-                contenedor.innerHTML = ''; 
+                clientesLista = [];
+                querySnapshot.forEach((d) => {
+                    const data = d.data();
+                    clientesLista.push({
+                        id: d.id,
+                        nombre: data.nombre || data.name || "Mago sin nombre",
+                        correo: data.correo || data.email || "Sin correo"
+                    });
+                });
 
-                if (querySnapshot.empty) {
+                if (clientesLista.length === 0) {
                     contenedor.innerHTML = '<p style="color: var(--text-muted); padding: 10px;">No hay clientes registrados aún.</p>';
                     return;
                 }
 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const nombreCliente = data.nombre || data.name || "Mago sin nombre";
-                    const correoCliente = data.correo || data.email || "Sin correo";
-                    
-                    const tarjetaHTML = `
-                        <div class="tarjeta-cliente" onclick="seleccionarCliente('${nombreCliente}', this)" style="display: flex; align-items: center; padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s;">
-                            <i class="fa-solid fa-user-astronaut" style="font-size: 2.5rem; color: var(--text-muted); margin-right: 20px;"></i>
-                            <div style="flex-grow: 1;">
-                                <h3 style="margin: 0 0 5px 0; color: white;">${nombreCliente}</h3>
-                                <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">Correo: ${correoCliente}</p>
-                            </div>
-                            <div class="indicador-seleccion" style="display:none; color: #10b981; font-weight: bold;"><i class="fa-solid fa-check"></i></div>
+                contenedor.innerHTML = clientesLista.map((c, i) => `
+                    <div class="tarjeta-cliente" onclick="seleccionarCliente(${i}, this)" style="display: flex; align-items: center; padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s;">
+                        <i class="fa-solid fa-user-astronaut" style="font-size: 2.5rem; color: var(--text-muted); margin-right: 20px;"></i>
+                        <div style="flex-grow: 1;">
+                            <h3 style="margin: 0 0 5px 0; color: white;">${esc(c.nombre)}</h3>
+                            <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">Correo: ${esc(c.correo)}</p>
                         </div>
-                    `;
-                    contenedor.innerHTML += tarjetaHTML;
-                });
+                        <div class="indicador-seleccion" style="display:none; color: #10b981; font-weight: bold;"><i class="fa-solid fa-check"></i></div>
+                    </div>
+                `).join('');
+
+                aplicarFiltroClientes();
             } catch (error) {
+                console.error("Error al cargar clientes:", error);
                 contenedor.innerHTML = '<p style="color: #ef4444; padding: 10px;">Error al consultar la base de datos de clientes.</p>';
             }
         }
 
-        window.seleccionarCliente = function(nombre, elementoTarjeta) {
-            window.clienteSeleccionadoNombre = nombre;
-            document.getElementById('resumen-nombre-cliente').textContent = nombre;
+        function aplicarFiltroClientes() {
+            const inputEl = document.getElementById('buscar-cliente');
+            if (!inputEl) return;
+            const filter = inputEl.value.toLowerCase();
+            document.querySelectorAll('.tarjeta-cliente').forEach(tarjeta => {
+                tarjeta.style.display = tarjeta.textContent.toLowerCase().includes(filter) ? 'flex' : 'none';
+            });
+        }
+
+        window.seleccionarCliente = function (indice, elementoTarjeta) {
+            const cliente = clientesLista[indice];
+            if (!cliente) return;
+
+            window.clienteSeleccionadoNombre = cliente.nombre;
+            const resumenNombreEl = document.getElementById('resumen-nombre-cliente');
+            if (resumenNombreEl) resumenNombreEl.textContent = cliente.nombre;
 
             document.querySelectorAll('.tarjeta-cliente').forEach(t => {
                 t.style.borderColor = 'rgba(255,255,255,0.1)';
                 t.style.background = 'rgba(255,255,255,0.02)';
-                t.querySelector('i.fa-user-astronaut').style.color = 'var(--text-muted)';
-                t.querySelector('.indicador-seleccion').style.display = 'none';
+                const icono = t.querySelector('i.fa-user-astronaut');
+                if (icono) icono.style.color = 'var(--text-muted)';
+                const ind = t.querySelector('.indicador-seleccion');
+                if (ind) ind.style.display = 'none';
             });
 
             elementoTarjeta.style.borderColor = 'var(--gold)';
             elementoTarjeta.style.background = 'rgba(212, 175, 55, 0.05)';
-            elementoTarjeta.querySelector('i.fa-user-astronaut').style.color = 'var(--gold)';
-            elementoTarjeta.querySelector('.indicador-seleccion').style.display = 'block';
-        }
+            const iconoSel = elementoTarjeta.querySelector('i.fa-user-astronaut');
+            if (iconoSel) iconoSel.style.color = 'var(--gold)';
+            const indSel = elementoTarjeta.querySelector('.indicador-seleccion');
+            if (indSel) indSel.style.display = 'block';
+        };
 
         // ==========================================
         // 2. CREAR NUEVO CLIENTE
         // ==========================================
-        window.abrirModalCliente = function() { document.getElementById('modal-nuevo-cliente').style.display = 'flex'; }
-        window.cerrarModalCliente = function() {
+        window.abrirModalCliente = function () {
+            document.getElementById('modal-nuevo-cliente').style.display = 'flex';
+        };
+
+        window.cerrarModalCliente = function () {
             document.getElementById('modal-nuevo-cliente').style.display = 'none';
             document.getElementById('nuevo-cliente-nombre').value = '';
             document.getElementById('nuevo-cliente-correo').value = '';
-        }
+            document.getElementById('nuevo-cliente-telefono').value = '';
+            document.getElementById('nuevo-cliente-faccion').value = '';
+            document.getElementById('nuevo-cliente-rango').value = 'Iniciado';
+            document.getElementById('nuevo-cliente-etapa').value = 'Activo';
+        };
+
         document.getElementById('btn-guardar-cliente').addEventListener('click', async () => {
             const nombre = document.getElementById('nuevo-cliente-nombre').value.trim();
             const correo = document.getElementById('nuevo-cliente-correo').value.trim();
+            const telefono = document.getElementById('nuevo-cliente-telefono').value.trim() || "-";
+            const faccion = document.getElementById('nuevo-cliente-faccion').value.trim() || "Independiente";
+            const rango = document.getElementById('nuevo-cliente-rango').value;
+            const etapa = document.getElementById('nuevo-cliente-etapa').value;
+
             if (!nombre || !correo) {
                 return window.mostrarToast("Por favor, ingresa el nombre y el correo del cliente.", "error");
             }
@@ -568,10 +621,20 @@
             btn.disabled = true;
 
             try {
-                await addDoc(collection(db, "clientes"), { nombre: nombre, correo: correo, fechaRegistro: new Date() });
+                await addDoc(collection(db, "clientes"), {
+                    nombre: nombre,
+                    correo: correo,
+                    telefono: telefono,
+                    empresa: faccion,
+                    rango: rango,
+                    etapa_crm: etapa,
+                    estado: "Activo",
+                    fechaRegistro: new Date()
+                });
+
                 window.mostrarToast("¡Cliente agregado exitosamente al grimorio!", "exito");
                 window.cerrarModalCliente();
-                await cargarClientes(); 
+                await cargarClientes();
             } catch (error) {
                 console.error(error);
                 window.mostrarToast("Hubo un error al guardar el cliente.", "error");
@@ -582,103 +645,134 @@
         });
 
         // ==========================================
-        // 3. CARGAR PRODUCTOS Y TABLA
+        // 3. PRODUCTOS + STOCK EN TIEMPO REAL
         // ==========================================
-        async function cargarProductos() {
-            const tbody = document.getElementById('lista-productos-firebase');
-            if(!tbody) return;
+        const norm = s => (s || "").toString().trim().toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-            try {
-                const querySnapshot = await getDocs(collection(db, "productos"));
-                window.productosGlobal = []; 
-                if (querySnapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">No hay productos registrados en el inventario.</td></tr>';
-                    return;
-                }
-                querySnapshot.forEach((doc) => {
-                    let data = doc.data(); data.id = doc.id;
-                    window.productosGlobal.push(data);
-                });
-                window.renderizarProductosOrden(""); 
-            } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #ef4444;">Error al cargar los productos.</td></tr>';
-            }
+        function leerStock(d) {
+            const kMin = Object.keys(d).find(k => /min/.test(norm(k)));
+            const kStock = Object.keys(d).find(k =>
+                /stock|existenc|cantidad|disponible|unidades/.test(norm(k)) && !/min|max/.test(norm(k)));
+            return {
+                stock: Number(d[kStock]) || 0,
+                min: Number(d[kMin]) || 0,
+                campo: kStock || "existencia"
+            };
         }
 
-        window.filtrarProductosOrden = function() {
-            const filtro = document.getElementById('buscar-producto-orden').value.toLowerCase();
-            window.renderizarProductosOrden(filtro);
-        }
+        let productosBase = [];
+        let inventarioBase = [];
 
-        window.renderizarProductosOrden = function(filtro) {
-            const tbody = document.getElementById('lista-productos-firebase');
-            tbody.innerHTML = '';
-
-            const filtrados = window.productosGlobal.filter(p => {
+        function combinarProductos() {
+            window.productosGlobal = productosBase.map(p => {
                 const nombre = p.nombre || p.name || "";
-                return nombre.toLowerCase().includes(filtro);
+                const inv = inventarioBase.find(i =>
+                    i.productoId === p.id || i.idProducto === p.id || i.id === p.id ||
+                    (nombre && norm(i.nombre || i.producto || i.name) === norm(nombre)));
+                const fuente = inv || p;
+                const s = leerStock(fuente);
+                const estrategia = String(fuente.estrategia || p.estrategia || "PUSH").toUpperCase();
+
+                return {
+                    ...p,
+                    nombreMostrar: nombre || "Producto sin nombre",
+                    precioNum: parseFloat(p.precio || p.price || 0) || 0,
+                    stock: s.stock,
+                    stockMin: s.min,
+                    estrategia: estrategia,
+                    _col: inv ? "inventario" : "productos",
+                    _docId: fuente.id,
+                    _campo: s.campo
+                };
             });
 
-            if(filtrados.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">No se encontraron productos.</td></tr>';
+            // Si el stock bajó por un cambio externo, ajusta el carrito
+            Object.keys(window.carrito).forEach(id => {
+                const p = window.productosGlobal.find(x => x.id === id);
+                if (!p || p.stock <= 0) delete window.carrito[id];
+                else if (window.carrito[id].cantidad > p.stock) window.carrito[id].cantidad = p.stock;
+            });
+
+            window.filtrarProductosOrden();
+        }
+
+        function renderizarProductos(lista) {
+            const tbody = document.getElementById('lista-productos-firebase');
+            if (!tbody) return;
+
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color: var(--text-muted);">No se encontraron productos.</td></tr>';
                 return;
             }
 
-            filtrados.forEach((data) => {
-                const id = data.id;
-                const nombreProd = data.nombre || data.name || "Producto desconocido";
-                const stock = data.existencia || data.stock || data.cantidad || 0;
-                const min = data.stock_min || data.stock_minimo || 10;
-                const precio = parseFloat(data.precio || data.price || 0);
+            tbody.innerHTML = lista.map(p => {
+                const stock = p.stock;
+                const stockMin = p.stockMin;
 
-                let estadoHTML = '';
-                if (stock <= min) {
-                    estadoHTML = `<span style="color: #f87171; font-weight:bold;"><i class="fa-solid fa-circle-exclamation"></i> Stock bajo</span>`;
-                } else {
-                    estadoHTML = `<span style="color: #4ade80; font-weight:bold;"><i class="fa-solid fa-circle-check"></i> Normal</span>`;
-                }
+                let estado, color;
+                if (stock <= 0) { estado = "Agotado"; color = "#ef4444"; }
+                else if (stock <= stockMin) { estado = "Stock bajo"; color = "#f59e0b"; }
+                else { estado = "Disponible"; color = "#10b981"; }
 
-                const cantidadActual = window.carrito[id] ? window.carrito[id].cantidad : 0;
+                const cantidadActual = window.carrito[p.id] ? window.carrito[p.id].cantidad : 0;
 
-                const rowHTML = `
+                return `
                     <tr>
-                        <td style="font-weight: 500;">${nombreProd}</td>
-                        <td style="font-size: 1.1rem;">${stock}</td>
-                        <td>${min}</td>
-                        <td>${estadoHTML}</td>
-                        <td>$${precio.toFixed(2)}</td>
-                        <td style="text-align: center;">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                <button type="button" class="btn-cantidad btn-menos" onclick="window.cambiarCantidadManual(this, '${id}', -1, ${stock})">
-                                    <i class="fa-solid fa-minus" style="pointer-events: none;"></i>
-                                </button>
-                                
-                                <input type="number" min="0" max="${stock}" value="${cantidadActual}" 
-                                       oninput="window.validarInputCantidad(this, '${id}', ${stock})" 
-                                       style="width: 50px; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; text-align: center; font-weight: bold;">
-                                
-                                <button type="button" class="btn-cantidad btn-mas" onclick="window.cambiarCantidadManual(this, '${id}', 1, ${stock})">
-                                    <i class="fa-solid fa-plus" style="pointer-events: none;"></i>
-                                </button>
+                        <td>${esc(p.nombreMostrar)}</td>
+                        <td>${stock}</td>
+                        <td>${stockMin}</td>
+                        <td><span style="color:${color}; font-weight:bold;">${estado}</span></td>
+                        <td>$${fmt(p.precioNum)}</td>
+                        <td>
+                            <div style="display:flex; justify-content:center; align-items:center; gap:8px;">
+                                <button type="button" class="btn-cantidad btn-menos" onclick="cambiarCantidadManual(this, '${p.id}', -1, ${stock})"><i class="fa-solid fa-minus"></i></button>
+                                <input type="number" value="${cantidadActual}" min="0" max="${stock}"
+                                    onchange="validarInputCantidad(this, '${p.id}', ${stock})"
+                                    style="width:55px; text-align:center; padding:6px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white;" />
+                                <button type="button" class="btn-cantidad btn-mas" onclick="cambiarCantidadManual(this, '${p.id}', 1, ${stock})"><i class="fa-solid fa-plus"></i></button>
                             </div>
                         </td>
                     </tr>
                 `;
-                tbody.innerHTML += rowHTML;
+            }).join('');
+        }
+
+        window.filtrarProductosOrden = function () {
+            const inputEl = document.getElementById('buscar-producto-orden');
+            const filtro = norm(inputEl ? inputEl.value : '');
+            const filtrados = window.productosGlobal.filter(p => norm(p.nombreMostrar).includes(filtro));
+            renderizarProductos(filtrados);
+        };
+
+        function cargarProductos() {
+            const tbody = document.getElementById('lista-productos-firebase');
+
+            onSnapshot(collection(db, "productos"), (snap) => {
+                productosBase = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                combinarProductos();
+            }, (error) => {
+                console.error("Error al cargar productos:", error);
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#ef4444;">Error al consultar los productos. Revisa la consola (F12).</td></tr>';
             });
+
+            onSnapshot(collection(db, "inventario"), (snap) => {
+                inventarioBase = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                combinarProductos();
+            }, (error) => console.warn("Sin acceso a 'inventario':", error));
         }
 
         // ==========================================
-        // 4. ACTUALIZAR RESUMEN 
+        // 4. ACTUALIZAR RESUMEN
         // ==========================================
-        window.actualizarResumen = function() {
+        window.actualizarResumen = function () {
             const divProductos = document.getElementById('resumen-productos');
             const spanTotal = document.getElementById('resumen-total');
-            
+
             divProductos.innerHTML = '';
             window.totalOrdenFinal = 0;
             const items = Object.values(window.carrito);
-            
+
             if (items.length === 0) {
                 divProductos.innerHTML = '<p style="color: var(--text-muted);">No has seleccionado ningún producto.</p>';
             } else {
@@ -687,67 +781,157 @@
                     window.totalOrdenFinal += subtotal;
                     divProductos.innerHTML += `
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: white; font-size: 1.05rem;">
-                            <span>${item.cantidad}x ${item.nombre}</span>
-                            <span>$${subtotal.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            <span>${item.cantidad}x ${esc(item.nombre)}</span>
+                            <span>$${fmt(subtotal)}</span>
                         </div>
                     `;
                 });
             }
-            spanTotal.textContent = '$' + window.totalOrdenFinal.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        }
+            if (spanTotal) spanTotal.textContent = '$' + fmt(window.totalOrdenFinal);
+        };
 
         // ==========================================
-        // 5. GUARDAR LA ORDEN 
+        // 5. GUARDAR LA ORDEN, DESCONTAR STOCK Y EVALUAR AUTO-STOCK PUSH
         // ==========================================
         document.getElementById('btn-confirmar-orden').addEventListener('click', async () => {
-            if(window.clienteSeleccionadoNombre === "") return window.mostrarToast("Por favor, selecciona un cliente en el Paso 1.", "error");
-            if(Object.keys(window.carrito).length === 0) return window.mostrarToast("Por favor, agrega al menos un producto en el Paso 2.", "error");
+            if (window.clienteSeleccionadoNombre === "") return window.mostrarToast("Por favor, selecciona un cliente en el Paso 1.", "error");
+            if (Object.keys(window.carrito).length === 0) return window.mostrarToast("Por favor, agrega al menos un producto en el Paso 2.", "error");
 
             const btn = document.getElementById('btn-confirmar-orden');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
             btn.disabled = true;
 
             try {
+                window.actualizarResumen();
+
                 const nuevaOrden = {
-                    folio: "OR-" + Math.floor(Math.random() * 9000 + 1000), 
+                    folio: "OR-" + Math.floor(Math.random() * 9000 + 1000),
                     cliente: window.clienteSeleccionadoNombre,
                     total: window.totalOrdenFinal,
                     productos: Object.values(window.carrito),
-                    estado: "Procesando", 
+                    estado: "Procesando",
                     fecha: new Date()
                 };
-                await addDoc(collection(db, "ordenes"), nuevaOrden);
-                
-                // Mostrar éxito y redirigir luego de 1.5 segundos para que de tiempo a ver el toast
+
+                const productosParaAutoStockPUSH = [];
+
+                // Transacción atómica: Valida stock, descuenta y guarda orden
+                await runTransaction(db, async (tx) => {
+                    const cambios = [];
+                    for (const [id, item] of Object.entries(window.carrito)) {
+                        const p = window.productosGlobal.find(x => x.id === id);
+                        if (!p || !p._campo) throw new Error(`No se encontró el campo de stock de "${item.nombre}"`);
+
+                        const ref = doc(db, p._col, p._docId);
+                        const snap = await tx.get(ref);
+                        const docData = snap.data();
+                        const actual = Number(docData[p._campo]) || 0;
+
+                        if (actual < item.cantidad) {
+                            throw new Error(`Stock insuficiente de "${item.nombre}" (quedan ${actual})`);
+                        }
+
+                        const nuevoStock = actual - item.cantidad;
+                        cambios.push({ ref, campo: p._campo, nuevo: nuevoStock });
+
+                        // Evaluar si requiere Auto-Stock PUSH
+                        const est = String(docData.estrategia || p.estrategia || "PUSH").toUpperCase();
+                        const minStock = Number(docData.stock_min || docData.stockMin || docData.stock_minimo || p.stockMin) || 0;
+
+                        if (est === "PUSH" && nuevoStock <= minStock) {
+                            productosParaAutoStockPUSH.push({
+                                productoId: p.id,
+                                nombre: p.nombreMostrar,
+                                ref: ref,
+                                campo: p._campo,
+                                nuevoStockPostVenta: nuevoStock,
+                                stockMin: minStock
+                            });
+                        }
+                    }
+
+                    // Aplicar descuentos
+                    cambios.forEach(c => tx.update(c.ref, { [c.campo]: c.nuevo }));
+                    // Guardar orden
+                    tx.set(doc(collection(db, "ordenes")), nuevaOrden);
+                });
+
+                // 🚨 EJECUTAR AUTO-STOCK PUSH SI CORRESPONDE
+                if (productosParaAutoStockPUSH.length > 0) {
+                    for (const itemPush of productosParaAutoStockPUSH) {
+                        const cantidadAComprar = itemPush.stockMin > 0 ? itemPush.stockMin * 2 : 20;
+                        const stockFinalRestaurado = itemPush.nuevoStockPostVenta + cantidadAComprar;
+
+                        // 1. Actualizar existencia en Firestore
+                        const updateObj = { [itemPush.campo]: stockFinalRestaurado };
+                        if (itemPush.campo === "existencia") updateObj["stock"] = stockFinalRestaurado;
+                        if (itemPush.campo === "stock") updateObj["existencia"] = stockFinalRestaurado;
+
+                        await updateDoc(itemPush.ref, updateObj);
+
+                        // 2. Registrar en la colección 'pedidos'
+                        await addDoc(collection(db, "pedidos"), {
+                            productoId: itemPush.productoId,
+                            producto: itemPush.nombre,
+                            cantidad: cantidadAComprar,
+                            origen: "PUSH Automático",
+                            estado: "Surtido",
+                            surtido_aplicado: true,
+                            usuario: "Sistema SCM (Auto)",
+                            fecha: new Date()
+                        });
+
+                        // 3. Registrar entrada en 'movimientos'
+                        await addDoc(collection(db, "movimientos"), {
+                            productoId: itemPush.productoId,
+                            productoNombre: itemPush.nombre,
+                            tipo: "Entrada",
+                            cantidad: cantidadAComprar,
+                            motivo: "Reabastecimiento Automático (PUSH)",
+                            usuario: "Sistema SCM (Auto)",
+                            fecha: new Date()
+                        });
+
+                        window.mostrarToast(`✨ ¡Auto-Stock PUSH! Reabastecidas +${cantidadAComprar} unidades de "${itemPush.nombre}"`, "exito");
+                    }
+                }
+
+                window.carrito = {};
                 window.mostrarToast("¡Hechizo completado! La orden se ha guardado exitosamente.", "exito");
+
                 setTimeout(() => {
-                    window.location.href = "admin-ordenes.html"; 
-                }, 1500);
+                    window.location.href = "admin-ordenes.html";
+                }, 1800);
 
             } catch (error) {
-                console.error(error);
-                window.mostrarToast("Ocurrió una perturbación mágica. No se pudo guardar la orden.", "error");
+                console.error("Error al procesar la orden:", error);
+                window.mostrarToast(error.message || "Ocurrió una perturbación mágica. No se pudo guardar la orden.", "error");
                 btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Confirmar Orden';
                 btn.disabled = false;
             }
         });
 
-        document.addEventListener("DOMContentLoaded", () => {
-            cargarClientes();
-            cargarProductos();
-        });
+        // Inicialización
+        cargarClientes();
+        cargarProductos();
+
+        const inputBuscarCliente = document.getElementById('buscar-cliente');
+        if (inputBuscarCliente) {
+            inputBuscarCliente.addEventListener('keyup', aplicarFiltroClientes);
+        }
     </script>
 
+    <!-- ── PASOS Y MENÚ LATERAL ── -->
     <script>
         function cambiarPaso(pasoDestino) {
-            if(pasoDestino === 3 && window.actualizarResumen) window.actualizarResumen();
+            if (pasoDestino === 3 && window.actualizarResumen) window.actualizarResumen();
 
             document.querySelectorAll('.paso-formulario').forEach(el => el.classList.remove('activo'));
             document.getElementById('paso-' + pasoDestino).classList.add('activo');
 
-            for(let i = 1; i <= 3; i++) {
-                let indicador = document.getElementById('step-' + i + '-indicador');
-                if(i < pasoDestino) {
+            for (let i = 1; i <= 3; i++) {
+                const indicador = document.getElementById('step-' + i + '-indicador');
+                if (i < pasoDestino) {
                     indicador.style.color = '#10b981';
                     indicador.innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + i + '. ' + obtenerNombrePaso(i);
                 } else if (i === pasoDestino) {
@@ -759,9 +943,10 @@
                 }
             }
         }
+
         function obtenerNombrePaso(num) {
-            if(num === 1) return 'Cliente';
-            if(num === 2) return 'Productos';
+            if (num === 1) return 'Cliente';
+            if (num === 2) return 'Productos';
             return 'Confirmar';
         }
 
@@ -776,7 +961,7 @@
                 const btn = document.getElementById(menu.btn);
                 const sub = document.getElementById(menu.sub);
                 const icon = document.getElementById(menu.icon);
-                if(btn && sub && icon) {
+                if (btn && sub && icon) {
                     if (menu.btn === 'btn-toggle-erp') icon.style.transform = 'rotate(180deg)';
                     btn.addEventListener('click', () => {
                         if (sub.style.display === 'none' || sub.style.display === '') {
@@ -788,15 +973,6 @@
                         }
                     });
                 }
-            });
-
-            document.getElementById('buscar-cliente').addEventListener('keyup', function() {
-                let filter = this.value.toLowerCase();
-                let tarjetas = document.querySelectorAll('.tarjeta-cliente');
-                tarjetas.forEach(tarjeta => {
-                    let text = tarjeta.textContent.toLowerCase();
-                    tarjeta.style.display = text.includes(filter) ? 'flex' : 'none';
-                });
             });
         });
     </script>
