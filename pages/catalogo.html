@@ -22,9 +22,6 @@
     
     <!-- ===== ESTILOS DEL MODAL DE SUBASTA ===== -->
     <style>
-        /* ========================================
-           ESTILOS DEL MODAL DE SUBASTA
-           ======================================== */
         .subasta-overlay {
             position: fixed;
             inset: 0;
@@ -310,7 +307,6 @@
             color: var(--text-main);
         }
 
-        /* Animación de entrada del modal */
         @keyframes shimmer {
             0% { background-position: -200% center; }
             100% { background-position: 200% center; }
@@ -328,7 +324,6 @@
             opacity: 0.4;
         }
 
-        /* Etiqueta de subasta en el carrito */
         .etiqueta-subasta {
             display: inline-block;
             background: var(--gold-dim);
@@ -408,13 +403,10 @@
         </div>
     </footer>
 
-    <!-- ====================================================== -->
-    <!-- ===== MODAL DE SUBASTA (Pluma de Fénix) ===== -->
-    <!-- ====================================================== -->
+    <!-- MODAL DE SUBASTA (Pluma de Fénix) -->
     <div class="subasta-overlay" id="subastaOverlay">
         <div class="subasta-modal">
 
-            <!-- Botón cerrar -->
             <button class="subasta-cerrar" id="cerrarSubasta" title="Cerrar">
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -424,22 +416,18 @@
 
             <div class="subasta-contenido">
 
-                <!-- Producto -->
                 <div class="subasta-producto-info">
                     <img src="../images/pluma de fenix.jpg" alt="Pluma de Fénix" onerror="this.src='../images/logo/Logo.png'" />
                     <h3>Pluma de Fénix</h3>
                     <p class="precio-base">Precio base: $450.00 MXN</p>
                 </div>
 
-                <!-- Lado derecho: temporizador, oferta, lista -->
                 <div>
-                    <!-- Temporizador -->
                     <div class="temporizador" id="temporizador">
                         <div class="tiempo" id="contador">02:00</div>
                         <div class="label">Tiempo restante</div>
                     </div>
 
-                    <!-- Oferta -->
                     <div class="oferta-area">
                         <label for="oferta-input">Tu oferta (MXN)</label>
                         <div class="oferta-input-group">
@@ -449,7 +437,6 @@
                         <div id="mensaje-oferta"></div>
                     </div>
 
-                    <!-- Lista de ofertas -->
                     <div class="lista-ofertas">
                         <h4><i class="fa-solid fa-gavel"></i> Ofertas registradas</h4>
                         <ul id="lista-ofertas-ul">
@@ -467,7 +454,6 @@
 
             </div>
 
-            <!-- Acciones -->
             <div class="subasta-acciones">
                 <button class="btn-carrito" id="agregarCarritoSubasta">
                     <i class="fa-solid fa-cart-plus"></i> Agregar al carrito
@@ -483,12 +469,11 @@
     <script src="../js/cargar-navbar.js"></script>
     <script src="../js/script.js"></script>
 
-    <!-- ===== CÓDIGO CONECTADO A FIREBASE PARA EL CATÁLOGO ===== -->
+    <!-- ===== CÓDIGO CONECTADO A FIREBASE PARA EL CATÁLOGO CON STOCK EN VIVO ===== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Tus credenciales reales de Wizardly
         const firebaseConfig = {
             apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
             authDomain: "wizardly-nextstage.firebaseapp.com",
@@ -520,6 +505,12 @@
                 const tieneEtiqueta = prod.etiqueta && prod.etiqueta.trim() !== "";
                 const imagenSegura = prod.imagen ? prod.imagen : "../images/logo/Logo.png";
                 const precioSeguro = parseFloat(prod.precio) || 0;
+                
+                // CONTROL DE STOCK EN TIEMPO REAL
+                const existencia = parseInt(prod.existencia) || 0;
+                const stockHtml = existencia > 0 
+                    ? `<p style="color: #4ade80; font-size: 0.85rem; margin: 6px 0 12px; font-weight: 600;"><i class="fa-solid fa-box-open"></i> En stock (${existencia} pzas)</p>` 
+                    : `<p style="color: #f87171; font-size: 0.85rem; margin: 6px 0 12px; font-weight: 600;"><i class="fa-solid fa-ban"></i> Agotado</p>`;
 
                 const card = document.createElement("div");
                 card.className = "producto-card";
@@ -528,6 +519,7 @@
                     <img src="${imagenSegura}" alt="${prod.nombre}">
                     <h3>${prod.nombre}</h3>
                     <p class="producto-precio">$${precioSeguro.toFixed(2)} MXN</p>
+                    ${stockHtml}
                     <a href="detalle.html?id=${prod.id}" class="btn-detalle">Ver detalle</a>
                 `;
                 container.appendChild(card);
