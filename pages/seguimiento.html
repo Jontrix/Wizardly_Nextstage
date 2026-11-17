@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizardly — Seguimiento de Pedido</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Styles Base -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <style>
+        .tracking-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .tracking-container h2 {
+            color: var(--gold, #d4af37);
+            font-family: 'Cinzel', serif;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+
+        .tracking-search {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .tracking-search input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Lato', sans-serif;
+            font-size: 1rem;
+            outline: none;
+        }
+        .tracking-search input:focus {
+            border-color: var(--gold, #d4af37);
+        }
+
+        .tracking-search button {
+            background-color: var(--gold, #d4af37);
+            color: #120e1c;
+            border: none;
+            border-radius: 8px;
+            padding: 0 25px;
+            font-weight: bold;
+            font-family: 'Lato', sans-serif;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .tracking-search button:hover {
+            background-color: #fcd34d;
+        }
+
+        /* LÍNEA DE TIEMPO / TIMELINE */
+        .timeline-wrapper {
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        .timeline { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start;
+            position: relative;
+            margin-top: 30px;
+        }
+
+        .step { 
+            text-align: center; 
+            color: rgba(240, 230, 210, 0.5); 
+            font-weight: bold; 
+            position: relative; 
+            flex: 1; 
+            font-family: 'Cinzel', serif;
+        }
+
+        .step::after { 
+            content: ''; 
+            position: absolute; 
+            width: 100%; 
+            height: 4px; 
+            background: rgba(255,255,255,0.1); 
+            top: 25px; 
+            left: 50%; 
+            z-index: 1;
+        }
+        .step:last-child::after { display: none; }
+
+        .step .icon { 
+            width: 54px; 
+            height: 54px; 
+            background: rgba(0,0,0,0.5); 
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 10px;
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.3);
+            position: relative;
+            z-index: 2;
+            transition: all 0.5s ease;
+        }
+
+        .step.active, .step.active .icon { 
+            color: #fff; 
+        }
+        
+        .step.active .icon {
+            background: var(--gold, #d4af37);
+            border-color: var(--gold, #d4af37);
+            color: #120e1c;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .step.active::after { 
+            background: var(--gold, #d4af37); 
+        }
+
+        .order-details {
+            margin-top: 30px;
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: left;
+        }
+        .order-details p {
+            color: rgba(240, 230, 210, 0.8);
+            margin: 5px 0;
+            font-family: 'Lato', sans-serif;
+        }
+        .order-details strong {
+            color: white;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-weight: bold;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbar-placeholder"></div>
+
+    <section class="hero-catalogo" style="min-height: 35vh; padding-top: 100px;">
+        <canvas id="stardust"></canvas>
+        <div class="hero-content">
+            <span class="hero-eyebrow">✦ Logística y Envío ✦</span>
+            <h2>Rastreo de Reliquias</h2>
+        </div>
+    </section>
+
+    <div class="tracking-container">
+        <h2>Busca tu pedido</h2>
+        <p style="color: rgba(240,230,210,0.7); margin-bottom: 25px;">Ingresa tu número de folio (Ej: WZ-123456) para conocer el estado actual de tu envío.</p>
+        
+        <div class="tracking-search">
+            <input type="text" id="input-codigo" placeholder="Ej. WZ-458712">
+            <button id="btn-rastrear"><i class="fa-solid fa-magnifying-glass"></i> Rastrear</button>
+        </div>
+
+        <p class="error-message" id="mensaje-error"><i class="fa-solid fa-triangle-exclamation"></i> No encontramos un pedido con ese código en nuestros pergaminos.</p>
+
+        <div class="timeline-wrapper" id="resultado-rastreo" style="display: none;">
+            
+            <div class="order-details">
+                <p><strong>Folio:</strong> <span id="res-folio" style="color: var(--gold, #d4af37);"></span></p>
+                <p><strong>Cliente:</strong> <span id="res-cliente"></span></p>
+                <p><strong>Fecha de compra:</strong> <span id="res-fecha"></span></p>
+                <p><strong>Estado Logístico Actual:</strong> <span id="res-estado" style="color: var(--gold, #d4af37); font-weight: bold; text-transform: uppercase;"></span></p>
+            </div>
+
+            <div class="timeline">
+                <div class="step" id="step-Pendiente">
+                    <div class="icon"><i class="fa-solid fa-box-open"></i></div>
+                    Pendiente
+                </div>
+                <div class="step" id="step-Procesando">
+                    <div class="icon"><i class="fa-solid fa-hammer"></i></div>
+                    Preparando
+                </div>
+                <div class="step" id="step-Enviado">
+                    <div class="icon"><i class="fa-solid fa-truck-fast"></i></div>
+                    Enviado
+                </div>
+                <div class="step" id="step-Entregado">
+                    <div class="icon"><i class="fa-solid fa-house-chimney-user"></i></div>
+                    Entregado
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer-mini">
+        <p>© 2026 <span>Wizardly</span> — Mercado Arcano ✦ Todos los derechos mágicos reservados</p>
+    </footer>
+
+    <!-- Scripts Base -->
+    <script src="../js/cargar-navbar.js"></script>
+    <script src="../js/script.js"></script>
+
+    <!-- SCRIPT FIRESTORE RASTREO -->
+    <script type="module">
+        import { db } from "../js/firebase-config.js";
+        import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+        document.getElementById('btn-rastrear').addEventListener('click', rastrearPedido);
+        
+        // Rastrear si se presiona Enter
+        document.getElementById('input-codigo').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') rastrearPedido();
+        });
+
+        async function rastrearPedido() {
+            const btn = document.getElementById('btn-rastrear');
+            const codigo = document.getElementById('input-codigo').value.trim().toUpperCase();
+            const contenedorResultado = document.getElementById('resultado-rastreo');
+            const mensajeError = document.getElementById('mensaje-error');
+
+            if (!codigo) return;
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando...';
+            btn.disabled = true;
+
+            try {
+                // Buscar la orden por Folio
+                const q = query(collection(db, "ordenes"), where("folio", "==", codigo));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    // Si existe el pedido
+                    const pedidoDoc = querySnapshot.docs[0];
+                    const pedidoData = pedidoDoc.data();
+                    
+                    const estadoActual = pedidoData.estado_seguimiento || "Pendiente";
+
+                    mensajeError.style.display = 'none';
+                    contenedorResultado.style.display = 'block';
+
+                    // Llenar detalles
+                    document.getElementById('res-folio').innerText = pedidoData.folio;
+                    document.getElementById('res-cliente').innerText = pedidoData.cliente || "Desconocido";
+                    document.getElementById('res-estado').innerText = estadoActual;
+                    
+                    if (pedidoData.fecha && pedidoData.fecha.toDate) {
+                        document.getElementById('res-fecha').innerText = pedidoData.fecha.toDate().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+                    } else {
+                        document.getElementById('res-fecha').innerText = "Reciente";
+                    }
+                    
+                    actualizarTimeline(estadoActual);
+                } else {
+                    // No existe el pedido
+                    contenedorResultado.style.display = 'none';
+                    mensajeError.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Error al buscar el pedido:", error);
+                mensajeError.innerText = "Hubo un error al conectar con los pergaminos mágicos. Inténtalo de nuevo.";
+                mensajeError.style.display = 'block';
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Rastrear';
+                btn.disabled = false;
+            }
+        }
+
+        function actualizarTimeline(estado) {
+            const estados = ["Pendiente", "Procesando", "Enviado", "Entregado"];
+            const indiceActual = estados.indexOf(estado);
+
+            estados.forEach((est, index) => {
+                const step = document.getElementById(`step-${est}`);
+                if (step) {
+                    if (index <= indiceActual) {
+                        step.classList.add('active');
+                    } else {
+                        step.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // Leer el folio de la URL si el usuario viene redirigido desde el checkout
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const folioDesdeUrl = urlParams.get('folio');
+            if(folioDesdeUrl) {
+                document.getElementById('input-codigo').value = folioDesdeUrl;
+                rastrearPedido();
+            }
+        });
+    </script>
+</body>
+</html>

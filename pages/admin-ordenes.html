@@ -83,6 +83,22 @@
         .toast-arcano.fade-out { animation: fadeOutUp 0.4s forwards; }
         @keyframes fadeInDown { to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOutUp { to { opacity: 0; transform: translateY(-20px); } }
+
+        /* SELECT SEGUIMIENTO */
+        .select-seguimiento {
+            background: rgba(0,0,0,0.3);
+            color: white;
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            padding: 6px;
+            outline: none;
+            cursor: pointer;
+            font-family: 'Lato', sans-serif;
+        }
+        .select-seguimiento option {
+            background: #1a1a2e;
+            color: white;
+        }
     </style>
 </head>
 <body class="admin-body">
@@ -178,12 +194,13 @@
                             <th style="color: var(--gold); font-family: 'Cinzel', serif;">FECHA</th>
                             <th style="color: var(--gold); font-family: 'Cinzel', serif;">CLIENTE</th>
                             <th style="color: var(--gold); font-family: 'Cinzel', serif;">TOTAL</th>
-                            <th style="color: var(--gold); font-family: 'Cinzel', serif; text-align: center;">ESTADO</th>
+                            <th style="color: var(--gold); font-family: 'Cinzel', serif; text-align: center;">P. INTERNO</th>
+                            <th style="color: var(--gold); font-family: 'Cinzel', serif; text-align: center;">SEGUIMIENTO</th>
                             <th style="color: var(--gold); font-family: 'Cinzel', serif;">ACCIONES</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-ordenes">
-                        <tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--gold);">Invocando registros... <i class="fa-solid fa-spinner fa-spin"></i></td></tr>
+                        <tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--gold);">Invocando registros... <i class="fa-solid fa-spinner fa-spin"></i></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -346,7 +363,7 @@
                 window.ordenesGlobales = [];
                 
                 if (querySnapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">No hay órdenes registradas.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">No hay órdenes registradas.</td></tr>';
                     return;
                 }
 
@@ -370,7 +387,7 @@
                 window.renderizarOrdenes("");
 
             } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #ef4444;">Error al cargar las órdenes.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: #ef4444;">Error al cargar las órdenes.</td></tr>';
             }
         }
 
@@ -390,14 +407,14 @@
             });
 
             if(filtrados.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">No se encontraron coincidencias.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">No se encontraron coincidencias.</td></tr>';
                 return;
             }
 
             filtrados.forEach((orden) => {
                 const total = parseFloat(orden.total || 0).toLocaleString('es-MX', {minimumFractionDigits: 2});
                 
-                // Lógica de porcentaje para el Badge en la tabla
+                // Lógica de porcentaje para el Badge en la tabla (Proceso Interno)
                 let completados = 0;
                 if (orden.estado === "Procesada") {
                     completados = 5;
@@ -409,6 +426,17 @@
                 let textoEstado = completados === 5 ? "Procesada" : 
                                   completados === 0 ? "Pendiente" : 
                                   `Procesando (${completados}/5)`;
+                
+                // SELECTOR ESTADO SEGUIMIENTO LOGÍSTICO
+                let estadoSeguimiento = orden.estado_seguimiento || 'Pendiente';
+                let selectSeguimiento = `
+                    <select class="select-seguimiento" data-id="${orden.id}" onchange="window.actualizarSeguimiento(this)">
+                        <option value="Pendiente" ${estadoSeguimiento === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                        <option value="Procesando" ${estadoSeguimiento === 'Procesando' ? 'selected' : ''}>Procesando</option>
+                        <option value="Enviado" ${estadoSeguimiento === 'Enviado' ? 'selected' : ''}>Enviado</option>
+                        <option value="Entregado" ${estadoSeguimiento === 'Entregado' ? 'selected' : ''}>Entregado</option>
+                    </select>
+                `;
                 
                 // Botones SIEMPRE visibles
                 let botones = `<button class="btn-accion btn-ver" onclick="window.verOrden('${orden.id}')" title="Ver detalles"><i class="fa-solid fa-eye"></i></button>`;
@@ -422,11 +450,29 @@
                         <td style="color: white;">${orden.cliente}</td>
                         <td style="color: #10b981;">$${total}</td>
                         <td style="text-align: center;"><span id="badge-${orden.id}" class="badge-estado ${estadoClass}">${textoEstado}</span></td>
+                        <td style="text-align: center;">${selectSeguimiento}</td>
                         <td>${botones}</td>
                     </tr>
                 `;
                 tbody.innerHTML += rowHTML;
             });
+        }
+
+        // ==========================================================
+        // ACTUALIZAR SEGUIMIENTO DE ORDENES (LOGÍSTICA)
+        // ==========================================================
+        window.actualizarSeguimiento = async function(selectElement) {
+            const id = selectElement.getAttribute('data-id');
+            const nuevoEstado = selectElement.value;
+            try {
+                await updateDoc(doc(db, "ordenes", id), { estado_seguimiento: nuevoEstado });
+                window.mostrarToast(`Estado de seguimiento actualizado a: ${nuevoEstado}`, "exito");
+                const ord = window.ordenesGlobales.find(o => o.id === id);
+                if (ord) ord.estado_seguimiento = nuevoEstado;
+            } catch (error) {
+                window.mostrarToast("Error al actualizar el estado de seguimiento", "error");
+                console.error("Error al actualizar estado_seguimiento: ", error);
+            }
         }
 
         // ==========================================================

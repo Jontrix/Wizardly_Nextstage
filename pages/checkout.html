@@ -136,6 +136,14 @@
             cursor: pointer;
         }
     </style>
+
+    <!-- EMAILJS CONFIGURADO -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("AfooIJ4wAosgQp82y");
+        })();
+    </script>
 </head>
 
 <body data-page="checkout">
@@ -194,6 +202,9 @@
                 </div>
                 <div class="input-group">
                     <input type="text" id="nombreCompleto" placeholder="Nombre completo (Ej: Merlin Ambrosius)" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="correoContacto" placeholder="Correo Electrónico (Ej: mago@mail.com)" required>
                 </div>
                 <div class="input-group">
                     <input type="tel" id="telefono" placeholder="Teléfono (Ej: 5512345678)" maxlength="10" required>
@@ -345,7 +356,8 @@
                 <span class="hero-eyebrow">✦ Pago aprobado ✦</span>
                 <h2 style="margin-top:15px;">¡Gracias por tu compra!</h2>
                 <p style="margin:20px 0; color:rgba(240, 230, 210, 0.7);">
-                    Tu pedido ha sido registrado correctamente y nuestro Consejo Arcano comenzará a preparar tus reliquias.
+                    Tu pedido ha sido registrado correctamente y nuestro Consejo Arcano comenzará a preparar tus reliquias.<br><br>
+                    <strong style="color: var(--gold, #d4af37);">Hemos enviado la confirmación a tu correo. Guarda el número de pedido para rastrear tu paquete.</strong>
                 </p>
             </div>
 
@@ -404,9 +416,12 @@
             <br>
 
             <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
-                <a href="perfil.html#mis-compras" class="btn">
+                <a href="perfil.html#mis-compras" class="btn-explorar">
                     <i class="fa-solid fa-bag-shopping"></i> Ver mis compras
                 </a>
+                <button type="button" class="btn" id="btnRastrearPedidoWizard" style="background-color: var(--gold, #d4af37); color: #120e1c;">
+                    <i class="fa-solid fa-truck-fast"></i> Rastrear mi pedido
+                </button>
                 <a href="catalogo.html" class="btn-explorar">
                     <i class="fa-solid fa-hat-wizard"></i> Seguir Comprando
                 </a>
@@ -522,6 +537,8 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 clienteLogueado = user;
+                const inputCorreo = document.getElementById('correoContacto');
+                if (inputCorreo) inputCorreo.value = user.email; // Autocompletar correo
                 try {
                     const clienteRef = doc(db, "clientes", user.uid);
                     const clienteSnap = await getDoc(clienteRef);
@@ -589,10 +606,10 @@
             });
         }
 
-        // 4. CARGAR TARJETAS GUARDADAS
+        // 4. CARGAR TARJETAS GUARDADAS (BLINDADO CONTRA ERRORES)
         async function cargarTarjetasGuardadas(uid) {
             try {
-                const q = query(collection(db, "tarjetas"), where("cliente_uid", "==", uid));
+                const q = query(collection(db, "tarjetas"), where("cliente_uid", "==", String(uid)));
                 const snap = await getDocs(q);
                 listaTarjetasGuardadas = [];
 
@@ -603,9 +620,14 @@
                     selectTarjetas.innerHTML = '<option value="nueva">-- Usar una nueva tarjeta --</option>';
                     snap.forEach(d => {
                         const t = d.data();
-                        t.id = d.id;
-                        listaTarjetasGuardadas.push(t);
-                        selectTarjetas.innerHTML += `<option value="${t.id}">${t.marca || 'Tarjeta'} •••• ${t.ultimos4} (${t.nombre_titular})</option>`;
+                        if (t) {
+                            t.id = d.id;
+                            listaTarjetasGuardadas.push(t);
+                            const marca = String(t.marca || 'Tarjeta');
+                            const ultimos4 = String(t.ultimos4 || '----');
+                            const titular = String(t.nombre_titular || 'Titular');
+                            selectTarjetas.innerHTML += `<option value="${t.id}">${marca} •••• ${ultimos4} (${titular})</option>`;
+                        }
                     });
                     secTarjetas.style.display = "block";
                 }
@@ -839,13 +861,13 @@
                             if (valSelect && valSelect !== "nueva") {
                                 tarjetaUsadaId = valSelect;
                             } else if (chkGuardar && numTarjeta.length >= 15) {
-                                const ultimos4 = numTarjeta.slice(-4);
+                                const ultimos4 = String(numTarjeta).slice(-4);
                                 const docCard = await addDoc(collection(db, "tarjetas"), {
-                                    cliente_uid: uidCliente,
-                                    nombre_titular: titular || "Titular",
-                                    ultimos4: ultimos4,
-                                    marca: numTarjeta.startsWith("4") ? "Visa" : "Mastercard",
-                                    expiracion: exp || "12/28",
+                                    cliente_uid: String(uidCliente),
+                                    nombre_titular: String(titular || "Titular"),
+                                    ultimos4: String(ultimos4),
+                                    marca: String(numTarjeta.startsWith("4") ? "Visa" : "Mastercard"),
+                                    expiracion: String(exp || "12/28"),
                                     fecha_registro: serverTimestamp()
                                 });
                                 tarjetaUsadaId = docCard.id;
@@ -926,11 +948,34 @@
                             impuesto: datosCompra.impuesto,
                             total: datosCompra.totalCompraFinal,
                             estado: "Completado",
+                            estado_seguimiento: "Pendiente", // NUEVO CAMPO LOGÍSTICO INCORPORADO
                             pasos_completados: [true, true, true, false, false],
                             fecha: serverTimestamp()
                         };
 
                         await addDoc(collection(db, "ordenes"), pedidoGuardado);
+                        
+                        // ---------------------------------------------------------
+                        // ENVÍO DE CORREO 100% GRATIS CON EMAILJS
+                        // ---------------------------------------------------------
+                        const inputCorreoFisico = document.getElementById("correoContacto")?.value.trim();
+                        const correoCliente = inputCorreoFisico ? inputCorreoFisico : (clienteLogueado ? clienteLogueado.email : "correo@pordefecto.com"); 
+
+                        const templateParams = {
+                            correo_destino: correoCliente,
+                            nombre_cliente: nombreClienteForm,
+                            folio_pedido: folio,
+                            total_pagado: "$" + datosCompra.totalCompraFinal.toLocaleString('es-MX', {minimumFractionDigits: 2}) + " MXN",
+                            link_rastreo: `https://jontrix.github.io/Wizardly_Nextstage/pages/seguimiento.html?folio=${folio}` 
+                        };
+
+                        try {
+                            await emailjs.send("service_nnj5thl", "template_51jedkm", templateParams);
+                            console.log("¡Correo de confirmación enviado con éxito a través de EmailJS al correo:", correoCliente);
+                        } catch (errorCorreo) {
+                            console.error("Error al enviar el correo con EmailJS:", errorCorreo);
+                        }
+                        // ---------------------------------------------------------
 
                         if (typeof window.registrarCompraEnActividad === "function") {
                             await window.registrarCompraEnActividad(pedidoGuardado);
@@ -958,6 +1003,14 @@
                         }
                         if (typeof actualizarContadorCarrito === "function") {
                             actualizarContadorCarrito();
+                        }
+
+                        // LÓGICA DEL BOTÓN PARA RASTREAR PEDIDO
+                        const btnRastrear = document.getElementById("btnRastrearPedidoWizard");
+                        if (btnRastrear) {
+                            btnRastrear.addEventListener("click", () => {
+                                window.location.href = `seguimiento.html?folio=${folio}`;
+                            });
                         }
 
                         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1033,7 +1086,7 @@
                             <div class="input-group" style="flex:1; min-width:220px;">
                                 <input type="text" id="usoCfdiFactura" placeholder="Uso CFDI (Ej: G03)">
                             </div>
-                            <div style="display:flex; gap:10px; width:100%; margin-top:10px;">
+                            <div style="display:flex; gap-10px; width:100%; margin-top:10px;">
                                 <button type="button" class="btn" id="btnGuardarFactura">Registrar Factura</button>
                             </div>
                         </div>
