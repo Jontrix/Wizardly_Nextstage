@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizardly — Atención a Clientes</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Styles Base -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <style>
+        .soporte-grid {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: minmax(300px, 1fr) minmax(300px, 1.2fr);
+            gap: 28px;
+            align-items: start;
+        }
+
+        .soporte-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 28px;
+        }
+
+        .soporte-card h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold, #d4af37);
+            font-size: 1.3rem;
+            margin-bottom: 18px;
+        }
+
+        .campo-soporte { margin-bottom: 16px; }
+        .campo-soporte label {
+            display: block;
+            color: rgba(240, 230, 210, 0.85);
+            font-family: 'Lato', sans-serif;
+            margin-bottom: 6px;
+            font-size: 0.92rem;
+        }
+        .campo-soporte input,
+        .campo-soporte select,
+        .campo-soporte textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            resize: vertical;
+        }
+        .campo-soporte select option { background: #1a1a2e; }
+        .campo-soporte input:focus,
+        .campo-soporte select:focus,
+        .campo-soporte textarea:focus { border-color: var(--gold, #d4af37); }
+
+        .btn-soporte {
+            width: 100%;
+            background-color: var(--gold, #d4af37);
+            color: #120e1c;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-weight: bold;
+            font-family: 'Lato', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-soporte:hover { background-color: #fcd34d; }
+        .btn-soporte:disabled { opacity: 0.6; cursor: wait; }
+
+        .aviso-sesion {
+            text-align: center;
+            color: rgba(240, 230, 210, 0.8);
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+        }
+        .aviso-sesion a { color: var(--gold, #d4af37); font-weight: bold; }
+
+        /* Historial de tickets */
+        .ticket-item {
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.25);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            font-family: 'Lato', sans-serif;
+        }
+        .ticket-cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .ticket-folio { color: var(--gold, #d4af37); font-weight: bold; }
+        .ticket-asunto { color: #fff; font-weight: bold; }
+        .ticket-fecha { color: rgba(240, 230, 210, 0.55); font-size: 0.82rem; }
+        .ticket-mensaje { color: rgba(240, 230, 210, 0.85); white-space: pre-wrap; margin: 8px 0; }
+        .ticket-respuesta {
+            margin-top: 10px;
+            padding: 12px;
+            border-left: 3px solid #4ade80;
+            background: rgba(74, 222, 128, 0.07);
+            border-radius: 0 8px 8px 0;
+            color: #f0e6d2;
+            white-space: pre-wrap;
+        }
+        .ticket-respuesta .resp-titulo { display: block; color: #4ade80; font-weight: bold; margin-bottom: 4px; }
+        .ticket-sin-respuesta { color: rgba(240, 230, 210, 0.5); font-style: italic; font-size: 0.9rem; }
+
+        .badge-ticket { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; white-space: nowrap; }
+        .estado-abierto     { border: 1px solid #ef4444; color: #f87171; background: rgba(239,68,68,0.1); }
+        .estado-en-proceso  { border: 1px solid #eab308; color: #fde047; background: rgba(234,179,8,0.1); }
+        .estado-respondido  { border: 1px solid #10b981; color: #34d399; background: rgba(16,185,129,0.1); }
+        .estado-cerrado     { border: 1px solid #6b7280; color: #9ca3af; background: rgba(107,114,128,0.1); }
+
+        @media (max-width: 800px) {
+            .soporte-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body data-page="atencion">
+    <div id="navbar-placeholder"></div>
+
+    <section class="hero-catalogo" style="min-height: 35vh; padding-top: 100px;">
+        <canvas id="stardust"></canvas>
+        <div class="hero-content">
+            <span class="hero-eyebrow">✦ Consejo de Ayuda ✦</span>
+            <h2>Atención a Clientes</h2>
+            <p>Levanta un ticket y un maestro arcano dará seguimiento a tu caso.</p>
+        </div>
+    </section>
+
+    <!-- AVISO SI NO HAY SESIÓN -->
+    <div class="soporte-card aviso-sesion" id="aviso-sesion" style="max-width: 600px; margin: 40px auto; display: none;">
+        <div style="font-size: 50px; margin-bottom: 10px;">🔮</div>
+        <p>Para levantar un ticket y consultar tus respuestas necesitas iniciar sesión.</p>
+        <p style="margin-top: 15px;"><a href="login.html">Acceder a mi cuenta</a> · <a href="registro.html">Crear cuenta</a></p>
+    </div>
+
+    <div class="soporte-grid" id="soporte-contenido" style="display: none;">
+        <!-- FORMULARIO NUEVO TICKET -->
+        <div class="soporte-card">
+            <h3><i class="fa-solid fa-feather-pointed"></i> Nuevo ticket</h3>
+            <form id="form-ticket" novalidate>
+                <div class="campo-soporte">
+                    <label for="ticket-asunto">Asunto</label>
+                    <select id="ticket-asunto" required>
+                        <option value="">-- Selecciona un asunto --</option>
+                        <option value="Duda sobre mi pedido">Duda sobre mi pedido</option>
+                        <option value="Cambio o devolución">Cambio o devolución</option>
+                        <option value="Problema con el pago">Problema con el pago</option>
+                        <option value="Monedero Arcana">Monedero Arcana</option>
+                        <option value="Facturación">Facturación</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="campo-soporte">
+                    <label for="ticket-pedido">Folio del pedido (opcional)</label>
+                    <input type="text" id="ticket-pedido" maxlength="20" placeholder="Ej: WZ-123456" data-opcional>
+                </div>
+                <div class="campo-soporte">
+                    <label for="ticket-mensaje">Mensaje</label>
+                    <textarea id="ticket-mensaje" rows="6" maxlength="1500" placeholder="Describe tu consulta con el mayor detalle posible..." required></textarea>
+                </div>
+                <button type="submit" class="btn-soporte" id="btn-enviar-ticket">
+                    <i class="fa-solid fa-paper-plane"></i> Enviar ticket
+                </button>
+            </form>
+        </div>
+
+        <!-- HISTORIAL DE TICKETS -->
+        <div class="soporte-card">
+            <h3><i class="fa-solid fa-scroll"></i> Mis tickets</h3>
+            <div id="lista-tickets">
+                <p class="ticket-sin-respuesta">Cargando tus tickets...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer-mini">
+        <p>© 2026 <span>Wizardly</span> — Mercado Arcano ✦ Todos los derechos mágicos reservados</p>
+        <div class="footer-links">
+            <a href="politicas.html">Políticas de Compra y Venta</a>
+        </div>
+    </footer>
+
+    <!-- Scripts Base -->
+    <script src="../js/carrito.js"></script>
+    <script src="../js/notificaciones.js"></script>
+    <script src="../js/cargar-navbar.js"></script>
+    <script src="../js/script.js"></script>
+
+    <!-- TICKETS DE ATENCIÓN (Módulo 4.1.6) — colección tickets_atencion -->
+    <script type="module">
+        import { db, auth } from "../js/firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+        import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+        let clienteActual = null;
+        let nombreCliente = "";
+
+        const avisar = (msg, tipo = "info", dur) => window.mostrarNotificacion?.(msg, tipo, dur);
+        const escaparHTML = (t) => String(t ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const aFecha = (v) => (v && typeof v.toDate === "function") ? v.toDate() : (v ? new Date(v) : null);
+        const formatoFecha = (v) => {
+            const f = aFecha(v);
+            return f && !isNaN(f) ? f.toLocaleString("es-MX", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Hace un momento";
+        };
+        const claseEstado = (e) => "estado-" + String(e || "Abierto").toLowerCase().replace(/\s+/g, "-");
+
+        // Si viene de otra página con ?folio=WZ-XXXX, se precarga el pedido
+        const folioUrl = new URLSearchParams(location.search).get("folio");
+        if (folioUrl) {
+            document.getElementById("ticket-pedido").value = folioUrl;
+            document.getElementById("ticket-asunto").value = "Duda sobre mi pedido";
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                document.getElementById("aviso-sesion").style.display = "block";
+                document.getElementById("soporte-contenido").style.display = "none";
+                return;
+            }
+            clienteActual = user;
+            document.getElementById("aviso-sesion").style.display = "none";
+            document.getElementById("soporte-contenido").style.display = "grid";
+
+            // Nombre del cliente desde el CRM (colección clientes)
+            nombreCliente = user.displayName || user.email || "Cliente Wizardly";
+            try {
+                const snap = await getDoc(doc(db, "clientes", user.uid));
+                if (snap.exists()) {
+                    const c = snap.data();
+                    nombreCliente = c.nombre || c.nombreCompleto || c.nombre_completo || nombreCliente;
+                }
+            } catch (err) {
+                console.error("No se pudo leer el cliente:", err);
+            }
+
+            cargarMisTickets();
+        });
+
+        async function cargarMisTickets() {
+            const lista = document.getElementById("lista-tickets");
+            try {
+                const q = query(collection(db, "tickets_atencion"), where("cliente_id", "==", clienteActual.uid));
+                const snap = await getDocs(q);
+                const tickets = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => (aFecha(b.fecha)?.getTime() || Date.now()) - (aFecha(a.fecha)?.getTime() || Date.now()));
+
+                if (tickets.length === 0) {
+                    lista.innerHTML = '<p class="ticket-sin-respuesta">Aún no has levantado ningún ticket.</p>';
+                    return;
+                }
+
+                lista.innerHTML = tickets.map(t => `
+                    <div class="ticket-item">
+                        <div class="ticket-cabecera">
+                            <span><span class="ticket-folio">${escaparHTML(t.folio_ticket || "")}</span> · <span class="ticket-asunto">${escaparHTML(t.asunto)}</span></span>
+                            <span class="badge-ticket ${claseEstado(t.estado)}">${escaparHTML(t.estado || "Abierto")}</span>
+                        </div>
+                        <span class="ticket-fecha">${formatoFecha(t.fecha)}${t.pedido_folio ? ` · Pedido ${escaparHTML(t.pedido_folio)}` : ""}</span>
+                        <p class="ticket-mensaje">${escaparHTML(t.mensaje)}</p>
+                        ${t.respuesta
+                            ? `<div class="ticket-respuesta"><span class="resp-titulo"><i class="fa-solid fa-hat-wizard"></i> Respuesta del Consejo Arcano</span>${escaparHTML(t.respuesta)}<br><small class="ticket-fecha">${formatoFecha(t.fecha_respuesta)}</small></div>`
+                            : '<p class="ticket-sin-respuesta">Esperando respuesta del equipo de atención.</p>'}
+                    </div>
+                `).join("");
+            } catch (error) {
+                console.error("Error al cargar tickets:", error);
+                lista.innerHTML = '<p class="ticket-sin-respuesta">No pudimos cargar tus tickets. Intenta de nuevo más tarde.</p>';
+            }
+        }
+
+        document.getElementById("form-ticket").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!clienteActual) return;
+
+            const asunto = document.getElementById("ticket-asunto").value;
+            const pedidoFolio = document.getElementById("ticket-pedido").value.trim().toUpperCase();
+            const mensaje = document.getElementById("ticket-mensaje").value.trim();
+
+            if (!asunto) {
+                avisar("Selecciona el asunto de tu ticket.", "aviso");
+                return;
+            }
+            if (mensaje.length < 10) {
+                avisar("Describe tu consulta con al menos 10 caracteres.", "aviso");
+                return;
+            }
+
+            const btn = document.getElementById("btn-enviar-ticket");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+
+            try {
+                const folioTicket = "T-" + Math.floor(100000 + Math.random() * 900000);
+                await addDoc(collection(db, "tickets_atencion"), {
+                    folio_ticket: folioTicket,
+                    cliente_id: clienteActual.uid,
+                    cliente_nombre: nombreCliente,
+                    cliente_correo: clienteActual.email || "",
+                    asunto,
+                    pedido_folio: pedidoFolio || null,
+                    mensaje,
+                    estado: "Abierto",
+                    respuesta: "",
+                    fecha: serverTimestamp()
+                });
+
+                avisar(`Ticket ${folioTicket} enviado. Te responderemos pronto.`, "exito", 5000);
+                document.getElementById("form-ticket").reset();
+                cargarMisTickets();
+            } catch (error) {
+                console.error("Error al crear el ticket:", error);
+                avisar("No se pudo enviar tu ticket. Intenta de nuevo.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar ticket';
+            }
+        });
+    </script>
+</body>
+
+</html>
