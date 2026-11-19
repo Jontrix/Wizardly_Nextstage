@@ -41,6 +41,8 @@
                 <a href="admin-clientes.html" class="nav-item active">
                     <i class="fa-solid fa-users"></i> Clientes
                 </a>
+                <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+                <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
                 <a href="admin-actividad.html" class="nav-item">
                     <i class="fa-solid fa-clock-rotate-left"></i> Actividad
                 </a>
@@ -167,6 +169,13 @@
                         <option value="Inactivo">Inactivo</option>
                     </select>
                 </div>
+                <div class="admin-filtro-select">
+                    <select id="filtro-estado-cliente">
+                        <option value="">Todos los estados</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
             </div>
 
             <div class="admin-tabla-wrap">
@@ -252,6 +261,13 @@
                         <option value="Prospecto">Prospecto</option>
                     </select>
                 </div>
+                <div class="campo-modal">
+                    <label>Estado</label>
+                    <select id="mc-estado">
+                        <option value="Activo" selected>Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-modal-cancelar" onclick="cerrarModalCliente()">Cancelar</button>
@@ -300,8 +316,15 @@
                     <label>Rango de Etapa</label>
                     <p class="info-lectura" id="vc-etapa">-</p>
                 </div>
+                <div class="campo-modal">
+                    <label>Estado</label>
+                    <p class="info-lectura" id="vc-estado">-</p>
+                </div>
             </div>
             <div class="modal-footer">
+                <a id="vc-link-historial" href="admin-cliente-detalle.html" class="btn-modal-guardar" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-scroll"></i> Historial e interacciones
+                </a>
                 <button class="btn-modal-cancelar" onclick="cerrarVisualizarCliente()">Cerrar</button>
             </div>
         </div>
@@ -393,6 +416,8 @@
         var mcFaccion = document.getElementById('mc-faccion');
         var mcRango = document.getElementById('mc-rango');
         var mcEtapa = document.getElementById('mc-etapa');
+        var mcEstado = document.getElementById('mc-estado');
+        var filtroEstadoCliente = document.getElementById('filtro-estado-cliente');
         var confirmClienteOverlay = document.getElementById('confirm-cliente-overlay');
         var confirmClienteNombre = document.getElementById('confirm-cliente-nombre');
         var visualizarClienteOverlay = document.getElementById('visualizar-cliente-overlay');
@@ -442,7 +467,8 @@
                     '<td>' + (c.correo || 'Sin Correo') + '</td>' +
                     '<td>' + empresaVal + '</td>' +
                     '<td><span class="badge ' + rangoClase + '">' + rangoVal + '</span></td>' +
-                    '<td><span class="badge ' + etapaClase + '">' + etapaVal + '</span></td>' +
+                    '<td><span class="badge ' + etapaClase + '">' + etapaVal + '</span>' +
+                        ' <span class="badge ' + ((c.estado || 'Activo') === 'Inactivo' ? 'badge-inactivo' : 'badge-activo') + '" title="Estado">' + (c.estado || 'Activo') + '</span></td>' +
                     '<td><div class="acciones-wrap">' +
                         '<button class="btn-icono ver" onclick="abrirVisualizarCliente(\'' + c.id + '\')"><i class="fa-solid fa-eye"></i></button>' +
                         '<button class="btn-icono editar" onclick="abrirEditarCliente(\'' + c.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
@@ -465,6 +491,7 @@
             var texto = inputBuscarCliente.value.toLowerCase();
             var rangoSel = filtroRangoCliente.value;
             var etapaSel = filtroEtapaCliente.value;
+            var estadoSel = filtroEstadoCliente ? filtroEstadoCliente.value : '';
 
             var filtrados = window.clientes.filter(function(c) {
                 var nombre = c.nombre || "";
@@ -475,7 +502,8 @@
                 var coincideTexto = nombre.toLowerCase().includes(texto) || correo.toLowerCase().includes(texto);
                 var coincideRango = (rangoSel === '' || rango === rangoSel);
                 var coincideEtapa = (etapaSel === '' || etapa === etapaSel);
-                return coincideTexto && coincideRango && coincideEtapa;
+                var coincideEstado = (estadoSel === '' || (c.estado || 'Activo') === estadoSel);
+                return coincideTexto && coincideRango && coincideEtapa && coincideEstado;
             });
             window.renderTablaClientes(filtrados);
         };
@@ -489,6 +517,7 @@
             mcFaccion.value = '';
             mcRango.value = 'Iniciado';
             mcEtapa.value = 'Activo';
+            if (mcEstado) mcEstado.value = 'Activo';
             modalClienteOverlay.classList.add('visible');
         };
 
@@ -503,6 +532,7 @@
             mcFaccion.value = c.empresa || c.faccion || '';
             mcRango.value = c.rango || 'Iniciado';
             mcEtapa.value = c.etapa_crm || c.etapa || 'Activo';
+            if (mcEstado) mcEstado.value = (c.estado === 'Inactivo') ? 'Inactivo' : 'Activo';
             modalClienteOverlay.classList.add('visible');
         };
 
@@ -520,6 +550,8 @@
             document.getElementById('vc-faccion').textContent = c.empresa || c.faccion || '-';
             document.getElementById('vc-rango').textContent = c.rango || 'Iniciado';
             document.getElementById('vc-etapa').textContent = c.etapa_crm || c.etapa || 'Activo';
+            document.getElementById('vc-estado').textContent = c.estado || 'Activo';
+            document.getElementById('vc-link-historial').href = 'admin-cliente-detalle.html?id=' + encodeURIComponent(c.id);
             visualizarClienteOverlay.classList.add('visible');
         };
 
@@ -534,6 +566,7 @@
             var empresa = mcFaccion.value.trim() || "Independiente";
             var rango = mcRango.value || "Iniciado";
             var etapa = mcEtapa.value || "Activo";
+            var estado = (mcEstado && mcEstado.value) || "Activo";
 
             if (!nombre || !correo) {
                 window.mostrarToastCliente('⚠️ Nombre y Correo son obligatorios.', 'error');
@@ -550,7 +583,8 @@
                         telefono: telefono,
                         empresa: empresa, 
                         rango: rango, 
-                        etapa_crm: etapa
+                        etapa_crm: etapa,
+                        estado: estado
                     });
                     
                     await registrarHistorialLocal("clientes", "actualizar", "Se actualizó el cliente: " + nombre);
@@ -564,7 +598,7 @@
                         empresa: empresa, 
                         rango: rango, 
                         etapa_crm: etapa, 
-                        estado: "Activo", 
+                        estado: estado, 
                         fecha_registro: Timestamp.now()
                     });
                     
@@ -678,6 +712,7 @@
         inputBuscarCliente.addEventListener('input', window.aplicarFiltrosCliente);
         filtroRangoCliente.addEventListener('change', window.aplicarFiltrosCliente);
         filtroEtapaCliente.addEventListener('change', window.aplicarFiltrosCliente);
+        if (filtroEstadoCliente) filtroEstadoCliente.addEventListener('change', window.aplicarFiltrosCliente);
 
         window.cargarClientesFirebase();
     </script>

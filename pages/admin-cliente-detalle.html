@@ -52,6 +52,8 @@
         <a href="admin-clientes.html" class="nav-item active">
             <i class="fa-solid fa-users"></i> Clientes
         </a>
+        <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+        <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
         <a href="admin-actividad.html" class="nav-item">
             <i class="fa-solid fa-clock-rotate-left"></i> Actividad
         </a>
@@ -206,6 +208,19 @@
                         <h3>Interacciones recientes</h3>
                         <span class="count-badge" id="detalle-interacciones-count">0</span>
                     </div>
+                    <!-- REGISTRAR INTERACCIÓN (Etapa 1 — colección interacciones) -->
+                    <form id="form-interaccion" class="form-interaccion">
+                        <div class="form-interaccion-fila">
+                            <select id="int-tipo" required>
+                                <option value="Mensaje por Lechuza">🦉 Mensaje por Lechuza (correo)</option>
+                                <option value="Orbe de Visión">🔮 Orbe de Visión (llamada)</option>
+                                <option value="Visita Astral">✨ Visita Astral (reunión)</option>
+                            </select>
+                            <button type="submit" id="btn-guardar-interaccion"><i class="fa-solid fa-feather-pointed"></i> Registrar</button>
+                        </div>
+                        <textarea id="int-descripcion" rows="3" maxlength="800" placeholder="Describe la interacción con el cliente..." required></textarea>
+                    </form>
+
                     <ul class="detalle-interacciones" id="detalle-lista-interacciones">
                         <li class="detalle-vacia">Cargando interacciones...</li>
                     </ul>
@@ -216,9 +231,10 @@
     </main>
 
     <!-- ── LÓGICA DE FIREBASE Y JS EXCLUSIVA PARA EL PERFIL ── -->
+    <script src="../js/notificaciones.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         // ⚠️ TUS CREDENCIALES DE FIREBASE
@@ -258,6 +274,17 @@
             });
         }
 
+        const escaparHTML = (t) => String(t ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        // Usuario responsable de la interacción: el administrador con sesión iniciada
+        function usuarioResponsable() {
+            if (auth.currentUser) return auth.currentUser.displayName || auth.currentUser.email || auth.currentUser.uid;
+            try {
+                const datos = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
+                return datos.nombre || datos.correo || "Administrador";
+            } catch { return "Administrador"; }
+        }
+
         // 3. Dibujar las interacciones del cliente
         function renderizarInteracciones(interacciones) {
             const contenedor = document.getElementById('detalle-lista-interacciones');
@@ -274,13 +301,15 @@
             contenedor.innerHTML = interacciones.map((interaccion) => {
                 const detalle = interaccion.detalle || interaccion.descripcion || 'Sin detalle registrado';
                 const tipo = interaccion.tipo || interaccion.accion || 'Interacción';
+                const responsable = interaccion.usuario_id ? `<small class="detalle-interaccion-usuario"><i class="fa-solid fa-user-pen"></i> ${escaparHTML(interaccion.usuario_id)}</small>` : '';
                 return `
                     <li class="detalle-interaccion-item">
                         <div class="detalle-interaccion-header">
-                            <span class="detalle-interaccion-tipo">${tipo}</span>
+                            <span class="detalle-interaccion-tipo">${escaparHTML(tipo)}</span>
                             <span class="detalle-interaccion-fecha">${formatearFecha(interaccion.fecha)}</span>
                         </div>
-                        <p>${detalle}</p>
+                        <p>${escaparHTML(detalle)}</p>
+                        ${responsable}
                     </li>
                 `;
             }).join('');
@@ -337,6 +366,37 @@
                 document.getElementById('detalle-cliente-nombre').textContent = 'Error de conexión';
             }
         }
+
+        // 5. Registrar una nueva interacción para este cliente
+        document.getElementById('form-interaccion')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const clienteId = new URLSearchParams(window.location.search).get('id');
+            const tipo = document.getElementById('int-tipo').value;
+            const descripcion = document.getElementById('int-descripcion').value.trim();
+            const btn = document.getElementById('btn-guardar-interaccion');
+            if (!clienteId || descripcion.length < 3) {
+                window.mostrarNotificacion?.('Escribe una descripción de la interacción.', 'aviso');
+                return;
+            }
+            btn.disabled = true;
+            try {
+                await addDoc(collection(db, 'interacciones'), {
+                    cliente_id: clienteId,
+                    tipo,
+                    descripcion,
+                    fecha: Timestamp.now(),
+                    usuario_id: usuarioResponsable()
+                });
+                document.getElementById('int-descripcion').value = '';
+                window.mostrarNotificacion?.('Interacción registrada en el historial del cliente.', 'exito');
+                await cargarDetalleCliente();
+            } catch (error) {
+                console.error('Error al registrar la interacción:', error);
+                window.mostrarNotificacion?.('No se pudo registrar la interacción.', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        });
 
         // Arrancar
         cargarDetalleCliente();
@@ -488,6 +548,21 @@
             color: var(--text-main);
             line-height: 1.5;
         }
+        .form-interaccion { margin: 10px 0 18px; display: flex; flex-direction: column; gap: 10px; }
+        .form-interaccion-fila { display: flex; gap: 10px; flex-wrap: wrap; }
+        .form-interaccion select, .form-interaccion textarea {
+            flex: 1; min-width: 200px; padding: 10px 12px; border-radius: 10px;
+            background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.15);
+            font-family: 'Lato', sans-serif; outline: none; resize: vertical;
+        }
+        .form-interaccion select option { background: #1a1a2e; }
+        .form-interaccion select:focus, .form-interaccion textarea:focus { border-color: var(--gold); }
+        .form-interaccion button {
+            background: var(--gold); color: #120e1c; border: none; border-radius: 10px;
+            padding: 10px 18px; font-weight: bold; cursor: pointer; font-family: 'Lato', sans-serif;
+        }
+        .form-interaccion button:disabled { opacity: 0.6; cursor: wait; }
+        .detalle-interaccion-usuario { display: block; margin-top: 6px; color: var(--text-muted); font-size: 0.8rem; }
         .detalle-vacia {
             list-style: none;
             padding: 18px;
