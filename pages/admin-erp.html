@@ -41,6 +41,8 @@
                 <a href="admin-clientes.html" class="nav-item">
                     <i class="fa-solid fa-users"></i> Clientes
                 </a>
+                <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+                <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
                 <a href="admin-actividad.html" class="nav-item">
                     <i class="fa-solid fa-clock-rotate-left"></i> Actividad
                 </a>
@@ -290,78 +292,56 @@
                 document.getElementById('erp-kpi-clientes').textContent = snapshot.size;
             }, (error) => console.error("Error al escuchar clientes:", error));
 
-            // Escuchar colección de productos para obtener mapa de nombres por ID
-            onSnapshot(collection(db, "productos"), (prodSnap) => {
-                const mapaProductos = {};
-                prodSnap.forEach(doc => {
-                    const data = doc.data();
-                    mapaProductos[doc.id] = data.nombre || data.nombre_producto || "Artefacto";
-                });
+            // KPI 2, KPI 3 y Gráficas: ventas reales de la colección "ordenes"
+            // (tienda en línea + órdenes del ERP; no incluye pedidos de reposición a proveedores)
+            onSnapshot(collection(db, "ordenes"), (ordSnap) => {
+                let ventasTotales = 0;
+                const hoy = new Date();
+                const ultimos6Meses = [];
+                const ventasPorMes = {};
+                for (let i = 5; i >= 0; i--) {
+                    const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+                    const claveMes = `${d.getFullYear()}-${d.getMonth()}`;
+                    ultimos6Meses.push({ clave: claveMes, label: mesesNombres[d.getMonth()] });
+                    ventasPorMes[claveMes] = 0;
+                }
+                const contadorProductos = {};
+                let totalOrdenes = 0;
 
-                // KPI 2, KPI 3 y Gráficas: Escuchar colección de movimientos
-                onSnapshot(collection(db, "movimientos"), (movsSnap) => {
-                    let totalOrdenes = 0;
-                    let ventasTotales = 0;
+                ordSnap.forEach(doc => {
+                    const orden = doc.data();
+                    if (orden.estado === "Cancelada") return;
+                    totalOrdenes++;
+                    const total = parseFloat(orden.total) || 0;
+                    ventasTotales += total;
 
-                    const hoy = new Date();
-                    const ultimos6Meses = [];
-                    const ventasPorMes = {};
-
-                    for (let i = 5; i >= 0; i--) {
-                        const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
-                        const claveMes = `${d.getFullYear()}-${d.getMonth()}`;
-                        const etiquetaMes = mesesNombres[d.getMonth()];
-                        ultimos6Meses.push({ clave: claveMes, label: etiquetaMes });
-                        ventasPorMes[claveMes] = 0;
+                    const fecha = orden.fecha && typeof orden.fecha.toDate === 'function' ? orden.fecha.toDate() : (orden.fecha ? new Date(orden.fecha) : null);
+                    if (fecha && !isNaN(fecha)) {
+                        const clave = `${fecha.getFullYear()}-${fecha.getMonth()}`;
+                        if (ventasPorMes[clave] !== undefined) ventasPorMes[clave] += total;
                     }
 
-                    const contadorProductos = {};
-
-                    movsSnap.forEach(doc => {
-                        const data = doc.data();
-
-                        if (data.tipo === "Salida" || data.motivo === "Venta") {
-                            totalOrdenes++;
-
-                            const cantidad = parseInt(data.cantidad) || 1;
-                            const precioUnitario = parseFloat(data.precio) || 150;
-                            const subtotal = data.montoTotal ? parseFloat(data.montoTotal) : (cantidad * precioUnitario);
-
-                            ventasTotales += subtotal;
-
-                            if (data.fecha) {
-                                const fechaObj = typeof data.fecha.toDate === 'function' ? data.fecha.toDate() : new Date(data.fecha);
-                                const claveMov = `${fechaObj.getFullYear()}-${fechaObj.getMonth()}`;
-                                if (ventasPorMes[claveMov] !== undefined) {
-                                    ventasPorMes[claveMov] += subtotal;
-                                }
-                            }
-
-                            const nombreProd = data.nombreProducto || mapaProductos[data.productoId] || data.producto || "Artefacto Varios";
-                            contadorProductos[nombreProd] = (contadorProductos[nombreProd] || 0) + cantidad;
-                        }
+                    (Array.isArray(orden.productos) ? orden.productos : []).forEach(p => {
+                        const nombre = p.nombre || "Artefacto";
+                        contadorProductos[nombre] = (contadorProductos[nombre] || 0) + (parseInt(p.cantidad) || 1);
                     });
+                });
 
-                    // Actualizar Tarjetas KPI
-                    document.getElementById('erp-kpi-ordenes').textContent = totalOrdenes;
-                    document.getElementById('erp-kpi-ventas').textContent = "$" + ventasTotales.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                // Actualizar Tarjetas KPI
+                document.getElementById('erp-kpi-ordenes').textContent = totalOrdenes;
+                document.getElementById('erp-kpi-ventas').textContent = "$" + ventasTotales.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-                    // Actualizar Gráfica de Ventas
-                    chartVentasInstance.data.labels = ultimos6Meses.map(m => m.label);
-                    chartVentasInstance.data.datasets[0].data = ultimos6Meses.map(m => ventasPorMes[m.clave]);
-                    chartVentasInstance.update();
+                // Actualizar Gráfica de Ventas
+                chartVentasInstance.data.labels = ultimos6Meses.map(m => m.label);
+                chartVentasInstance.data.datasets[0].data = ultimos6Meses.map(m => Math.round(ventasPorMes[m.clave] * 100) / 100);
+                chartVentasInstance.update();
 
-                    // Actualizar Gráfica de Productos Top 5
-                    const productosOrdenados = Object.entries(contadorProductos)
-                        .sort((a, b) => b[1] - a[1])
-                        .slice(0, 5);
-
-                    chartProductosInstance.data.labels = productosOrdenados.map(p => p[0]);
-                    chartProductosInstance.data.datasets[0].data = productosOrdenados.map(p => p[1]);
-                    chartProductosInstance.update();
-
-                }, (error) => console.error("Error al escuchar movimientos:", error));
-            }, (error) => console.error("Error al escuchar productos:", error));
+                // Actualizar Gráfica de Productos Top 5
+                const top = Object.entries(contadorProductos).sort((a, b) => b[1] - a[1]).slice(0, 5);
+                chartProductosInstance.data.labels = top.length ? top.map(p => p[0]) : ['Sin ventas registradas'];
+                chartProductosInstance.data.datasets[0].data = top.length ? top.map(p => p[1]) : [0];
+                chartProductosInstance.update();
+            }, (error) => console.error("Error al escuchar órdenes:", error));
         }
 
         conectarDashboardRealtime();

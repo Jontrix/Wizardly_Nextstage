@@ -122,6 +122,8 @@
                 <a href="admin-clientes.html" class="nav-item">
                     <i class="fa-solid fa-users"></i> Clientes
                 </a>
+                <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+                <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
                 <a href="admin-actividad.html" class="nav-item">
                     <i class="fa-solid fa-clock-rotate-left"></i> Actividad
                 </a>
@@ -220,14 +222,14 @@
                 <div class="kpi-icon"><i class="fa-solid fa-dollar-sign"></i></div>
                 <div class="kpi-info">
                     <h4 id="kpi-ventas">$0.00</h4>
-                    <p>Ingresos ERP (Finanzas)</p>
+                    <p>Ventas totales (órdenes)</p>
                 </div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-icon"><i class="fa-solid fa-file-invoice"></i></div>
                 <div class="kpi-info">
                     <h4 id="kpi-ordenes">0</h4>
-                    <p>Órdenes Totales (ERP)</p>
+                    <p>Órdenes procesadas / totales</p>
                 </div>
             </div>
             <div class="kpi-card">
@@ -241,7 +243,14 @@
                 <div class="kpi-icon"><i class="fa-solid fa-cubes"></i></div>
                 <div class="kpi-info">
                     <h4 id="kpi-catalogo">0</h4>
-                    <p>Catálogo Activo (SCM)</p>
+                    <p>Inventario disponible (piezas)</p>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+                <div class="kpi-info">
+                    <h4 id="kpi-vendidos">0</h4>
+                    <p>Productos vendidos</p>
                 </div>
             </div>
         </div>
@@ -343,7 +352,7 @@
             chartEstado = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Completadas', 'En Proceso', 'Pendientes'],
+                    labels: ['Procesadas', 'Procesando', 'Pendientes'],
                     datasets: [{
                         data: [0, 0, 0],
                         backgroundColor: ['#10b981', '#3b82f6', '#f59e0b'],
@@ -401,98 +410,83 @@
                 document.getElementById('kpi-clientes').textContent = activosCount || snapClientes.size;
             }, (err) => console.error("Error clientes:", err));
 
-            // 2. Catálogo de Productos (SCM)
+            // 2. Inventario disponible (SCM): piezas en existencia de productos activos
             onSnapshot(collection(db, "productos"), (snapProductos) => {
-                document.getElementById('kpi-catalogo').textContent = snapProductos.size;
-                const mapaProductos = {};
+                let piezas = 0;
                 snapProductos.forEach(d => {
                     const prod = d.data();
-                    mapaProductos[d.id] = prod.nombre || prod.nombre_producto || "Artefacto";
+                    if (prod.estado !== "Inactivo") piezas += parseInt(prod.existencia ?? prod.stock) || 0;
+                });
+                document.getElementById('kpi-catalogo').textContent = piezas.toLocaleString('es-MX');
+            }, (err) => console.error("Error productos:", err));
+
+            // 3. Ventas reales (ERP): SOLO la colección "ordenes" (tienda en línea + órdenes del ERP).
+            //    Los pedidos de reposición a proveedores ("pedidos") no son ventas y no se cuentan aquí.
+            onSnapshot(collection(db, "ordenes"), (snapOrdenes) => {
+                let ventasTotales = 0;
+                let procesadas = 0, procesando = 0, pendientes = 0;
+                let productosVendidos = 0;
+
+                const hoy = new Date();
+                const ultimos6Meses = [];
+                const ventasPorMes = {};
+                for (let i = 5; i >= 0; i--) {
+                    const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+                    const claveMes = `${d.getFullYear()}-${d.getMonth()}`;
+                    ultimos6Meses.push({ clave: claveMes, label: mesesNombres[d.getMonth()] });
+                    ventasPorMes[claveMes] = 0;
+                }
+
+                const contadorProductos = {};
+
+                snapOrdenes.forEach(d => {
+                    const orden = d.data();
+                    if (orden.estado === "Cancelada") return;
+                    const total = parseFloat(orden.total) || 0;
+                    ventasTotales += total;
+
+                    // Mismo criterio de avance que admin-ordenes.html (5 pasos)
+                    let pasos = 0;
+                    if (orden.estado === "Procesada") pasos = 5;
+                    else if (Array.isArray(orden.pasos_completados)) pasos = orden.pasos_completados.filter(Boolean).length;
+                    if (pasos >= 5) procesadas++;
+                    else if (pasos > 0) procesando++;
+                    else pendientes++;
+
+                    const fecha = orden.fecha && typeof orden.fecha.toDate === 'function' ? orden.fecha.toDate() : (orden.fecha ? new Date(orden.fecha) : null);
+                    if (fecha && !isNaN(fecha)) {
+                        const clave = `${fecha.getFullYear()}-${fecha.getMonth()}`;
+                        if (ventasPorMes[clave] !== undefined) ventasPorMes[clave] += total;
+                    }
+
+                    (Array.isArray(orden.productos) ? orden.productos : []).forEach(p => {
+                        const cantidad = parseInt(p.cantidad) || 1;
+                        productosVendidos += cantidad;
+                        const nombre = p.nombre || "Artefacto";
+                        contadorProductos[nombre] = (contadorProductos[nombre] || 0) + cantidad;
+                    });
                 });
 
-                // 3. Movimientos & Órdenes Integradas (ERP)
-                onSnapshot(collection(db, "movimientos"), (snapMovs) => {
-                    let totalOrdenes = 0;
-                    let ventasTotales = 0;
-                    let completadas = 0, enProceso = 0, pendientes = 0;
+                // KPIs ERP
+                document.getElementById('kpi-ventas').textContent = "$" + ventasTotales.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('kpi-ordenes').textContent = `${procesadas} / ${snapOrdenes.size}`;
+                document.getElementById('kpi-vendidos').textContent = productosVendidos.toLocaleString('es-MX');
 
-                    const hoy = new Date();
-                    const ultimos6Meses = [];
-                    const ventasPorMes = {};
+                // Gráfica 1: Ventas por mes
+                chartVentas.data.labels = ultimos6Meses.map(m => m.label);
+                chartVentas.data.datasets[0].data = ultimos6Meses.map(m => Math.round(ventasPorMes[m.clave] * 100) / 100);
+                chartVentas.update();
 
-                    for (let i = 5; i >= 0; i--) {
-                        const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
-                        const claveMes = `${d.getFullYear()}-${d.getMonth()}`;
-                        const etiquetaMes = mesesNombres[d.getMonth()];
-                        ultimos6Meses.push({ clave: claveMes, label: etiquetaMes });
-                        ventasPorMes[claveMes] = 0;
-                    }
+                // Gráfica 2: Estado de órdenes ERP
+                chartEstado.data.datasets[0].data = [procesadas, procesando, pendientes];
+                chartEstado.update();
 
-                    const contadorProductos = {};
-
-                    snapMovs.forEach(d => {
-                        const data = d.data();
-                        if (data.tipo === "Salida" || data.motivo === "Venta" || data.origen === "ERP") {
-                            totalOrdenes++;
-
-                            const cantidad = parseInt(data.cantidad) || 1;
-                            const precio = parseFloat(data.precio) || 150;
-                            const subtotal = data.montoTotal ? parseFloat(data.montoTotal) : (cantidad * precio);
-
-                            ventasTotales += subtotal;
-
-                            // Clasificar estados de órdenes ERP
-                            const estado = data.estado || "Completada";
-                            if (estado === "Completada" || estado === "Procesada") completadas++;
-                            else if (estado === "En Proceso" || estado === "Enviado") enProceso++;
-                            else pendientes++;
-
-                            if (data.fecha) {
-                                const fechaObj = typeof data.fecha.toDate === 'function' ? data.fecha.toDate() : new Date(data.fecha);
-                                const claveMov = `${fechaObj.getFullYear()}-${fechaObj.getMonth()}`;
-                                if (ventasPorMes[claveMov] !== undefined) {
-                                    ventasPorMes[claveMov] += subtotal;
-                                }
-                            }
-
-                            const nombreProd = data.nombreProducto || mapaProductos[data.productoId] || data.producto || "Artefacto Varios";
-                            contadorProductos[nombreProd] = (contadorProductos[nombreProd] || 0) + cantidad;
-                        }
-                    });
-
-                    // Si aún no hay movimientos cargados, mostrar plantilla demostrativa del flujo
-                    if (totalOrdenes === 0) {
-                        totalOrdenes = 15;
-                        completadas = 10;
-                        enProceso = 3;
-                        pendientes = 2;
-                        ventasTotales = 18450;
-                    }
-
-                    // Actualizar KPIs ERP
-                    document.getElementById('kpi-ventas').textContent = "$" + ventasTotales.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    document.getElementById('kpi-ordenes').textContent = totalOrdenes;
-
-                    // Actualizar Gráfica 1: Ventas por Mes
-                    chartVentas.data.labels = ultimos6Meses.map(m => m.label);
-                    chartVentas.data.datasets[0].data = ultimos6Meses.map(m => ventasPorMes[m.clave]);
-                    chartVentas.update();
-
-                    // Actualizar Gráfica 2: Estado de Órdenes ERP
-                    chartEstado.data.datasets[0].data = [completadas, enProceso, pendientes];
-                    chartEstado.update();
-
-                    // Actualizar Gráfica 3: Top Productos ERP
-                    const productosOrdenados = Object.entries(contadorProductos)
-                        .sort((a, b) => b[1] - a[1])
-                        .slice(0, 5);
-
-                    chartProductos.data.labels = productosOrdenados.map(p => p[0]);
-                    chartProductos.data.datasets[0].data = productosOrdenados.map(p => p[1]);
-                    chartProductos.update();
-
-                }, (err) => console.error("Error movimientos:", err));
-            }, (err) => console.error("Error productos:", err));
+                // Gráfica 3: Top productos vendidos
+                const top = Object.entries(contadorProductos).sort((a, b) => b[1] - a[1]).slice(0, 5);
+                chartProductos.data.labels = top.length ? top.map(p => p[0]) : ['Sin ventas registradas'];
+                chartProductos.data.datasets[0].data = top.length ? top.map(p => p[1]) : [0];
+                chartProductos.update();
+            }, (err) => console.error("Error ordenes:", err));
         }
 
         document.addEventListener('DOMContentLoaded', conectarReportesERPRealtime);

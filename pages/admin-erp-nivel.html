@@ -206,6 +206,10 @@
             <a href="admin-clientes.html" class="nav-item">
                 <i class="fa-solid fa-users"></i> Clientes
             </a>
+            <a href="admin-tickets.html" class="nav-item">
+                <i class="fa-solid fa-headset"></i> Atención a clientes
+            </a>
+            <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
             <a href="admin-actividad.html" class="nav-item">
                 <i class="fa-solid fa-clock-rotate-left"></i> Actividad
             </a>
@@ -334,6 +338,8 @@
                 <div class="status-banner-content">
                     <h3 id="nivel-titulo">Nivel actual: Integrado</h3>
                     <p id="nivel-descripcion">Los módulos de CRM, SCM y ERP se encuentran integrados y funcionando de manera coordinada.</p>
+                    <!-- Estado de guardado en Firestore (estado_sistema/erp) -->
+                    <p id="estado-guardado-erp" style="margin-top: 10px; font-size: 0.88rem; opacity: 0.85;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando nivel guardado...</p>
                 </div>
             </div>
 
@@ -412,7 +418,7 @@
             const nivelTitulo = document.getElementById('nivel-titulo');
             const nivelDescripcion = document.getElementById('nivel-descripcion');
 
-            // Configuración de textos según el avance[cite: 1]
+            // Configuración de textos según el avance
             const nivelesConfig = [
                 {
                     nombre: "Básico",
@@ -453,7 +459,7 @@
                 // Cálculo de la etapa/nivel activo
                 let nivelIndex = 0;
                 if (completados <= 2) nivelIndex = 0;      // Básico (0-2)
-                else if (completados <= 3) nivelIndex = 1; // Integrado (3)[cite: 1]
+                else if (completados <= 3) nivelIndex = 1; // Integrado (3)
                 else if (completados <= 5) nivelIndex = 2; // Automatizado (4-5)
                 else nivelIndex = 3;                       // Optimizado (6)
 
@@ -479,14 +485,83 @@
                 nivelDescripcion.textContent = info.desc;
             }
 
-            // Escuchar clic en cada casilla
+            // Escuchar clic en cada casilla (y avisar al módulo de Firestore para guardar)
             checkboxes.forEach((chk) => {
-                chk.addEventListener('change', actualizarNivelERP);
+                chk.addEventListener('change', () => {
+                    actualizarNivelERP();
+                    const completados = [...checkboxes].filter(c => c.checked).length;
+                    document.dispatchEvent(new CustomEvent('nivelErpCambiado', {
+                        detail: {
+                            checklist: [...checkboxes].map(c => c.checked),
+                            nivel: nivelTitulo.textContent.replace('Nivel actual: ', ''),
+                            porcentaje: Math.round(completados / checkboxes.length * 100)
+                        }
+                    }));
+                });
             });
+
+            // Permite que el módulo de Firestore repinte con el estado guardado
+            window.aplicarChecklistErp = (valores) => {
+                checkboxes.forEach((chk, i) => { chk.checked = Boolean(valores[i]); });
+                actualizarNivelERP();
+            };
 
             // Calibrar barra al abrir la página
             actualizarNivelERP();
         });
+    </script>
+
+    <!-- PERSISTENCIA DEL NIVEL ERP (Módulo 3.3) — documento estado_sistema/erp -->
+    <script type="module">
+        import { db } from "../js/firebase-config.js";
+        import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+        const refErp = doc(db, "estado_sistema", "erp");
+        const estadoEl = document.getElementById("estado-guardado-erp");
+
+        function nombreUsuario() {
+            try { return JSON.parse(localStorage.getItem("usuarioDatos") || "{}").nombre || "Administrador"; }
+            catch { return "Administrador"; }
+        }
+        function pintarEstado(html) { if (estadoEl) estadoEl.innerHTML = html; }
+
+        async function cargarNivelErp() {
+            try {
+                const snap = await getDoc(refErp);
+                if (snap.exists() && Array.isArray(snap.data().checklist)) {
+                    const datos = snap.data();
+                    const aplicar = () => window.aplicarChecklistErp?.(datos.checklist);
+                    if (window.aplicarChecklistErp) aplicar(); else document.addEventListener("DOMContentLoaded", aplicar);
+                    const fecha = datos.fecha_actualizacion?.toDate?.();
+                    pintarEstado(`<i class="fa-solid fa-cloud"></i> Guardado: <strong>${datos.nivel}</strong> (${datos.porcentaje}%)${fecha ? " · " + fecha.toLocaleString("es-MX") : ""}${datos.actualizado_por ? " · por " + datos.actualizado_por : ""}`);
+                } else {
+                    pintarEstado('<i class="fa-solid fa-circle-info"></i> Aún no se ha guardado un nivel. Marca el checklist para registrarlo.');
+                }
+            } catch (error) {
+                console.error("No se pudo leer el nivel ERP:", error);
+                pintarEstado('<i class="fa-solid fa-triangle-exclamation"></i> No se pudo leer el nivel guardado.');
+            }
+        }
+
+        document.addEventListener("nivelErpCambiado", async (e) => {
+            const { checklist, nivel, porcentaje } = e.detail;
+            pintarEstado('<i class="fa-solid fa-spinner fa-spin"></i> Guardando...');
+            try {
+                await setDoc(refErp, {
+                    nivel,
+                    checklist,
+                    porcentaje,
+                    actualizado_por: nombreUsuario(),
+                    fecha_actualizacion: serverTimestamp()
+                }, { merge: true });
+                pintarEstado(`<i class="fa-solid fa-check"></i> Nivel <strong>${nivel}</strong> guardado en la base de datos.`);
+            } catch (error) {
+                console.error("No se pudo guardar el nivel ERP:", error);
+                pintarEstado('<i class="fa-solid fa-triangle-exclamation"></i> No se pudo guardar el nivel. Revisa la conexión.');
+            }
+        });
+
+        cargarNivelErp();
     </script>
 </body>
 </html>

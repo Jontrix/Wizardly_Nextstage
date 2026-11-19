@@ -73,6 +73,22 @@
         }
         
         /* Tabla pequeña para Inventario Crítico */
+        .barra-exportar {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+            margin-bottom: 22px; color: var(--text-muted); font-family: 'Lato', sans-serif;
+        }
+        .btn-exportar {
+            background: rgba(212,175,55,0.1); border: 1px solid var(--gold); color: var(--gold);
+            border-radius: 8px; padding: 8px 14px; cursor: pointer; font-family: 'Lato', sans-serif; font-size: 0.9rem;
+        }
+        .btn-exportar:hover { background: rgba(212,175,55,0.25); }
+        @media print {
+            .admin-sidebar, .barra-exportar, .topbar-usuario { display: none !important; }
+            .admin-main { margin: 0 !important; padding: 0 !important; }
+            body { background: #fff !important; color: #000 !important; }
+            .panel-reporte, .kpi-card { break-inside: avoid; border: 1px solid #ccc !important; background: #fff !important; }
+            .panel-reporte h3, .kpi-info h3, .kpi-info p, .tabla-critico td, .tabla-critico th { color: #000 !important; }
+        }
         .tabla-critico {
             width: 100%;
             border-collapse: collapse;
@@ -123,6 +139,8 @@
         <a href="admin-clientes.html" class="nav-item">
             <i class="fa-solid fa-users"></i> Clientes
         </a>
+        <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+        <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
         <a href="admin-actividad.html" class="nav-item">
             <i class="fa-solid fa-clock-rotate-left"></i> Actividad
         </a>
@@ -217,6 +235,16 @@
 
         <p style="color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">Métricas y análisis de la cadena de suministro arcana.</p>
 
+        <!-- EXPORTACIÓN DE REPORTES (Módulo 2.5) -->
+        <div class="barra-exportar">
+            <span><i class="fa-solid fa-file-export"></i> Exportar:</span>
+            <button type="button" class="btn-exportar" data-reporte="inventario"><i class="fa-solid fa-file-csv"></i> Inventario completo</button>
+            <button type="button" class="btn-exportar" data-reporte="vendidos"><i class="fa-solid fa-file-csv"></i> Más vendidos</button>
+            <button type="button" class="btn-exportar" data-reporte="lenta"><i class="fa-solid fa-file-csv"></i> Rotación lenta</button>
+            <button type="button" class="btn-exportar" data-reporte="critico"><i class="fa-solid fa-file-csv"></i> Inventario crítico</button>
+            <button type="button" class="btn-exportar" id="btn-imprimir-reporte"><i class="fa-solid fa-file-pdf"></i> PDF (imprimir)</button>
+        </div>
+
         <!-- BLOQUE 1: KPIs SUPERIORES -->
         <div class="kpi-grid">
             <div class="kpi-card">
@@ -292,6 +320,27 @@
                 </div>
             </div>
         </div>
+        <!-- BLOQUE 4: ROTACIÓN LENTA (datos reales de ventas) -->
+        <div class="reportes-grid">
+            <div class="panel-reporte" style="grid-column: 1 / -1;">
+                <h3>Productos con rotación lenta <small style="color: var(--text-muted); font-size: 0.8rem;">(menos de 3 unidades vendidas en los últimos 30 días)</small></h3>
+                <div style="overflow-x: auto; max-height: 300px;">
+                    <table class="tabla-critico">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Estrategia</th>
+                                <th>Stock actual</th>
+                                <th>Vendidas (30 días)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-lenta">
+                            <tr><td colspan="4" style="text-align: center;">Consultando grimorio...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- ── LÓGICA DE FIREBASE Y CHART.JS ── -->
@@ -317,71 +366,119 @@
         Chart.defaults.color = '#9ca3af';
         Chart.defaults.font.family = 'Lato';
 
+        // Datos para exportar a CSV
+        const datosReporte = { inventario: [], vendidos: [], lenta: [], critico: [] };
+
+        const aFecha = (v) => (v && typeof v.toDate === "function") ? v.toDate() : (v ? new Date(v) : null);
+        const escaparHTML = (t) => String(t ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
         async function inicializarReportes() {
             try {
-                // 1. Obtener inventario real de Firebase
-                const querySnapshot = await getDocs(collection(db, "productos"));
-                let productos = [];
-                let stockBajoCount = 0;
-                let criticosHTML = '';
+                // 1. Leer datos reales de Firestore
+                const [snapProductos, snapOrdenes, snapProveedores, snapPedidos] = await Promise.all([
+                    getDocs(collection(db, "productos")),
+                    getDocs(collection(db, "ordenes")),
+                    getDocs(collection(db, "proveedores")),
+                    getDocs(collection(db, "pedidos"))
+                ]);
 
-                querySnapshot.forEach((doc) => {
-                    let data = doc.data();
-                    productos.push(data);
-                    
-                    let actual = parseInt(data.existencia || data.stock) || 0;
-                    let minimo = parseInt(data.stock_minimo) || 5; // Asume 5 si no hay dato
-
-                    if (actual <= minimo) {
-                        stockBajoCount++;
-                        criticosHTML += `
-                            <tr>
-                                <td>${data.nombre}</td>
-                                <td class="text-peligro">${actual}</td>
-                                <td>${minimo}</td>
-                            </tr>
-                        `;
-                    }
+                const productos = snapProductos.docs.map(d => {
+                    const data = d.data();
+                    return {
+                        id: d.id,
+                        nombre: data.nombre || "Sin nombre",
+                        categoria: data.categoria || "",
+                        estrategia: String(data.estrategia || data.estrategia_logistica || "PULL").toUpperCase(),
+                        stock: parseInt(data.existencia ?? data.stock) || 0,
+                        minimo: parseInt(data.stock_min ?? data.stock_minimo) || 5,
+                        precio: Number(data.precio) || 0
+                    };
                 });
 
-                // 2. Actualizar KPIs y Tabla Crítica
-                document.getElementById('kpi-productos').textContent = productos.length;
-                document.getElementById('kpi-stock-bajo').textContent = stockBajoCount;
-                
-                const tbodyCritico = document.getElementById('tbody-critico');
-                tbodyCritico.innerHTML = criticosHTML || '<tr><td colspan="3" style="text-align:center;">Inventario saludable.</td></tr>';
+                // 2. Unidades vendidas por producto (ventas reales: colección ordenes)
+                const hace30 = Date.now() - 30 * 24 * 60 * 60 * 1000;
+                const vendidasTotal = new Map();
+                const vendidas30 = new Map();
+                const sumar = (mapa, clave, cant) => mapa.set(clave, (mapa.get(clave) || 0) + cant);
 
-                // 3. Gráfica: Productos más vendidos (Barras horizontales)
+                snapOrdenes.forEach(d => {
+                    const orden = d.data();
+                    const fecha = aFecha(orden.fecha);
+                    (Array.isArray(orden.productos) ? orden.productos : []).forEach(p => {
+                        const clave = String(p.id || p.productoId || p.nombre);
+                        const cant = Number(p.cantidad) || 0;
+                        sumar(vendidasTotal, clave, cant);
+                        if (fecha && fecha.getTime() >= hace30) sumar(vendidas30, clave, cant);
+                    });
+                });
+                const vendidasDe = (mapa, p) => (mapa.get(p.id) || 0) + (mapa.get(p.nombre) || 0);
+
+                productos.forEach(p => {
+                    p.vendidas = vendidasDe(vendidasTotal, p);
+                    p.vendidas30 = vendidasDe(vendidas30, p);
+                });
+
+                // 3. KPIs
+                const criticos = productos.filter(p => p.stock <= p.minimo);
+                const pedidosEnProceso = snapPedidos.docs.filter(d => ["Pendiente", "En proceso", "En Proceso"].includes(d.data().estado)).length;
+                document.getElementById('kpi-productos').textContent = productos.length;
+                document.getElementById('kpi-proveedores').textContent = snapProveedores.size;
+                document.getElementById('kpi-pedidos').textContent = pedidosEnProceso;
+                document.getElementById('kpi-stock-bajo').textContent = criticos.length;
+
+                // 4. Inventario crítico
+                document.getElementById('tbody-critico').innerHTML = criticos.length
+                    ? criticos.map(p => `<tr><td>${escaparHTML(p.nombre)}</td><td class="text-peligro">${p.stock}</td><td>${p.minimo}</td></tr>`).join("")
+                    : '<tr><td colspan="3" style="text-align:center;">Inventario saludable.</td></tr>';
+
+                // 5. Rotación (por unidades vendidas en 30 días)
+                const alta = productos.filter(p => p.vendidas30 >= 10);
+                const media = productos.filter(p => p.vendidas30 >= 3 && p.vendidas30 < 10);
+                const lenta = productos.filter(p => p.vendidas30 < 3).sort((a, b) => a.vendidas30 - b.vendidas30);
+                document.getElementById('tbody-lenta').innerHTML = lenta.length
+                    ? lenta.map(p => `<tr><td>${escaparHTML(p.nombre)}</td><td>${p.estrategia}</td><td>${p.stock}</td><td class="${p.vendidas30 === 0 ? 'text-peligro' : ''}">${p.vendidas30}</td></tr>`).join("")
+                    : '<tr><td colspan="4" style="text-align:center;">Todos los productos tienen buena rotación.</td></tr>';
+
+                // 6. Más vendidos (top 5 histórico)
+                const masVendidos = [...productos].filter(p => p.vendidas > 0).sort((a, b) => b.vendidas - a.vendidas).slice(0, 5);
+
+                // Guardar para exportación
+                datosReporte.inventario = productos;
+                datosReporte.vendidos = [...productos].sort((a, b) => b.vendidas - a.vendidas);
+                datosReporte.lenta = lenta;
+                datosReporte.critico = criticos;
+
+                // 7. Gráfica: Productos más vendidos (Barras horizontales)
                 new Chart(document.getElementById('chart-mas-vendidos'), {
                     type: 'bar',
                     data: {
-                        labels: ['Alebrije Oscuro', 'Collar protector', 'Vasija de cenizas', 'Textil rúnico'],
+                        labels: masVendidos.length ? masVendidos.map(p => p.nombre) : ['Sin ventas registradas'],
                         datasets: [{
-                            label: 'Unidades',
-                            data: [45, 38, 25, 18],
-                            backgroundColor: '#10b981', // Verde esmeralda
+                            label: 'Unidades vendidas',
+                            data: masVendidos.length ? masVendidos.map(p => p.vendidas) : [0],
+                            backgroundColor: '#10b981',
                             borderRadius: 4
                         }]
                     },
                     options: {
-                        indexAxis: 'y', // La vuelve horizontal
+                        indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: { legend: { display: false } },
                         scales: {
-                            x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { precision: 0 } },
                             y: { grid: { display: false } }
                         }
                     }
                 });
 
-                // 4. Gráfica: Rotación de Inventario (Doughnut)
+                // 8. Gráfica: Rotación de Inventario (Doughnut)
                 new Chart(document.getElementById('chart-rotacion'), {
                     type: 'doughnut',
                     data: {
-                        labels: ['Alta rotación', 'Rotación media', 'Rotación baja'],
+                        labels: ['Alta (10+)', 'Media (3-9)', 'Lenta (0-2)'],
                         datasets: [{
-                            data: [72, 18, 10],
+                            data: [alta.length, media.length, lenta.length],
                             backgroundColor: ['#3b82f6', '#eab308', '#ef4444'],
                             borderWidth: 0,
                             cutout: '65%'
@@ -390,30 +487,22 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'right' }
-                        }
+                        plugins: { legend: { position: 'right' } }
                     }
                 });
 
-                // 5. Gráfica: PUSH vs PULL (Barras agrupadas)
+                // 9. Gráfica: PUSH vs PULL (comparativa real por estrategia)
+                const resumen = (est) => {
+                    const lista = productos.filter(p => p.estrategia === est);
+                    return [lista.length, lista.reduce((s, p) => s + p.vendidas, 0), lista.reduce((s, p) => s + p.stock, 0), lista.filter(p => p.stock <= p.minimo).length];
+                };
                 new Chart(document.getElementById('chart-push-pull'), {
                     type: 'bar',
                     data: {
-                        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                        labels: ['Productos', 'Unidades vendidas', 'Stock total', 'En stock bajo'],
                         datasets: [
-                            {
-                                label: 'PUSH',
-                                data: [35, 22, 40, 32, 42, 0],
-                                backgroundColor: '#f97316', // Naranja
-                                borderRadius: 4
-                            },
-                            {
-                                label: 'PULL',
-                                data: [30, 28, 55, 34, 52, 0],
-                                backgroundColor: '#3b82f6', // Azul
-                                borderRadius: 4
-                            }
+                            { label: 'PUSH', data: resumen('PUSH'), backgroundColor: '#f97316', borderRadius: 4 },
+                            { label: 'PULL', data: resumen('PULL'), backgroundColor: '#3b82f6', borderRadius: 4 }
                         ]
                     },
                     options: {
@@ -421,7 +510,7 @@
                         maintainAspectRatio: false,
                         scales: {
                             x: { grid: { display: false } },
-                            y: { grid: { color: 'rgba(255,255,255,0.05)' } }
+                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { precision: 0 } }
                         }
                     }
                 });
@@ -430,6 +519,41 @@
                 console.error("Error cargando los reportes:", error);
             }
         }
+
+        // ==========================================================
+        // EXPORTACIÓN A CSV (se abre directo en Excel)
+        // ==========================================================
+        const COLUMNAS = {
+            inventario: [["Producto", "nombre"], ["Categoría", "categoria"], ["Estrategia", "estrategia"], ["Stock actual", "stock"], ["Stock mínimo", "minimo"], ["Precio", "precio"], ["Vendidas (total)", "vendidas"], ["Vendidas (30 días)", "vendidas30"]],
+            vendidos: [["Producto", "nombre"], ["Categoría", "categoria"], ["Unidades vendidas", "vendidas"], ["Vendidas (30 días)", "vendidas30"], ["Stock actual", "stock"]],
+            lenta: [["Producto", "nombre"], ["Estrategia", "estrategia"], ["Stock actual", "stock"], ["Vendidas (30 días)", "vendidas30"]],
+            critico: [["Producto", "nombre"], ["Stock actual", "stock"], ["Stock mínimo", "minimo"], ["Estrategia", "estrategia"]]
+        };
+        const NOMBRES = { inventario: "inventario", vendidos: "mas_vendidos", lenta: "rotacion_lenta", critico: "inventario_critico" };
+
+        function exportarCSV(tipo) {
+            const filas = datosReporte[tipo] || [];
+            const columnas = COLUMNAS[tipo];
+            if (!columnas) return;
+            const celda = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+            const lineas = [columnas.map(c => celda(c[0])).join(",")]
+                .concat(filas.map(f => columnas.map(c => celda(f[c[1]])).join(",")));
+            // BOM para que Excel respete acentos
+            const blob = new Blob(["\ufeff" + lineas.join("\r\n")], { type: "text/csv;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `wizardly_${NOMBRES[tipo]}_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        document.querySelectorAll('.btn-exportar[data-reporte]').forEach(btn => {
+            btn.addEventListener('click', () => exportarCSV(btn.dataset.reporte));
+        });
+        document.getElementById('btn-imprimir-reporte')?.addEventListener('click', () => window.print());
 
         document.addEventListener('DOMContentLoaded', inicializarReportes);
     </script>

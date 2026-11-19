@@ -238,6 +238,8 @@
         <a href="admin-clientes.html" class="nav-item">
             <i class="fa-solid fa-users"></i> Clientes
         </a>
+        <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+        <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
         <a href="admin-actividad.html" class="nav-item">
             <i class="fa-solid fa-clock-rotate-left"></i> Actividad
         </a>
@@ -407,6 +409,11 @@
                     <p id="descripcion-texto">El sistema cuenta con los módulos principales funcionando. Se están implementando estrategias logísticas y reportes.</p>
                 </div>
 
+                <!-- Estado de guardado en Firestore (estado_sistema/scm) -->
+                <p id="estado-guardado-scm" style="margin-top: 15px; color: var(--text-muted); font-size: 0.9rem; font-family: 'Lato', sans-serif;">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Cargando nivel guardado...
+                </p>
+
             </div>
         </div>
     </main>
@@ -442,24 +449,39 @@
                     fase1.classList.add('active');
                     textoNivel.textContent = 'Inicial';
                     textoNivel.style.color = 'var(--text-muted)';
-                    descTexto.textContent = 'El grimorio apenas comienza a registrar los movimientos. Los procesos básicos logísticos están en su fase de definición[cite: 1].';
+                    descTexto.textContent = 'El grimorio apenas comienza a registrar los movimientos. Los procesos básicos logísticos están en su fase de definición.';
                 } else if (marcados <= 3) {
                     fase2.classList.add('active');
                     textoNivel.textContent = 'En desarrollo';
                     textoNivel.style.color = '#4ade80'; // Verde
-                    descTexto.textContent = 'El sistema cuenta con los módulos principales funcionando. Se están implementando estrategias logísticas y reportes[cite: 1].';
+                    descTexto.textContent = 'El sistema cuenta con los módulos principales funcionando. Se están implementando estrategias logísticas y reportes.';
                 } else {
                     fase3.classList.add('active');
                     textoNivel.textContent = 'Optimizado';
                     textoNivel.style.color = 'var(--gold)'; // Dorado
-                    descTexto.textContent = '¡Magia pura! Todos los procesos de la cadena de suministro están integrados de forma avanzada, funcionando como un reloj arcano[cite: 1].';
+                    descTexto.textContent = '¡Magia pura! Todos los procesos de la cadena de suministro están integrados de forma avanzada, funcionando como un reloj arcano.';
                 }
             }
 
-            // Escuchar cambios en cada checkbox
+            // Escuchar cambios en cada checkbox (y avisar al módulo de Firestore para guardar)
             checkboxes.forEach(chk => {
-                chk.addEventListener('change', actualizarProgreso);
+                chk.addEventListener('change', () => {
+                    actualizarProgreso();
+                    document.dispatchEvent(new CustomEvent('nivelScmCambiado', {
+                        detail: {
+                            checklist: [...checkboxes].map(c => c.checked),
+                            nivel: textoNivel.textContent,
+                            porcentaje: Math.round(document.querySelectorAll('.magia-check:checked').length / checkboxes.length * 100)
+                        }
+                    }));
+                });
             });
+
+            // Permite que el módulo de Firestore repinte con el estado guardado
+            window.aplicarChecklistScm = (valores) => {
+                checkboxes.forEach((chk, i) => { chk.checked = Boolean(valores[i]); });
+                actualizarProgreso();
+            };
 
             // Disparar al cargar la página para pintar la barra inicial
             actualizarProgreso();
@@ -498,6 +520,62 @@
         });
     });
 </script>
+    <!-- PERSISTENCIA DEL NIVEL SCM (Módulo 2.4) — documento estado_sistema/scm -->
+    <script type="module">
+        import { db } from "../js/firebase-config.js";
+        import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+        const refScm = doc(db, "estado_sistema", "scm");
+        const estadoEl = document.getElementById("estado-guardado-scm");
+
+        function nombreUsuario() {
+            try { return JSON.parse(localStorage.getItem("usuarioDatos") || "{}").nombre || "Administrador"; }
+            catch { return "Administrador"; }
+        }
+
+        function pintarEstado(texto, color = "var(--text-muted)") {
+            if (estadoEl) { estadoEl.innerHTML = texto; estadoEl.style.color = color; }
+        }
+
+        async function cargarNivelScm() {
+            try {
+                const snap = await getDoc(refScm);
+                if (snap.exists() && Array.isArray(snap.data().checklist)) {
+                    const datos = snap.data();
+                    // Esperar a que el script del checklist esté listo
+                    const aplicar = () => window.aplicarChecklistScm?.(datos.checklist);
+                    if (window.aplicarChecklistScm) aplicar(); else document.addEventListener("DOMContentLoaded", aplicar);
+                    const fecha = datos.fecha_actualizacion?.toDate?.();
+                    pintarEstado(`<i class="fa-solid fa-cloud"></i> Nivel guardado: <strong>${datos.nivel_scm}</strong>${fecha ? " · " + fecha.toLocaleString("es-MX") : ""}${datos.actualizado_por ? " · por " + datos.actualizado_por : ""}`);
+                } else {
+                    pintarEstado('<i class="fa-solid fa-circle-info"></i> Aún no se ha guardado un nivel. Marca el checklist para registrarlo.');
+                }
+            } catch (error) {
+                console.error("No se pudo leer el nivel SCM:", error);
+                pintarEstado('<i class="fa-solid fa-triangle-exclamation"></i> No se pudo leer el nivel guardado.', "#f87171");
+            }
+        }
+
+        document.addEventListener("nivelScmCambiado", async (e) => {
+            const { checklist, nivel, porcentaje } = e.detail;
+            pintarEstado('<i class="fa-solid fa-spinner fa-spin"></i> Guardando...');
+            try {
+                await setDoc(refScm, {
+                    nivel_scm: nivel,
+                    checklist,
+                    porcentaje,
+                    actualizado_por: nombreUsuario(),
+                    fecha_actualizacion: serverTimestamp()
+                }, { merge: true });
+                pintarEstado(`<i class="fa-solid fa-check"></i> Nivel <strong>${nivel}</strong> guardado en la base de datos.`, "#4ade80");
+            } catch (error) {
+                console.error("No se pudo guardar el nivel SCM:", error);
+                pintarEstado('<i class="fa-solid fa-triangle-exclamation"></i> No se pudo guardar el nivel. Revisa la conexión.', "#f87171");
+            }
+        });
+
+        cargarNivelScm();
+    </script>
     <script type="module">import { aplicarRol } from '../js/sidebar.js'; aplicarRol();</script>
 </body>
 </html>
