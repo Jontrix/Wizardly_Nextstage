@@ -165,14 +165,42 @@
         <!-- RECUADROS -->
         <div class="info-grid" style="display:flex;justify-content:center;gap:30px;flex-wrap:wrap;">
 
-            <div class="info-card" style="flex:1 1 300px;max-width:400px;">
+            <div class="info-card" style="flex:1 1 300px;max-width:400px;" id="mis-datos">
                 <h3>Mis Datos</h3>
-                <p><strong>Nombre:</strong> <span id="datoNombre">---</span></p>
-                <p><strong>Usuario:</strong> <span id="datoUsuario">@WizardMaster</span></p>
-                <p><strong>Correo:</strong> <span id="datoCorreo">---</span></p>
+                <div id="vistaDatos">
+                    <p><strong>Nombre:</strong> <span id="datoNombre">---</span></p>
+                    <p><strong>Usuario:</strong> <span id="datoUsuario">@WizardMaster</span></p>
+                    <p><strong>Correo:</strong> <span id="datoCorreo">---</span></p>
+                    <p><strong>Teléfono:</strong> <span id="datoTelefono">---</span></p>
+                    <button type="button" class="btn-compra" id="btnEditarPerfil" style="margin-top:12px;"><i class="fa-solid fa-pen"></i> Editar mis datos</button>
+                </div>
+                <!-- EDICIÓN DE PERFIL (Módulo 4.3) -->
+                <form id="formEditarPerfil" style="display:none; margin-top:10px;">
+                    <div class="input-group"><input type="text" id="editNombre" placeholder="Nombre completo" maxlength="60" required></div>
+                    <div class="input-group"><input type="tel" id="editTelefono" placeholder="Teléfono (10 dígitos)" maxlength="10" data-opcional></div>
+                    <p style="color:var(--text-muted);font-size:0.8rem;margin:6px 0 10px;">El correo es tu acceso y no se puede cambiar aquí.</p>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button type="submit" class="btn-compra" id="btnGuardarPerfil"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        <button type="button" class="btn-compra" id="btnCancelarPerfil">Cancelar</button>
+                    </div>
+                </form>
             </div>
 
             <div class="info-card" style="flex:1 1 300px;max-width:400px;">
+                <h3>Mi Monedero</h3>
+                <p style="color:var(--text-muted);font-size:0.85rem;">Saldo disponible</p>
+                <p id="perfilSaldo" style="font-family:'Cinzel',serif;font-size:1.8rem;color:var(--gold);margin:6px 0 14px;">$0.00</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <a href="monedero.html" class="btn" style="font-size:0.72rem;padding:10px 20px;"><i class="fa-solid fa-wallet"></i> Recargar / historial</a>
+                </div>
+                <h3 style="margin-top:22px;">Ayuda</h3>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <a href="atencion.html" style="color:var(--gold);"><i class="fa-solid fa-headset"></i> Mis tickets de atención</a>
+                    <a href="seguimiento.html" style="color:var(--gold);"><i class="fa-solid fa-truck-fast"></i> Rastrear un pedido</a>
+                </div>
+            </div>
+
+            <div class="info-card" style="flex:1 1 300px;max-width:400px;" id="mis-compras">
                 <h3>Mis Compras</h3>
                 <div id="historialCompras" class="compras-lista">
                     <p style="color:var(--text-muted);font-size:0.85rem;">Cargando tus pedidos...</p>
@@ -228,6 +256,7 @@
     </div>
 
     <script src="../js/carrito.js"></script>
+    <script src="../js/notificaciones.js"></script>
     <script src="../js/cargar-navbar.js"></script>
     <script src="../js/script.js"></script>
     <script>
@@ -298,203 +327,10 @@
             `).join('') + (mias.length > 3 ? `<p style="font-size:0.75rem;color:var(--text-muted);">+${mias.length - 3} más...</p>` : '');
         })();
 
-        function obtenerPedidos() {
-            return JSON.parse(localStorage.getItem('wizardly_pedidos') || '[]');
-        }
-
-        function guardarPedidos(pedidos) {
-            localStorage.setItem('wizardly_pedidos', JSON.stringify(pedidos));
-        }
-
-        function renderHistorialCompras() {
-            const contenedor = document.getElementById('historialCompras');
-            if (!contenedor) return;
-
-            const pedidos = obtenerPedidos();
-            if (!pedidos.length) {
-                contenedor.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Aún no tienes compras registradas.</p>';
-                return;
-            }
-
-            contenedor.innerHTML = pedidos.map(pedido => `
-                <div class="compra-card">
-                    <div class="compra-card-header">
-                        <div>
-                            <h4>${pedido.folio}</h4>
-                            <p class="compra-meta">${pedido.fecha} • ${pedido.hora}</p>
-                        </div>
-                        <span class="compra-badge">${pedido.estado}</span>
-                    </div>
-                    <p class="compra-meta">${pedido.productos?.length || 0} productos • Total: $${Number(pedido.total || 0).toFixed(2)} MXN</p>
-                    <div class="compra-actions">
-                        <button class="btn-compra" onclick="verDetallePedido('${pedido.folio}')">Ver detalle</button>
-                        <button class="btn-compra" onclick="verFacturaPedido('${pedido.folio}')">${pedido.factura?.solicitada ? 'Ver factura' : 'Solicitar factura'}</button>
-                        ${pedido.factura?.solicitada ? `<button class="btn-compra" onclick="descargarFacturaPerfil(event, '${pedido.folio}')">Descargar factura</button>` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function verDetallePedido(folio) {
-            const pedidos = obtenerPedidos();
-            const pedido = pedidos.find(item => item.folio === folio);
-            const modal = document.getElementById('modalPedido');
-            const contenido = document.getElementById('detallePedidoContenido');
-            if (!pedido || !modal || !contenido) return;
-
-            const productosHtml = (pedido.productos || []).map(producto => `
-                <div style="display:flex;justify-content:space-between;gap:12px; margin-bottom:10px;">
-                    <span>${producto.nombre} <small style="color:var(--gold);">x${producto.cantidad || 1}</small></span>
-                    <strong>$${Number(producto.subtotal || 0).toFixed(2)} MXN</strong>
-                </div>
-            `).join('');
-
-            contenido.innerHTML = `
-                <h3 style="color:var(--gold); font-family:'Cinzel', serif;">${pedido.folio}</h3>
-                <p style="color:var(--text-muted);">${pedido.fecha} • ${pedido.hora}</p>
-                <p style="margin-top:8px;"><strong>Estado:</strong> ${pedido.estado}</p>
-                <p><strong>Método de pago:</strong> ${pedido.metodoPago}</p>
-                <p><strong>Cliente:</strong> ${pedido.cliente?.nombre || 'Cliente Wizardly'}</p>
-                <div style="margin-top:18px;">
-                    ${productosHtml}
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);">
-                    <strong>Subtotal</strong>
-                    <strong>$${Number(pedido.subtotal || 0).toFixed(2)} MXN</strong>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-top:6px;">
-                    <span>Descuento</span>
-                    <span>$${Number(pedido.descuento || 0).toFixed(2)} MXN</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:1.05rem;">
-                    <strong>Total</strong>
-                    <strong style="color:var(--gold);">$${Number(pedido.total || 0).toFixed(2)} MXN</strong>
-                </div>
-            `;
-            modal.classList.add('activo');
-        }
-
-        function verFacturaPedido(folio) {
-            const pedidos = obtenerPedidos();
-            const pedido = pedidos.find(item => item.folio === folio);
-            const modal = document.getElementById('modalPedido');
-            const contenido = document.getElementById('detallePedidoContenido');
-            if (!pedido || !modal || !contenido) return;
-
-            const factura = pedido.factura || {};
-            const datosFactura = [
-                ['Razón social', factura.razonSocial || 'Wizardly S.A. de C.V.'],
-                ['RFC', factura.rfc || 'WIZ2026001A'],
-                ['Código Postal', factura.codigoPostal || '01000'],
-                ['Régimen Fiscal', factura.regimenFiscal || 'General de Ley Personas Morales'],
-                ['Uso CFDI', factura.usoCFDI || 'G03'],
-                ['Correo', factura.correoElectronico || 'factura@wizardly.mx'],
-                ['Receptor', factura.nombreReceptor || 'Cliente Wizardly']
-            ];
-
-            const facturaMarkup = pedido.factura?.solicitada ? `
-                <div class="factura-preview">
-                    <h4>Factura Wizardly</h4>
-                    <p style="margin:0 0 12px; color:var(--text-muted);">Comprobante fiscal asociado a este pedido.</p>
-                    <div class="factura-grid">
-                        ${datosFactura.map(([label, value]) => `
-                            <div class="factura-row">
-                                <span>${label}</span>
-                                <strong>${value}</strong>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                        <button class="btn-compra" onclick="descargarFacturaPerfil(event, '${pedido.folio}')">Descargar factura</button>
-                    </div>
-                </div>
-            ` : `
-                <div class="factura-preview">
-                    <h4>Solicitar factura</h4>
-                    <p style="margin:0 0 12px; color:var(--text-muted);">Puedes completar estos datos opcionales y guardarlos para este pedido.</p>
-                    <div class="factura-form-perfil" id="formFacturaPerfil">
-                        <div class="input-group" style="flex:1; min-width:220px;">
-                            <input type="text" id="razonFacturaPerfil" placeholder="Razón social (opcional)">
-                        </div>
-                        <div class="input-group" style="flex:1; min-width:220px;">
-                            <input type="text" id="rfcFacturaPerfil" placeholder="RFC (opcional)">
-                        </div>
-                        <div class="input-group" style="flex:1; min-width:220px;">
-                            <input type="text" id="codigoPostalFacturaPerfil" placeholder="Código Postal (opcional)">
-                        </div>
-                        <div class="input-group" style="flex:1; min-width:220px;">
-                            <input type="text" id="regimenFacturaPerfil" placeholder="Régimen Fiscal (opcional)">
-                        </div>
-                        <div class="input-group" style="flex:1; min-width:220px;">
-                            <input type="text" id="usoFacturaPerfil" placeholder="Uso CFDI (opcional)">
-                        </div>
-                        <div class="input-group" style="flex:1; min-width:220px;">
-                            <input type="email" id="correoFacturaPerfil" placeholder="Correo electrónico (opcional)">
-                        </div>
-                        <div class="input-group" style="flex:1; min-width:220px;">
-                            <input type="text" id="nombreReceptorFacturaPerfil" placeholder="Nombre del receptor (opcional)">
-                        </div>
-                        <button class="btn-compra" onclick="guardarFacturaPedido('${pedido.folio}')">Guardar factura</button>
-                    </div>
-                </div>
-            `;
-
-            contenido.innerHTML = `
-                <h3 style="color:var(--gold); font-family:'Cinzel', serif;">${pedido.folio}</h3>
-                <p style="color:var(--text-muted);">${pedido.fecha} • ${pedido.hora}</p>
-                <p style="margin-top:8px;"><strong>Estado:</strong> ${pedido.estado}</p>
-                <p><strong>Total:</strong> $${Number(pedido.total || 0).toFixed(2)} MXN</p>
-                ${facturaMarkup}
-            `;
-            modal.classList.add('activo');
-        }
-
-        function guardarFacturaPedido(folio) {
-            const pedidos = obtenerPedidos();
-            const pedido = pedidos.find(item => item.folio === folio);
-            if (!pedido) return;
-
-            pedido.factura = {
-                solicitada: true,
-                razonSocial: document.getElementById('razonFacturaPerfil')?.value.trim() || '',
-                rfc: document.getElementById('rfcFacturaPerfil')?.value.trim() || '',
-                codigoPostal: document.getElementById('codigoPostalFacturaPerfil')?.value.trim() || '',
-                regimenFiscal: document.getElementById('regimenFacturaPerfil')?.value.trim() || '',
-                usoCFDI: document.getElementById('usoFacturaPerfil')?.value.trim() || '',
-                correoElectronico: document.getElementById('correoFacturaPerfil')?.value.trim() || '',
-                nombreReceptor: document.getElementById('nombreReceptorFacturaPerfil')?.value.trim() || ''
-            };
-            pedido.estado = 'Factura solicitada';
-            guardarPedidos(pedidos);
-            verFacturaPedido(folio);
-            renderHistorialCompras();
-        }
-
-        function descargarFacturaPerfil(event, folio) {
-            if (event && typeof event.preventDefault === 'function') {
-                event.preventDefault();
-            }
-            console.log('Factura descargada con éxito');
-            showPerfilToast('Factura descargada con éxito');
-        }
-
-        function showPerfilToast(message) {
-            const toast = document.getElementById('toastContainerPerfil');
-            if (!toast) return;
-            toast.textContent = message;
-            toast.style.display = 'block';
-            clearTimeout(toast.hideTimeout);
-            toast.hideTimeout = setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
-        }
-
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof actualizarContador === 'function') {
                 actualizarContador();
             }
-            renderHistorialCompras();
-
             const cerrar = document.getElementById('btnCerrarModalPedido');
             const modal = document.getElementById('modalPedido');
             if (cerrar && modal) {
@@ -505,12 +341,239 @@
                     if (event.target === modal) modal.classList.remove('activo');
                 });
             }
-
-            const perfilToast = document.createElement('div');
-            perfilToast.id = 'toastContainerPerfil';
-            perfilToast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:none;padding:12px 18px;border-radius:999px;background:rgba(29, 27, 52, 0.95);color:#fff;font-size:0.95rem;font-weight:600;box-shadow:0 14px 28px rgba(0,0,0,0.18);';
-            document.body.appendChild(perfilToast);
         });
+    </script>
+
+    <!-- PERFIL CONECTADO A FIRESTORE: pedidos (ordenes), datos del cliente y monedero -->
+    <script type="module">
+        import { auth, db } from "../js/firebase-config.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+        import { collection, query, where, getDocs, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+        let usuarioActual = null;
+        let pedidos = [];
+        const escaparHTML = (t) => String(t ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const aFecha = (v) => (v && typeof v.toDate === "function") ? v.toDate() : (v ? new Date(v) : null);
+        const formatoFecha = (v) => { const f = aFecha(v); return f && !isNaN(f) ? f.toLocaleString("es-MX", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Reciente"; };
+        const mxn = (n) => `$${(Number(n) || 0).toFixed(2)} MXN`;
+        const avisar = (m, t = "exito") => window.mostrarNotificacion?.(m, t);
+
+        // Cerrar sesión también en Firebase (antes solo se borraba el navegador)
+        const cerrarSesionOriginal = window.cerrarSesion;
+        window.cerrarSesion = async function () {
+            try { await signOut(auth); } catch (e) { console.error("Error al cerrar sesión en Firebase:", e); }
+            if (typeof cerrarSesionOriginal === "function") cerrarSesionOriginal();
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                document.getElementById('historialCompras').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Inicia sesión de nuevo para ver tus compras.</p>';
+                return;
+            }
+            usuarioActual = user;
+            await cargarDatosCliente();
+            await cargarPedidos();
+        });
+
+        // ===== DATOS DEL CLIENTE Y SALDO =====
+        async function cargarDatosCliente() {
+            try {
+                const snap = await getDoc(doc(db, "clientes", usuarioActual.uid));
+                const c = snap.exists() ? snap.data() : {};
+                const nombre = c.nombre || c.nombreCompleto || usuarioActual.displayName || "Mago";
+                document.getElementById("datoNombre").textContent = nombre;
+                document.getElementById("datoCorreo").textContent = c.correo || c.email || usuarioActual.email || "---";
+                document.getElementById("datoTelefono").textContent = c.telefono && c.telefono !== "-" ? c.telefono : "Sin registrar";
+                document.getElementById("nombreUsuario").textContent = "Bienvenido, " + nombre;
+                document.getElementById("perfilSaldo").textContent = `$${(Number(c.saldo_monedero) || 0).toFixed(2)}`;
+                document.getElementById("editNombre").value = nombre;
+                document.getElementById("editTelefono").value = c.telefono && c.telefono !== "-" ? c.telefono : "";
+            } catch (error) {
+                console.error("No se pudieron cargar los datos del cliente:", error);
+            }
+        }
+
+        // ===== EDICIÓN DE PERFIL =====
+        const formEditar = document.getElementById("formEditarPerfil");
+        const vistaDatos = document.getElementById("vistaDatos");
+        document.getElementById("btnEditarPerfil").addEventListener("click", () => { vistaDatos.style.display = "none"; formEditar.style.display = "block"; });
+        document.getElementById("btnCancelarPerfil").addEventListener("click", () => { formEditar.style.display = "none"; vistaDatos.style.display = "block"; });
+
+        formEditar.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!usuarioActual) return;
+            const nombre = document.getElementById("editNombre").value.trim();
+            const telefono = document.getElementById("editTelefono").value.trim();
+            if (nombre.length < 3) { avisar("Escribe tu nombre completo.", "aviso"); return; }
+            if (telefono && !/^\d{10}$/.test(telefono)) { avisar("El teléfono debe tener 10 dígitos.", "aviso"); return; }
+
+            const btn = document.getElementById("btnGuardarPerfil");
+            btn.disabled = true;
+            try {
+                await setDoc(doc(db, "clientes", usuarioActual.uid), {
+                    nombre, nombreCompleto: nombre, nombre_completo: nombre, telefono: telefono || "-"
+                }, { merge: true });
+                // Mantener sincronizados los datos de sesión que usa el resto del sitio
+                try {
+                    const datos = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
+                    localStorage.setItem("usuarioDatos", JSON.stringify({ ...datos, nombre, telefono }));
+                } catch { /* sin datos locales */ }
+                await cargarDatosCliente();
+                formEditar.style.display = "none";
+                vistaDatos.style.display = "block";
+                avisar("Tus datos se actualizaron.", "exito");
+            } catch (error) {
+                console.error("Error al actualizar el perfil:", error);
+                avisar("No se pudieron guardar tus datos.", "error");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // ===== MIS COMPRAS (colección ordenes) =====
+        async function cargarPedidos() {
+            const contenedor = document.getElementById('historialCompras');
+            try {
+                const snap = await getDocs(query(collection(db, "ordenes"), where("cliente_uid", "==", usuarioActual.uid)));
+                pedidos = snap.docs.map(d => ({ idDoc: d.id, ...d.data() }))
+                    .sort((a, b) => (aFecha(b.fecha)?.getTime() || 0) - (aFecha(a.fecha)?.getTime() || 0));
+                renderHistorialCompras();
+            } catch (error) {
+                console.error("No se pudieron cargar tus pedidos:", error);
+                contenedor.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No pudimos cargar tus compras.</p>';
+            }
+        }
+
+        function renderHistorialCompras() {
+            const contenedor = document.getElementById('historialCompras');
+            if (!pedidos.length) {
+                contenedor.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Aún no tienes compras registradas. <a href="catalogo.html" style="color:var(--gold);">Ir al catálogo</a></p>';
+                return;
+            }
+            contenedor.innerHTML = pedidos.map(p => `
+                <div class="compra-card">
+                    <div class="compra-card-header">
+                        <div>
+                            <h4>${escaparHTML(p.folio)}</h4>
+                            <p class="compra-meta">${formatoFecha(p.fecha)}</p>
+                        </div>
+                        <span class="compra-badge">${escaparHTML(p.estado_seguimiento || "Pendiente")}</span>
+                    </div>
+                    <p class="compra-meta">${(p.productos || []).length} productos • Total: ${mxn(p.total)}</p>
+                    <div class="compra-actions">
+                        <button class="btn-compra" data-accion="detalle" data-folio="${escaparHTML(p.folio)}">Ver detalle</button>
+                        <a class="btn-compra" href="seguimiento.html?folio=${encodeURIComponent(p.folio)}" style="text-decoration:none;">Rastrear</a>
+                        <button class="btn-compra" data-accion="factura" data-folio="${escaparHTML(p.folio)}">${p.factura?.solicitada ? 'Ver factura' : 'Solicitar factura'}</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('historialCompras').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-accion]');
+            if (!btn) return;
+            if (btn.dataset.accion === 'detalle') verDetallePedido(btn.dataset.folio);
+            if (btn.dataset.accion === 'factura') verFacturaPedido(btn.dataset.folio);
+        });
+
+        function abrirModal(html) {
+            document.getElementById('detallePedidoContenido').innerHTML = html;
+            document.getElementById('modalPedido').classList.add('activo');
+        }
+
+        function verDetallePedido(folio) {
+            const p = pedidos.find(x => x.folio === folio);
+            if (!p) return;
+            const productosHtml = (p.productos || []).map(prod => `
+                <div style="display:flex;justify-content:space-between;gap:12px; margin-bottom:10px;">
+                    <span>${escaparHTML(prod.nombre)} <small style="color:var(--gold);">x${Number(prod.cantidad) || 1}</small></span>
+                    <strong>${mxn((Number(prod.precio) || 0) * (Number(prod.cantidad) || 1))}</strong>
+                </div>`).join('');
+            const impuestos = (p.impuestos_detalle || []).map(t => `
+                <div style="display:flex; justify-content:space-between; margin-top:6px;"><span>${escaparHTML(t.nombre)} (${t.porcentaje}%)</span><span>${mxn(t.monto)}</span></div>`).join('')
+                || `<div style="display:flex; justify-content:space-between; margin-top:6px;"><span>Impuestos</span><span>${mxn(p.impuesto)}</span></div>`;
+            abrirModal(`
+                <h3 style="color:var(--gold); font-family:'Cinzel', serif;">${escaparHTML(p.folio)}</h3>
+                <p style="color:var(--text-muted);">${formatoFecha(p.fecha)}</p>
+                <p style="margin-top:8px;"><strong>Estado del envío:</strong> ${escaparHTML(p.estado_seguimiento || "Pendiente")}</p>
+                <p><strong>Método de pago:</strong> ${escaparHTML(p.metodoPago || "")}</p>
+                <div style="margin-top:18px;">${productosHtml}</div>
+                <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);">
+                    <strong>Subtotal</strong><strong>${mxn(p.subtotal)}</strong>
+                </div>
+                ${Number(p.descuento) > 0 ? `<div style="display:flex; justify-content:space-between; margin-top:6px; color:#4ade80;"><span>Descuento ${p.cupon ? '(' + escaparHTML(p.cupon) + ')' : ''}</span><span>-${mxn(p.descuento)}</span></div>` : ''}
+                ${impuestos}
+                <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:1.05rem;">
+                    <strong>Total</strong><strong style="color:var(--gold);">${mxn(p.total)}</strong>
+                </div>
+                <p style="margin-top:16px;"><a href="seguimiento.html?folio=${encodeURIComponent(p.folio)}" style="color:var(--gold);"><i class="fa-solid fa-truck-fast"></i> Ver movimientos del envío</a></p>
+            `);
+        }
+
+        function verFacturaPedido(folio) {
+            const p = pedidos.find(x => x.folio === folio);
+            if (!p) return;
+            const f = p.factura || {};
+            if (f.solicitada) {
+                const filas = [['Razón social', f.razonSocial], ['RFC', f.rfc], ['Código Postal', f.codigoPostal], ['Régimen Fiscal', f.regimenFiscal], ['Uso CFDI', f.usoCFDI], ['Correo', f.correoElectronico], ['Receptor', f.nombreReceptor]]
+                    .map(([l, v]) => `<div class="factura-row"><span>${l}</span><strong>${escaparHTML(v || '—')}</strong></div>`).join('');
+                abrirModal(`
+                    <h3 style="color:var(--gold); font-family:'Cinzel', serif;">${escaparHTML(p.folio)}</h3>
+                    <div class="factura-preview">
+                        <h4>Factura solicitada</h4>
+                        <p style="margin:0 0 12px; color:var(--text-muted);">Total facturado: ${mxn(p.total)}</p>
+                        <div class="factura-grid">${filas}</div>
+                    </div>`);
+                return;
+            }
+            const campo = (id, ph, tipo = "text") => `<div class="input-group" style="flex:1; min-width:220px;"><input type="${tipo}" id="${id}" placeholder="${ph}"></div>`;
+            abrirModal(`
+                <h3 style="color:var(--gold); font-family:'Cinzel', serif;">${escaparHTML(p.folio)}</h3>
+                <div class="factura-preview">
+                    <h4>Solicitar factura</h4>
+                    <p style="margin:0 0 12px; color:var(--text-muted);">Captura tus datos fiscales para este pedido.</p>
+                    <div class="factura-form-perfil">
+                        ${campo('razonFacturaPerfil', 'Razón social')}
+                        ${campo('rfcFacturaPerfil', 'RFC')}
+                        ${campo('codigoPostalFacturaPerfil', 'Código Postal')}
+                        ${campo('regimenFacturaPerfil', 'Régimen Fiscal')}
+                        ${campo('usoFacturaPerfil', 'Uso CFDI (Ej: G03)')}
+                        ${campo('correoFacturaPerfil', 'Correo electrónico', 'email')}
+                        ${campo('nombreReceptorFacturaPerfil', 'Nombre del receptor')}
+                        <button class="btn-compra" id="btnGuardarFacturaPerfil">Guardar factura</button>
+                    </div>
+                </div>`);
+            document.getElementById('btnGuardarFacturaPerfil').addEventListener('click', () => guardarFacturaPedido(p));
+        }
+
+        async function guardarFacturaPedido(p) {
+            const valor = (id) => document.getElementById(id)?.value.trim() || '';
+            const rfc = valor('rfcFacturaPerfil').toUpperCase();
+            if (!valor('razonFacturaPerfil') || !/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/.test(rfc)) {
+                avisar("Escribe la razón social y un RFC válido (12 o 13 caracteres).", "aviso");
+                return;
+            }
+            const factura = {
+                solicitada: true,
+                razonSocial: valor('razonFacturaPerfil'),
+                rfc,
+                codigoPostal: valor('codigoPostalFacturaPerfil'),
+                regimenFiscal: valor('regimenFacturaPerfil'),
+                usoCFDI: valor('usoFacturaPerfil'),
+                correoElectronico: valor('correoFacturaPerfil'),
+                nombreReceptor: valor('nombreReceptorFacturaPerfil')
+            };
+            try {
+                await updateDoc(doc(db, "ordenes", p.idDoc), { factura });
+                p.factura = factura;
+                avisar("Factura solicitada correctamente.", "exito");
+                renderHistorialCompras();
+                verFacturaPedido(p.folio);
+            } catch (error) {
+                console.error("Error al guardar la factura:", error);
+                avisar("No se pudo guardar la factura.", "error");
+            }
+        }
     </script>
 </body>
 

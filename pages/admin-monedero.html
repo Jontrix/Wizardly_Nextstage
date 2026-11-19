@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wizardly — Monedero Electrónico</title>
+
+    <link rel="icon" href="../images/favicon/favicon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+    <style>
+        .tickets-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin: 24px 0; }
+        .ticket-kpi {
+            background: rgba(255,255,255,0.04); border: 1px solid var(--border, rgba(212,175,55,0.25));
+            border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 6px;
+        }
+        .ticket-kpi .kpi-num { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); }
+        .ticket-kpi .kpi-label { color: var(--text-muted); font-family: 'Lato', sans-serif; }
+
+        .select-ticket {
+            background: rgba(0,0,0,0.3); color: white; border: 1px solid var(--gold);
+            border-radius: 8px; padding: 10px; outline: none; cursor: pointer; font-family: 'Lato', sans-serif;
+        }
+        .select-ticket option { background: #1a1a2e; }
+
+        .badge-ticket { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; white-space: nowrap; }
+        .estado-abierto     { border: 1px solid #ef4444; color: #f87171; background: rgba(239,68,68,0.1); }
+        .estado-en-proceso  { border: 1px solid #eab308; color: #fde047; background: rgba(234,179,8,0.1); }
+        .estado-respondido  { border: 1px solid #10b981; color: #34d399; background: rgba(16,185,129,0.1); }
+        .estado-cerrado     { border: 1px solid #6b7280; color: #9ca3af; background: rgba(107,114,128,0.1); }
+
+        .btn-ver-ticket {
+            background: rgba(212,175,55,0.12); border: 1px solid var(--gold); color: var(--gold);
+            border-radius: 8px; padding: 6px 12px; cursor: pointer; font-family: 'Lato', sans-serif;
+        }
+        .btn-ver-ticket:hover { background: rgba(212,175,55,0.25); }
+
+        .modal-ticket-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-ticket-overlay.visible { display: flex; }
+        .modal-ticket-card {
+            background: #1a1a2e; padding: 28px; border-radius: 12px; border: 1px solid var(--gold);
+            width: 100%; max-width: 620px; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 0 20px rgba(212,175,55,0.2); font-family: 'Lato', sans-serif;
+        }
+        .mt-datos p { color: var(--text-muted); margin: 4px 0; }
+        .mt-datos strong, .mt-datos span { color: white; }
+        .mt-mensaje {
+            margin: 16px 0; padding: 14px; border-radius: 10px; background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .mt-mensaje p { color: #f0e6d2; white-space: pre-wrap; margin: 6px 0 0; }
+        .mt-etiqueta { display: block; color: var(--gold); font-family: 'Cinzel', serif; font-size: 0.85rem; margin-bottom: 6px; }
+        #mt-respuesta {
+            width: 100%; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.06); color: white;
+            border: 1px solid rgba(255,255,255,0.15); outline: none; resize: vertical; font-family: 'Lato', sans-serif;
+        }
+        #mt-respuesta:focus { border-color: var(--gold); }
+        .btn-guardar-ticket {
+            width: 100%; margin-top: 18px; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold;
+            background: var(--gold); color: #120e1c; border: none; font-family: 'Lato', sans-serif;
+        }
+        .btn-guardar-ticket:disabled { opacity: 0.6; cursor: wait; }
+        .monedero-admin-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr); gap: 24px; }
+        .input-ajuste {
+            width: 100%; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.06); color: white;
+            border: 1px solid rgba(255,255,255,0.15); outline: none; font-family: 'Lato', sans-serif; margin-bottom: 14px; resize: vertical;
+        }
+        .input-ajuste:focus { border-color: var(--gold); }
+        .btn-ver-ticket + .btn-ver-ticket { margin-left: 6px; }
+        @media (max-width: 1000px) { .monedero-admin-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="admin-body">
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">
+            <img src="../images/logo/Logo.png" alt="Wizardly" />
+            <div><span class="brand">Wizardly</span><span class="sidebar-sub">Panel Arcano</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <!-- SECCIÓN GENERAL (CRM) -->
+            <div class="sidebar-titulo" id="btn-toggle-general" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+                <span>GENERAL</span><i class="fa-solid fa-chevron-down" id="icono-general"></i>
+            </div>
+            <div id="submenu-general" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px; margin-bottom: 10px;">
+                <a href="admin.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard CRM</a>
+                <a href="admin-promociones.html" class="nav-item"><i class="fa-solid fa-wand-sparkles"></i> Promociones</a>
+                <a href="admin-clientes.html" class="nav-item"><i class="fa-solid fa-users"></i> Clientes</a>
+                <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+                <a href="admin-monedero.html" class="nav-item active"><i class="fa-solid fa-wallet"></i> Monedero</a>
+                <a href="admin-actividad.html" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i> Actividad</a>
+                <a href="admin-historial.html" class="nav-item"><i class="fa-solid fa-book-skull"></i> Historial</a>
+                <a href="admin-configuracion.html" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
+            </div>
+
+            <!-- SECCIÓN SCM -->
+            <div class="sidebar-titulo" id="btn-toggle-scm" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; transition: color 0.3s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+                <span>MÓDULO SCM</span><i class="fa-solid fa-chevron-down" id="icono-scm"></i>
+            </div>
+            <div id="submenu-scm" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px; margin-bottom: 10px;">
+                <a href="admin-scm.html" class="nav-item"><i class="fa-solid fa-boxes-packing"></i> Dashboard SCM</a>
+                <a href="admin-productos.html" class="nav-item"><i class="fa-solid fa-hat-wizard"></i> Productos</a>
+                <a href="admin-pedidos.html" class="nav-item"><i class="fa-solid fa-scroll"></i> Pedidos</a>
+                <a href="admin-reportes.html" class="nav-item"><i class="fa-solid fa-chart-simple"></i> Reportes</a>
+                <a href="admin-proveedores.html" class="nav-item"><i class="fa-solid fa-truck-fast"></i> Proveedores</a>
+                <a href="admin-inventario.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+                <a href="admin-logistica.html" class="nav-item"><i class="fa-solid fa-route"></i> Logística</a>
+                <a href="admin-checklist.html" class="nav-item"><i class="fa-solid fa-list-check"></i> Checklist</a>
+            </div>
+
+            <!-- SECCIÓN ERP -->
+            <div class="sidebar-titulo" id="btn-toggle-erp" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding-right: 20px;">
+                <span>MÓDULO ERP</span><i class="fa-solid fa-chevron-down" id="icono-erp"></i>
+            </div>
+            <div id="submenu-erp" style="display: none; flex-direction: column; background: rgba(0,0,0,0.15); border-left: 2px solid var(--gold); margin-left: 10px; padding-left: 5px; border-radius: 0 0 8px 8px;">
+                <a href="admin-erp.html" class="nav-item"><i class="fa-solid fa-house-chimney-window"></i> Inicio</a>
+                <a href="admin-clientes.html" class="nav-item"><i class="fa-solid fa-users"></i> Clientes (CRM)</a>
+                <a href="admin-productos.html" class="nav-item"><i class="fa-solid fa-hat-wizard"></i> Productos (SCM)</a>
+                <a href="admin-inventario.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Inventario (SCM)</a>
+                <a href="admin-ordenes.html" class="nav-item"><i class="fa-solid fa-file-invoice"></i> Órdenes (ERP)</a>
+                <a href="admin-reporteserp.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Reportes</a>
+                <a href="admin-erp-nivel.html" class="nav-item"><i class="fa-solid fa-layer-group"></i> Nivel ERP</a>
+                <a href="admin-configuracion.html" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="nav-item"><i class="fa-solid fa-arrow-left"></i> Volver al sitio</a>
+        </div>
+    </aside>
+
+    <!-- ── CONTENIDO PRINCIPAL ── -->
+    <main class="admin-main">
+        <div class="admin-topbar">
+            <h1>Monedero Electrónico</h1>
+            <div class="topbar-usuario">
+                <i class="fa-solid fa-circle-user"></i>
+                <span id="nombre-admin-topbar">Administrador</span>
+            </div>
+        </div>
+
+        <!-- KPIs DEL MONEDERO -->
+        <div class="tickets-kpis">
+            <div class="ticket-kpi"><span class="kpi-num" id="kpi-saldo-total">$0</span><span class="kpi-label">Saldo total en monederos</span></div>
+            <div class="ticket-kpi"><span class="kpi-num" id="kpi-recargas-mes">$0</span><span class="kpi-label">Recargas (últimos 30 días)</span></div>
+            <div class="ticket-kpi"><span class="kpi-num" id="kpi-consumo-mes">$0</span><span class="kpi-label">Pagos con monedero (30 días)</span></div>
+            <div class="ticket-kpi"><span class="kpi-num" id="kpi-clientes-saldo">0</span><span class="kpi-label">Clientes con saldo</span></div>
+        </div>
+
+        <div class="monedero-admin-grid">
+            <!-- SALDOS POR CLIENTE -->
+            <div class="admin-bloque">
+                <div class="bloque-header">
+                    <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">SALDOS POR CLIENTE</h2>
+                </div>
+                <div class="admin-filtros" style="border-bottom: none; padding-bottom: 10px;">
+                    <div class="admin-buscador" style="flex: 1; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 12px;">
+                        <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+                        <input type="text" id="buscar-cliente-monedero" placeholder="Buscar cliente por nombre o correo..." style="width: 85%; background: none; border: none; color: white; outline: none; margin-left: 10px;" />
+                    </div>
+                </div>
+                <div class="admin-tabla-wrap" style="max-height: 420px; overflow-y: auto;">
+                    <table class="admin-tabla">
+                        <thead>
+                            <tr>
+                                <th style="color: var(--gold); font-family: 'Cinzel', serif;">CLIENTE</th>
+                                <th style="color: var(--gold); font-family: 'Cinzel', serif;">SALDO</th>
+                                <th style="color: var(--gold); font-family: 'Cinzel', serif;">RECARGADO</th>
+                                <th style="color: var(--gold); font-family: 'Cinzel', serif;">CONSUMIDO</th>
+                                <th style="color: var(--gold); font-family: 'Cinzel', serif;">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-saldos">
+                            <tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--gold);">Invocando monederos... <i class="fa-solid fa-spinner fa-spin"></i></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- AJUSTE MANUAL -->
+            <div class="admin-bloque">
+                <div class="bloque-header">
+                    <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">AJUSTE DE SALDO</h2>
+                </div>
+                <form id="form-ajuste" style="padding: 20px 24px;">
+                    <label class="mt-etiqueta" for="ajuste-cliente">Cliente</label>
+                    <select id="ajuste-cliente" class="select-ticket" style="width: 100%; margin-bottom: 14px;" required>
+                        <option value="">-- Selecciona un cliente --</option>
+                    </select>
+
+                    <label class="mt-etiqueta" for="ajuste-tipo">Tipo de ajuste</label>
+                    <select id="ajuste-tipo" class="select-ticket" style="width: 100%; margin-bottom: 14px;">
+                        <option value="abono">Abono (sumar saldo)</option>
+                        <option value="cargo">Cargo (restar saldo)</option>
+                    </select>
+
+                    <label class="mt-etiqueta" for="ajuste-monto">Monto (MXN)</label>
+                    <input type="number" id="ajuste-monto" class="input-ajuste" min="1" max="10000" step="0.01" placeholder="Ej. 150" required>
+
+                    <label class="mt-etiqueta" for="ajuste-motivo">Motivo</label>
+                    <textarea id="ajuste-motivo" class="input-ajuste" rows="3" maxlength="200" placeholder="Ej. Reembolso por pedido WZ-123456" required></textarea>
+
+                    <button type="submit" id="btn-ajuste" class="btn-guardar-ticket"><i class="fa-solid fa-scale-balanced"></i> Aplicar ajuste</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- MOVIMIENTOS -->
+        <div class="admin-bloque" style="margin-top: 24px;">
+            <div class="bloque-header">
+                <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">MOVIMIENTOS DEL MONEDERO</h2>
+            </div>
+            <div class="admin-filtros" style="border-bottom: none; padding-bottom: 10px; display: flex; gap: 12px; flex-wrap: wrap;">
+                <select id="filtro-tipo-mov" class="select-ticket">
+                    <option value="">Todos los tipos</option>
+                    <option value="recarga">Recargas</option>
+                    <option value="cargo">Pagos de compras</option>
+                    <option value="ajuste">Ajustes</option>
+                </select>
+                <select id="filtro-cliente-mov" class="select-ticket">
+                    <option value="">Todos los clientes</option>
+                </select>
+            </div>
+            <div class="admin-tabla-wrap" style="max-height: 460px; overflow-y: auto;">
+                <table class="admin-tabla">
+                    <thead>
+                        <tr>
+                            <th style="color: var(--gold); font-family: 'Cinzel', serif;">FECHA</th>
+                            <th style="color: var(--gold); font-family: 'Cinzel', serif;">CLIENTE</th>
+                            <th style="color: var(--gold); font-family: 'Cinzel', serif;">TIPO</th>
+                            <th style="color: var(--gold); font-family: 'Cinzel', serif;">CONCEPTO</th>
+                            <th style="color: var(--gold); font-family: 'Cinzel', serif;">MONTO</th>
+                            <th style="color: var(--gold); font-family: 'Cinzel', serif;">SALDO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-movimientos"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/notificaciones.js"></script>
+    <script src="../js/script.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, runTransaction, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWS58ylvzDdDF8UmzrybqXQVj9JnAmT8U",
+            authDomain: "wizardly-nextstage.firebaseapp.com",
+            projectId: "wizardly-nextstage",
+            storageBucket: "wizardly-nextstage.firebasestorage.app",
+            messagingSenderId: "336735978219",
+            appId: "1:336735978219:web:15a92d2b473cbb6f82b4ae",
+            measurementId: "G-FE1XKG7BFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let clientes = [];
+        let movimientos = [];
+
+        function nombreAdmin() {
+            try {
+                const datos = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
+                if (datos.nombre) return datos.nombre;
+            } catch (e) { /* sin datos */ }
+            return auth.currentUser?.displayName || auth.currentUser?.email || "Administrador";
+        }
+        onAuthStateChanged(auth, () => { document.getElementById("nombre-admin-topbar").textContent = nombreAdmin(); });
+
+        const avisar = (m, t = "exito") => window.mostrarNotificacion?.(m, t);
+        const escaparHTML = (t) => String(t ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const aFecha = (v) => (v && typeof v.toDate === "function") ? v.toDate() : (v ? new Date(v) : null);
+        const formatoFecha = (v) => { const f = aFecha(v); return f && !isNaN(f) ? f.toLocaleString("es-MX", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"; };
+        const pesos = (n) => `$${(Number(n) || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const nombreCliente = (c) => c?.nombre || c?.nombreCompleto || c?.correo || c?.email || "Cliente";
+
+        async function cargarDatos() {
+            try {
+                const [snapClientes, snapMov] = await Promise.all([
+                    getDocs(collection(db, "clientes")),
+                    getDocs(collection(db, "monedero_movimientos"))
+                ]);
+                clientes = snapClientes.docs.map(d => ({ id: d.id, ...d.data() }));
+                movimientos = snapMov.docs.map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => (aFecha(b.fecha)?.getTime() || 0) - (aFecha(a.fecha)?.getTime() || 0));
+
+                // Totales por cliente
+                clientes.forEach(c => {
+                    const propios = movimientos.filter(m => m.cliente_uid === c.id);
+                    c.recargado = propios.filter(m => m.tipo === "recarga" || (m.tipo === "ajuste" && Number(m.monto) > 0)).reduce((s, m) => s + Math.abs(Number(m.monto) || 0), 0);
+                    c.consumido = propios.filter(m => m.tipo === "cargo" || (m.tipo === "ajuste" && Number(m.monto) < 0)).reduce((s, m) => s + Math.abs(Number(m.monto) || 0), 0);
+                });
+
+                actualizarKpis();
+                llenarSelects();
+                renderSaldos();
+                renderMovimientos();
+            } catch (error) {
+                console.error("Error al cargar el monedero:", error);
+                document.getElementById("tbody-saldos").innerHTML = '<tr><td colspan="5" style="text-align:center; color:#f87171;">No se pudo cargar la información.</td></tr>';
+            }
+        }
+
+        function actualizarKpis() {
+            const hace30 = Date.now() - 30 * 24 * 60 * 60 * 1000;
+            const recientes = movimientos.filter(m => (aFecha(m.fecha)?.getTime() || 0) >= hace30);
+            document.getElementById("kpi-saldo-total").textContent = pesos(clientes.reduce((s, c) => s + (Number(c.saldo_monedero) || 0), 0));
+            document.getElementById("kpi-recargas-mes").textContent = pesos(recientes.filter(m => m.tipo === "recarga").reduce((s, m) => s + (Number(m.monto) || 0), 0));
+            document.getElementById("kpi-consumo-mes").textContent = pesos(recientes.filter(m => m.tipo === "cargo").reduce((s, m) => s + Math.abs(Number(m.monto) || 0), 0));
+            document.getElementById("kpi-clientes-saldo").textContent = clientes.filter(c => Number(c.saldo_monedero) > 0).length;
+        }
+
+        function llenarSelects() {
+            const ordenados = [...clientes].sort((a, b) => nombreCliente(a).localeCompare(nombreCliente(b)));
+            const opciones = ordenados.map(c => `<option value="${c.id}">${escaparHTML(nombreCliente(c))} — ${pesos(c.saldo_monedero)}</option>`).join("");
+            document.getElementById("ajuste-cliente").innerHTML = '<option value="">-- Selecciona un cliente --</option>' + opciones;
+            document.getElementById("filtro-cliente-mov").innerHTML = '<option value="">Todos los clientes</option>' +
+                ordenados.map(c => `<option value="${c.id}">${escaparHTML(nombreCliente(c))}</option>`).join("");
+        }
+
+        function renderSaldos() {
+            const texto = document.getElementById("buscar-cliente-monedero").value.trim().toLowerCase();
+            const lista = clientes
+                .filter(c => !texto || `${nombreCliente(c)} ${c.correo || ""} ${c.email || ""}`.toLowerCase().includes(texto))
+                .sort((a, b) => (Number(b.saldo_monedero) || 0) - (Number(a.saldo_monedero) || 0));
+            const tbody = document.getElementById("tbody-saldos");
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Sin clientes.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = lista.map(c => `
+                <tr>
+                    <td style="color: white;">${escaparHTML(nombreCliente(c))}<br><small style="color: var(--text-muted);">${escaparHTML(c.correo || c.email || "")}</small></td>
+                    <td style="color: var(--gold); font-weight: bold;">${pesos(c.saldo_monedero)}</td>
+                    <td style="color: #4ade80;">${pesos(c.recargado)}</td>
+                    <td style="color: #f87171;">${pesos(c.consumido)}</td>
+                    <td>
+                        <button type="button" class="btn-ver-ticket" data-ver="${c.id}" title="Ver movimientos"><i class="fa-solid fa-list"></i></button>
+                        <button type="button" class="btn-ver-ticket" data-ajustar="${c.id}" title="Ajustar saldo"><i class="fa-solid fa-scale-balanced"></i></button>
+                    </td>
+                </tr>`).join("");
+        }
+
+        function renderMovimientos() {
+            const tipo = document.getElementById("filtro-tipo-mov").value;
+            const clienteId = document.getElementById("filtro-cliente-mov").value;
+            const porId = new Map(clientes.map(c => [c.id, c]));
+            const lista = movimientos.filter(m => (!tipo || m.tipo === tipo) && (!clienteId || m.cliente_uid === clienteId));
+            const tbody = document.getElementById("tbody-movimientos");
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Sin movimientos.</td></tr>';
+                return;
+            }
+            const etiquetas = { recarga: "Recarga", cargo: "Pago de compra", ajuste: "Ajuste" };
+            tbody.innerHTML = lista.map(m => {
+                const negativo = m.tipo === "cargo" || (m.tipo === "ajuste" && Number(m.monto) < 0);
+                return `
+                    <tr>
+                        <td style="color: var(--text-muted);">${formatoFecha(m.fecha)}</td>
+                        <td style="color: white;">${escaparHTML(nombreCliente(porId.get(m.cliente_uid)) || m.cliente_uid)}</td>
+                        <td>${escaparHTML(etiquetas[m.tipo] || m.tipo)}</td>
+                        <td style="color: var(--text-muted);">${escaparHTML(m.concepto || "")}${m.realizado_por ? `<br><small>por ${escaparHTML(m.realizado_por)}</small>` : ""}</td>
+                        <td style="color: ${negativo ? '#f87171' : '#4ade80'}; font-weight: bold;">${negativo ? "-" : "+"}${pesos(Math.abs(Number(m.monto) || 0))}</td>
+                        <td>${m.saldo_nuevo !== undefined ? pesos(m.saldo_nuevo) : "—"}</td>
+                    </tr>`;
+            }).join("");
+        }
+
+        document.getElementById("buscar-cliente-monedero").addEventListener("input", renderSaldos);
+        document.getElementById("filtro-tipo-mov").addEventListener("change", renderMovimientos);
+        document.getElementById("filtro-cliente-mov").addEventListener("change", renderMovimientos);
+        document.getElementById("tbody-saldos").addEventListener("click", (e) => {
+            const ver = e.target.closest("[data-ver]");
+            const ajustar = e.target.closest("[data-ajustar]");
+            if (ver) {
+                document.getElementById("filtro-cliente-mov").value = ver.dataset.ver;
+                renderMovimientos();
+                document.getElementById("tbody-movimientos").scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+            if (ajustar) {
+                document.getElementById("ajuste-cliente").value = ajustar.dataset.ajustar;
+                document.getElementById("ajuste-monto").focus();
+            }
+        });
+
+        // ===== AJUSTE MANUAL (transacción para que saldo y movimiento coincidan) =====
+        document.getElementById("form-ajuste").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const clienteId = document.getElementById("ajuste-cliente").value;
+            const tipo = document.getElementById("ajuste-tipo").value;
+            const monto = Math.round(Number(document.getElementById("ajuste-monto").value) * 100) / 100;
+            const motivo = document.getElementById("ajuste-motivo").value.trim();
+
+            if (!clienteId) { avisar("Selecciona un cliente.", "aviso"); return; }
+            if (!Number.isFinite(monto) || monto <= 0 || monto > 10000) { avisar("El monto debe estar entre $1 y $10,000.", "aviso"); return; }
+            if (motivo.length < 5) { avisar("Escribe el motivo del ajuste.", "aviso"); return; }
+
+            const btn = document.getElementById("btn-ajuste");
+            btn.disabled = true;
+            const admin = nombreAdmin();
+            try {
+                const refCliente = doc(db, "clientes", clienteId);
+                const refMov = doc(collection(db, "monedero_movimientos"));
+                await runTransaction(db, async (tx) => {
+                    const snap = await tx.get(refCliente);
+                    if (!snap.exists()) throw new Error("CLIENTE_NO_EXISTE");
+                    const saldoAnterior = Number(snap.data().saldo_monedero) || 0;
+                    const delta = tipo === "abono" ? monto : -monto;
+                    const saldoNuevo = Math.round((saldoAnterior + delta) * 100) / 100;
+                    if (saldoNuevo < 0) throw new Error("SALDO_INSUFICIENTE");
+                    tx.update(refCliente, { saldo_monedero: saldoNuevo });
+                    tx.set(refMov, {
+                        cliente_uid: clienteId,
+                        tipo: "ajuste",
+                        monto: delta,
+                        concepto: `Ajuste administrativo: ${motivo}`,
+                        saldo_anterior: saldoAnterior,
+                        saldo_nuevo: saldoNuevo,
+                        realizado_por: admin,
+                        fecha: Timestamp.now()
+                    });
+                });
+                avisar(`Ajuste aplicado (${tipo === "abono" ? "+" : "-"}${pesos(monto)}).`, "exito");
+                document.getElementById("form-ajuste").reset();
+                await cargarDatos();
+            } catch (error) {
+                console.error("Error en el ajuste:", error);
+                if (error.message === "SALDO_INSUFICIENTE") avisar("El cliente no tiene saldo suficiente para ese cargo.", "error");
+                else if (error.message === "CLIENTE_NO_EXISTE") avisar("El cliente ya no existe.", "error");
+                else avisar("No se pudo aplicar el ajuste.", "error");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        cargarDatos();
+    </script>
+
+    <!-- Script de menús laterales -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const menus = [
+                { btn: 'btn-toggle-general', sub: 'submenu-general', icon: 'icono-general' },
+                { btn: 'btn-toggle-scm', sub: 'submenu-scm', icon: 'icono-scm' },
+                { btn: 'btn-toggle-erp', sub: 'submenu-erp', icon: 'icono-erp' }
+            ];
+
+            menus.forEach(menu => {
+                const btn = document.getElementById(menu.btn);
+                const sub = document.getElementById(menu.sub);
+                const icon = document.getElementById(menu.icon);
+                if(btn && sub && icon) {
+                    if (sub.querySelector('.active')) {
+                        sub.style.display = 'flex'; icon.style.transform = 'rotate(180deg)';
+                    }
+                    btn.addEventListener('click', () => {
+                        if (sub.style.display === 'none' || sub.style.display === '') {
+                            sub.style.display = 'flex'; icon.style.transform = 'rotate(180deg)';
+                        } else {
+                            sub.style.display = 'none'; icon.style.transform = 'rotate(0deg)';
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    <script type="module">import { aplicarRol } from '../js/sidebar.js'; aplicarRol();</script>
+</body>
+</html>
