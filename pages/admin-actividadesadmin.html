@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Wizardly â€” Actividad del Administrador</title>
+    <title>Wizardly — Actividad del Administrador</title>
 
     <link rel="icon" href="../images/favicon/favicon.jpeg">
 
@@ -69,6 +69,8 @@
         <a href="admin-clientes.html" class="nav-item">
             <i class="fa-solid fa-users"></i> Clientes
         </a>
+        <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+        <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
         <a href="admin-actividad.html" class="nav-item active">
             <i class="fa-solid fa-clock-rotate-left"></i> Actividad
         </a>
@@ -295,11 +297,11 @@
                                 </th>
 
                                 <th>
-                                    MÃ³dulo
+                                    Módulo
                                 </th>
 
                                 <th>
-                                    AcciÃ³n
+                                    Acción
                                 </th>
 
                                 <th>
@@ -422,7 +424,7 @@
 
 
         /* ==========================================
-           CONFIGURACIÃ“N FIREBASE
+           CONFIGURACIÓN FIREBASE
         ========================================== */
 
         const firebaseConfig = {
@@ -514,7 +516,7 @@
 
 
         /* ==========================================
-           AUTENTICACIÃ“N
+           AUTENTICACIÓN
         ========================================== */
 
         onAuthStateChanged(
@@ -522,7 +524,7 @@
             async (usuario) => {
 
 
-                /* NO HAY SESIÃ“N */
+                /* NO HAY SESIÓN */
 
                 if (!usuario) {
 
@@ -649,7 +651,7 @@
 
 
                 mostrarToast(
-                    "âš ï¸ No se pudo cargar tu actividad.",
+                    "⚠ï¸ No se pudo cargar tu actividad.",
                     "error"
                 );
 
@@ -835,7 +837,7 @@
 
 
 
-                    /* CLASE DEL MÃ“DULO */
+                    /* CLASE DEL MÓDULO */
 
                     let claseModulo =
                         "tipo-dashboard";
@@ -920,7 +922,7 @@
 
                                 ${escaparHTML(
                                     actividad.accion ||
-                                    "ActualizaciÃ³n"
+                                    "Actualización"
                                 )}
 
                             </span>
@@ -1330,7 +1332,7 @@
 
 
         /* ==========================================
-           BOTÃ“N LIMPIAR
+           BOTÓN LIMPIAR
         =========================================== */
 
         .btn-filtro-limpiar {

@@ -10,6 +10,8 @@ const PERMISOS = {
             "admin-promociones.html",
             "admin-clientes.html",
             "admin-cliente-detalle.html",
+            "admin-tickets.html",
+            "admin-monedero.html",
             "admin-actividad.html",
             "admin-erp.html",
             "admin-productos.html",
