@@ -138,8 +138,72 @@
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
         }
 
-        .step.active::after { 
+        /* La línea dorada solo se pinta entre pasos ya completados */
+        .step.linea-completa::after { 
             background: var(--gold, #d4af37); 
+        }
+
+        .step-fecha {
+            display: block;
+            margin-top: 6px;
+            font-family: 'Lato', sans-serif;
+            font-weight: 400;
+            font-size: 0.78rem;
+            color: rgba(240, 230, 210, 0.6);
+            min-height: 1em;
+        }
+
+        .tracking-bloque {
+            margin-top: 25px;
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: left;
+        }
+        .tracking-bloque h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold, #d4af37);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        /* Bitácora de movimientos del pedido */
+        .movimientos-lista { list-style: none; padding: 0; margin: 0; position: relative; }
+        .movimientos-lista li {
+            position: relative;
+            padding: 0 0 18px 28px;
+            font-family: 'Lato', sans-serif;
+            color: rgba(240, 230, 210, 0.85);
+            border-left: 2px solid rgba(212,175,55,0.3);
+            margin-left: 7px;
+        }
+        .movimientos-lista li:last-child { border-left-color: transparent; padding-bottom: 0; }
+        .movimientos-lista li::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #120e1c;
+            border: 2px solid var(--gold, #d4af37);
+        }
+        .movimientos-lista li.reciente::before { background: var(--gold, #d4af37); box-shadow: 0 0 10px rgba(212,175,55,0.6); }
+        .movimientos-lista .mov-estado { color: #fff; font-weight: 700; }
+        .movimientos-lista .mov-fecha { display: block; font-size: 0.82rem; color: rgba(240, 230, 210, 0.55); margin-top: 2px; }
+
+        .productos-rastreo { width: 100%; border-collapse: collapse; font-family: 'Lato', sans-serif; }
+        .productos-rastreo td { padding: 8px 4px; color: rgba(240, 230, 210, 0.85); border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .productos-rastreo td:last-child { text-align: right; }
+        .productos-rastreo tr.total-fila td { border-bottom: none; color: var(--gold, #d4af37); font-weight: 700; padding-top: 12px; }
+
+        @media (max-width: 600px) {
+            .tracking-search { flex-direction: column; align-items: center; }
+            .tracking-search button { padding: 12px 25px; }
+            .step { font-size: 0.75rem; }
+            .step .icon { width: 42px; height: 42px; font-size: 1.1rem; }
+            .step::after { top: 19px; }
         }
 
         .order-details {
@@ -167,7 +231,7 @@
     </style>
 </head>
 
-<body>
+<body data-page="seguimiento">
     <div id="navbar-placeholder"></div>
 
     <section class="hero-catalogo" style="min-height: 35vh; padding-top: 100px;">
@@ -196,25 +260,44 @@
                 <p><strong>Cliente:</strong> <span id="res-cliente"></span></p>
                 <p><strong>Fecha de compra:</strong> <span id="res-fecha"></span></p>
                 <p><strong>Estado Logístico Actual:</strong> <span id="res-estado" style="color: var(--gold, #d4af37); font-weight: bold; text-transform: uppercase;"></span></p>
+                <p style="margin-top: 12px;"><a id="link-ticket" href="atencion.html" style="color: var(--gold, #d4af37);"><i class="fa-solid fa-headset"></i> ¿Algún problema con este pedido? Abre un ticket</a></p>
             </div>
 
             <div class="timeline">
                 <div class="step" id="step-Pendiente">
                     <div class="icon"><i class="fa-solid fa-box-open"></i></div>
                     Pendiente
+                    <small class="step-fecha" id="fecha-Pendiente"></small>
                 </div>
                 <div class="step" id="step-Procesando">
                     <div class="icon"><i class="fa-solid fa-hammer"></i></div>
                     Preparando
+                    <small class="step-fecha" id="fecha-Procesando"></small>
                 </div>
                 <div class="step" id="step-Enviado">
                     <div class="icon"><i class="fa-solid fa-truck-fast"></i></div>
                     Enviado
+                    <small class="step-fecha" id="fecha-Enviado"></small>
                 </div>
                 <div class="step" id="step-Entregado">
                     <div class="icon"><i class="fa-solid fa-house-chimney-user"></i></div>
                     Entregado
+                    <small class="step-fecha" id="fecha-Entregado"></small>
                 </div>
+            </div>
+
+            <!-- BITÁCORA DE MOVIMIENTOS DEL PEDIDO -->
+            <div class="tracking-bloque">
+                <h3><i class="fa-solid fa-scroll"></i> Movimientos de tu pedido</h3>
+                <ul class="movimientos-lista" id="lista-movimientos"></ul>
+            </div>
+
+            <!-- PRODUCTOS DEL PEDIDO -->
+            <div class="tracking-bloque">
+                <h3><i class="fa-solid fa-box-open"></i> Contenido del pedido</h3>
+                <table class="productos-rastreo">
+                    <tbody id="tabla-productos-rastreo"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -224,6 +307,8 @@
     </footer>
 
     <!-- Scripts Base -->
+    <script src="../js/carrito.js"></script>
+    <script src="../js/notificaciones.js"></script>
     <script src="../js/cargar-navbar.js"></script>
     <script src="../js/script.js"></script>
 
@@ -232,6 +317,11 @@
         import { db } from "../js/firebase-config.js";
         import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
+        const ESTADOS = ["Pendiente", "Procesando", "Enviado", "Entregado"];
+        const ETIQUETAS = { Pendiente: "Pendiente", Procesando: "Preparando", Enviado: "Enviado", Entregado: "Entregado" };
+        const MSG_NO_ENCONTRADO = '<i class="fa-solid fa-triangle-exclamation"></i> No encontramos un pedido con ese código en nuestros pergaminos.';
+        const MSG_ERROR_CONEXION = '<i class="fa-solid fa-triangle-exclamation"></i> Hubo un error al conectar con los pergaminos mágicos. Inténtalo de nuevo.';
+
         document.getElementById('btn-rastrear').addEventListener('click', rastrearPedido);
         
         // Rastrear si se presiona Enter
@@ -239,13 +329,36 @@
             if (e.key === 'Enter') rastrearPedido();
         });
 
+        // Convierte Timestamp de Firestore, Date o texto a Date
+        function aFecha(valor) {
+            if (!valor) return null;
+            if (typeof valor.toDate === "function") return valor.toDate();
+            const f = new Date(valor);
+            return isNaN(f) ? null : f;
+        }
+
+        const formatoFecha = (f) => f ? f.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : "";
+        const formatoFechaHora = (f) => f ? f.toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "";
+        const escaparHTML = (t) => String(t ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        function mostrarError(html) {
+            const mensajeError = document.getElementById('mensaje-error');
+            mensajeError.innerHTML = html;
+            mensajeError.style.display = 'block';
+        }
+
         async function rastrearPedido() {
             const btn = document.getElementById('btn-rastrear');
             const codigo = document.getElementById('input-codigo').value.trim().toUpperCase();
             const contenedorResultado = document.getElementById('resultado-rastreo');
             const mensajeError = document.getElementById('mensaje-error');
 
-            if (!codigo) return;
+            if (!codigo) {
+                if (typeof window.mostrarNotificacion === "function") {
+                    window.mostrarNotificacion("Escribe tu número de folio (Ej: WZ-123456).", "aviso");
+                }
+                return;
+            }
 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando...';
             btn.disabled = true;
@@ -256,67 +369,112 @@
                 const querySnapshot = await getDocs(q);
 
                 if (!querySnapshot.empty) {
-                    // Si existe el pedido
-                    const pedidoDoc = querySnapshot.docs[0];
-                    const pedidoData = pedidoDoc.data();
-                    
-                    const estadoActual = pedidoData.estado_seguimiento || "Pendiente";
+                    const pedidoData = querySnapshot.docs[0].data();
+                    const estadoActual = ESTADOS.includes(pedidoData.estado_seguimiento) ? pedidoData.estado_seguimiento : "Pendiente";
+                    const fechaCompra = aFecha(pedidoData.fecha);
 
                     mensajeError.style.display = 'none';
                     contenedorResultado.style.display = 'block';
 
                     // Llenar detalles
                     document.getElementById('res-folio').innerText = pedidoData.folio;
+                    document.getElementById('link-ticket').href = `atencion.html?folio=${encodeURIComponent(pedidoData.folio)}`;
                     document.getElementById('res-cliente').innerText = pedidoData.cliente || "Desconocido";
-                    document.getElementById('res-estado').innerText = estadoActual;
-                    
-                    if (pedidoData.fecha && pedidoData.fecha.toDate) {
-                        document.getElementById('res-fecha').innerText = pedidoData.fecha.toDate().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
-                    } else {
-                        document.getElementById('res-fecha').innerText = "Reciente";
+                    document.getElementById('res-estado').innerText = ETIQUETAS[estadoActual] || estadoActual;
+                    document.getElementById('res-fecha').innerText = fechaCompra ? formatoFecha(fechaCompra) : "Reciente";
+
+                    // Bitácora: si la orden es anterior al historial, se arma con la fecha de compra
+                    let historial = Array.isArray(pedidoData.historial_seguimiento) ? [...pedidoData.historial_seguimiento] : [];
+                    if (historial.length === 0) {
+                        historial = [{ estado: "Pendiente", fecha: pedidoData.fecha, nota: "Pedido registrado" }];
+                        if (estadoActual !== "Pendiente") historial.push({ estado: estadoActual, fecha: null, nota: "" });
                     }
-                    
-                    actualizarTimeline(estadoActual);
+                    historial.sort((a, b) => (aFecha(a.fecha)?.getTime() || 0) - (aFecha(b.fecha)?.getTime() || 0));
+
+                    actualizarTimeline(estadoActual, historial);
+                    renderMovimientos(historial);
+                    renderProductos(pedidoData);
                 } else {
-                    // No existe el pedido
                     contenedorResultado.style.display = 'none';
-                    mensajeError.style.display = 'block';
+                    mostrarError(MSG_NO_ENCONTRADO);
                 }
             } catch (error) {
                 console.error("Error al buscar el pedido:", error);
-                mensajeError.innerText = "Hubo un error al conectar con los pergaminos mágicos. Inténtalo de nuevo.";
-                mensajeError.style.display = 'block';
+                contenedorResultado.style.display = 'none';
+                mostrarError(MSG_ERROR_CONEXION);
             } finally {
                 btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Rastrear';
                 btn.disabled = false;
             }
         }
 
-        function actualizarTimeline(estado) {
-            const estados = ["Pendiente", "Procesando", "Enviado", "Entregado"];
-            const indiceActual = estados.indexOf(estado);
+        function actualizarTimeline(estado, historial) {
+            const indiceActual = ESTADOS.indexOf(estado);
 
-            estados.forEach((est, index) => {
+            ESTADOS.forEach((est, index) => {
                 const step = document.getElementById(`step-${est}`);
-                if (step) {
-                    if (index <= indiceActual) {
-                        step.classList.add('active');
-                    } else {
-                        step.classList.remove('active');
-                    }
-                }
+                if (!step) return;
+                step.classList.toggle('active', index <= indiceActual);
+                step.classList.toggle('linea-completa', index < indiceActual);
+
+                // Fecha más reciente en que el pedido llegó a ese estado
+                const registros = historial.filter(h => h.estado === est && aFecha(h.fecha));
+                const ultimo = registros[registros.length - 1];
+                const elFecha = document.getElementById(`fecha-${est}`);
+                if (elFecha) elFecha.textContent = (index <= indiceActual && ultimo) ? formatoFecha(aFecha(ultimo.fecha)) : "";
             });
         }
 
-        // Leer el folio de la URL si el usuario viene redirigido desde el checkout
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const folioDesdeUrl = urlParams.get('folio');
-            if(folioDesdeUrl) {
+        function renderMovimientos(historial) {
+            const lista = document.getElementById('lista-movimientos');
+            if (!lista) return;
+            // Lo más reciente primero
+            const ordenados = [...historial].reverse();
+            lista.innerHTML = ordenados.map((mov, i) => {
+                const fecha = aFecha(mov.fecha);
+                const etiqueta = ETIQUETAS[mov.estado] || mov.estado || "Actualización";
+                return `
+                    <li class="${i === 0 ? 'reciente' : ''}">
+                        <span class="mov-estado">${escaparHTML(etiqueta)}</span>
+                        ${mov.nota ? ` — ${escaparHTML(mov.nota)}` : ""}
+                        <span class="mov-fecha">${fecha ? formatoFechaHora(fecha) : "Fecha no registrada"}</span>
+                    </li>
+                `;
+            }).join("");
+        }
+
+        function renderProductos(pedido) {
+            const tbody = document.getElementById('tabla-productos-rastreo');
+            if (!tbody) return;
+            const productos = Array.isArray(pedido.productos) ? pedido.productos : [];
+            const filas = productos.map(p => `
+                <tr>
+                    <td>${escaparHTML(p.nombre || "Artefacto")} <small style="color:var(--gold, #d4af37);">x${Number(p.cantidad) || 1}</small></td>
+                    <td>$${((Number(p.precio) || 0) * (Number(p.cantidad) || 1)).toFixed(2)} MXN</td>
+                </tr>
+            `).join("");
+            const total = Number(pedido.total) || 0;
+            tbody.innerHTML = (filas || '<tr><td colspan="2">Sin productos registrados</td></tr>') + `
+                <tr class="total-fila">
+                    <td>Total pagado</td>
+                    <td>$${total.toFixed(2)} MXN</td>
+                </tr>
+            `;
+        }
+
+        // Leer el folio de la URL si el usuario viene redirigido desde el checkout o desde el correo
+        function leerFolioDeUrl() {
+            const folioDesdeUrl = new URLSearchParams(window.location.search).get('folio');
+            if (folioDesdeUrl) {
                 document.getElementById('input-codigo').value = folioDesdeUrl;
                 rastrearPedido();
             }
-        });
+        }
+        if (document.readyState === "loading") {
+            window.addEventListener('DOMContentLoaded', leerFolioDeUrl);
+        } else {
+            leerFolioDeUrl();
+        }
     </script>
 </body>
 </html>

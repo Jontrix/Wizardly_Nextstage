@@ -141,9 +141,13 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
-            emailjs.init("AfooIJ4wAosgQp82y");
+            if (typeof emailjs !== "undefined") {
+                emailjs.init("AfooIJ4wAosgQp82y");
+            }
         })();
     </script>
+    <!-- AVISOS DENTRO DE LA PÁGINA (REEMPLAZA alert()) -->
+    <script src="../js/notificaciones.js"></script>
 </head>
 
 <body data-page="checkout">
@@ -182,6 +186,18 @@
             </div>
         </div>
 
+        <!-- AVISO: CARRITO VACÍO (se muestra si se entra al checkout sin productos) -->
+        <div class="contact-card" id="bloqueCarritoVacio" style="display:none; text-align:center;">
+            <div style="font-size:60px; margin-bottom:10px;">🧺</div>
+            <h3 style="justify-content:center;">Tu carrito está vacío</h3>
+            <p style="margin:15px 0 25px; color:rgba(240, 230, 210, 0.7);">
+                Agrega algunas reliquias mágicas desde el catálogo para continuar con tu compra.
+            </p>
+            <a href="catalogo.html" class="btn">
+                <i class="fa-solid fa-hat-wizard"></i> Ir al Catálogo
+            </a>
+        </div>
+
         <!-- PASO 1: DIRECCIÓN -->
         <div class="contact-card" id="bloqueDireccion">
             <h3><i class="fa-solid fa-location-dot"></i> Dirección de envío</h3>
@@ -198,7 +214,7 @@
 
             <form id="formDireccion">
                 <div class="input-group">
-                    <input type="text" id="aliasDireccion" placeholder="Alias de la dirección (Ej: Casa, Torre del Mago, Trabajo)">
+                    <input type="text" id="aliasDireccion" placeholder="Alias de la dirección (Ej: Casa, Torre del Mago, Trabajo)" data-opcional>
                 </div>
                 <div class="input-group">
                     <input type="text" id="nombreCompleto" placeholder="Nombre completo (Ej: Merlin Ambrosius)" required>
@@ -338,6 +354,17 @@
                     </div>
                 </div>
 
+                <!-- RESUMEN VISIBLE ANTES DE PAGAR (subtotal, descuento, impuestos y total) -->
+                <div class="info-card" id="resumenPagoCard" style="margin-top:25px;">
+                    <h3><i class="fa-solid fa-scroll"></i> Resumen de tu compra</h3>
+                    <div id="resumenPago" style="margin-top:20px;"></div>
+                    <hr style="margin:15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <div style="display:flex; justify-content:space-between; font-size:1.15rem;">
+                        <strong>Total a pagar</strong>
+                        <strong id="totalPago" style="color:var(--gold, #d4af37);">$0.00 MXN</strong>
+                    </div>
+                </div>
+
                 <div style="display:flex; gap:15px; margin-top:25px; flex-wrap:wrap;">
                     <button type="button" class="btn-explorar" id="btnVolverDireccion">
                         <i class="fa-solid fa-arrow-left"></i> Volver
@@ -357,7 +384,8 @@
                 <h2 style="margin-top:15px;">¡Gracias por tu compra!</h2>
                 <p style="margin:20px 0; color:rgba(240, 230, 210, 0.7);">
                     Tu pedido ha sido registrado correctamente y nuestro Consejo Arcano comenzará a preparar tus reliquias.<br><br>
-                    <strong style="color: var(--gold, #d4af37);">Hemos enviado la confirmación a tu correo. Guarda el número de pedido para rastrear tu paquete.</strong>
+                    <!-- El texto se actualiza según el resultado real del envío del correo -->
+                    <strong id="mensajeCorreo" style="color: var(--gold, #d4af37);">Guarda el número de pedido para rastrear tu paquete.</strong>
                 </p>
             </div>
 
@@ -403,8 +431,6 @@
                     </button>
                 </div>
             </div>
-
-            <div id="toastContainerCheckout" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:none;padding:12px 18px;border-radius:999px;background:rgba(29, 27, 52, 0.95);color:#fff;font-size:0.95rem;font-weight:600;box-shadow:0 14px 28px rgba(0,0,0,0.18);"></div>
 
             <br>
 
@@ -459,7 +485,8 @@
             updateDoc,
             arrayUnion,
             increment,
-            serverTimestamp
+            serverTimestamp,
+            Timestamp
         } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
         const auth = getAuth();
@@ -473,6 +500,67 @@
         let listaDireccionesGuardadas = [];
         let listaTarjetasGuardadas = [];
         let direccionObjeto = null;
+
+        // ==========================================================
+        // IMPUESTOS DINÁMICOS (Módulo 4.1.5) — colección "impuestos"
+        // Si la colección aún no tiene registros, se usa IVA 16% por defecto.
+        // Si hay registros pero todos están inactivos, no se cobra impuesto.
+        // ==========================================================
+        const IMPUESTO_POR_DEFECTO = [{ nombre: "IVA", porcentaje: 16 }];
+        let impuestosActivos = IMPUESTO_POR_DEFECTO;
+
+        async function cargarImpuestosActivos() {
+            try {
+                const snap = await getDocs(collection(db, "impuestos"));
+                if (snap.empty) return IMPUESTO_POR_DEFECTO;
+                const activos = [];
+                snap.forEach(d => {
+                    const t = d.data();
+                    if (String(t.estado || "").toLowerCase() === "activo") {
+                        activos.push({ nombre: String(t.nombre || "Impuesto"), porcentaje: Number(t.porcentaje) || 0 });
+                    }
+                });
+                return activos;
+            } catch (err) {
+                console.error("No se pudieron leer los impuestos, se usa IVA 16%:", err);
+                return IMPUESTO_POR_DEFECTO;
+            }
+        }
+        const impuestosListos = cargarImpuestosActivos().then(lista => { impuestosActivos = lista; });
+
+        // ==========================================================
+        // CUPÓN APLICADO EN EL CARRITO (Módulo 4.1.4)
+        // Reutiliza validarCupon / calcularDescuento de carrito.js
+        // ==========================================================
+        function obtenerCuponCheckout(carrito) {
+            const codigo = localStorage.getItem("codigo_promocional");
+            if (!codigo || typeof validarCupon !== "function" || typeof calcularDescuento !== "function") {
+                return { codigo: null, descuento: 0 };
+            }
+            const resultado = validarCupon(codigo, carrito);
+            if (!resultado.valido) return { codigo: null, descuento: 0 };
+            return { codigo, descuento: Number(calcularDescuento(carrito, resultado.promo)) || 0 };
+        }
+
+        const redondear = (n) => Math.round((Number(n) || 0) * 100) / 100;
+        const formatoMXN = (n) => `$${(Number(n) || 0).toFixed(2)} MXN`;
+
+        // Enlace de rastreo: usa el dominio actual si está publicado; en local usa GitHub Pages
+        function construirLinkRastreo(folio) {
+            const esLocal = location.protocol === "file:" || ["localhost", "127.0.0.1", ""].includes(location.hostname);
+            const ruta = `seguimiento.html?folio=${encodeURIComponent(folio)}`;
+            if (!esLocal) return new URL(ruta, location.href).href;
+            return `https://jontrix.github.io/Wizardly_Nextstage/pages/${ruta}`;
+        }
+
+        // Avisos dentro de la página (en lugar de alert)
+        function avisar(mensaje, tipo = "info", duracion) {
+            if (typeof window.mostrarNotificacion === "function") {
+                window.mostrarNotificacion(mensaje, tipo, duracion);
+            } else {
+                console.warn(mensaje);
+            }
+        }
 
         // 1. REGISTRAR COMPRA EN ACTIVIDAD GLOBAL
         window.registrarCompraEnActividad = async function (pedido) {
@@ -658,6 +746,11 @@
             const elError = document.getElementById("wallet-error");
             const btnPagar = document.getElementById("btnPagar");
 
+            // Si el método no es monedero, el saldo no importa: el botón debe estar disponible
+            if (metodoSeleccionado !== "wallet" && btnPagar && btnPagar.dataset.procesando !== "1") {
+                btnPagar.disabled = false;
+            }
+
             if (elRestante) {
                 if (restante < 0) {
                     elRestante.textContent = `$0.00 MXN`;
@@ -681,6 +774,21 @@
             if (typeof actualizarContadorCarrito === "function") {
                 actualizarContadorCarrito();
             }
+
+            // GUARDIA: SI SE ENTRA AL CHECKOUT CON EL CARRITO VACÍO, SE AVISA DESDE EL INICIO
+            const carritoInicial = typeof obtenerCarrito === "function" ? obtenerCarrito() : [];
+            if (!carritoInicial || carritoInicial.length === 0) {
+                document.getElementById("bloqueDireccion").style.display = "none";
+                document.querySelector(".checkout-progress")?.style.setProperty("display", "none");
+                document.getElementById("bloqueCarritoVacio").style.display = "block";
+            }
+
+            // Cuando terminen de cargar los impuestos, refrescar el resumen si ya está en pantalla
+            impuestosListos.then(() => {
+                if (document.getElementById("bloquePago")?.style.display === "block") {
+                    cargarResumenConImpuestos();
+                }
+            });
 
             // PASO 1 -> PASO 2 (PROCESAR DIRECCIÓN Y GUARDAR / CREAR CLIENTE EN FIRESTORE)
             if (formDireccion) {
@@ -779,13 +887,13 @@
                 });
             });
 
-            // CÁLCULO DE SUB TOTALES E IMPUESTOS (16% IVA)
+            // CÁLCULO DE SUBTOTAL, DESCUENTO (CUPÓN) E IMPUESTOS CONFIGURABLES
             function cargarResumenConImpuestos() {
                 const carrito = typeof obtenerCarrito === "function" ? obtenerCarrito() : [];
-                const resumen = document.getElementById("resumenCompra");
-                if (!resumen) return { carrito: [], subtotal: 0, impuesto: 0, totalCompraFinal: 0 };
+                const vacio = { carrito: [], subtotal: 0, descuento: 0, cupon: null, impuestosDetalle: [], impuesto: 0, totalCompraFinal: 0 };
+                if (!carrito || carrito.length === 0) return vacio;
 
-                resumen.innerHTML = "";
+                let lineasProductos = "";
                 subtotalCompra = 0;
 
                 carrito.forEach(producto => {
@@ -794,32 +902,55 @@
                     const subT = prec * cant;
                     subtotalCompra += subT;
 
-                    resumen.innerHTML += `
+                    lineasProductos += `
                         <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.95rem;">
                             <span>${producto.nombre} <small style="color:var(--gold, #d4af37);">x${cant}</small></span>
-                            <strong>$${subT.toFixed(2)} MXN</strong>
+                            <strong>${formatoMXN(subT)}</strong>
                         </div>
                     `;
                 });
+                subtotalCompra = redondear(subtotalCompra);
 
-                impuestoCompra = subtotalCompra * 0.16;
-                totalCompraFinal = subtotalCompra + impuestoCompra;
+                // Descuento por cupón (si se aplicó en el carrito)
+                const cupon = obtenerCuponCheckout(carrito);
+                const descuento = redondear(Math.min(cupon.descuento, subtotalCompra));
+                const baseGravable = redondear(subtotalCompra - descuento);
 
-                resumen.innerHTML += `
+                // Impuestos activos configurados por el administrador
+                const impuestosDetalle = impuestosActivos.map(t => ({
+                    nombre: t.nombre,
+                    porcentaje: t.porcentaje,
+                    monto: redondear(baseGravable * t.porcentaje / 100)
+                }));
+                impuestoCompra = redondear(impuestosDetalle.reduce((s, t) => s + t.monto, 0));
+                totalCompraFinal = redondear(baseGravable + impuestoCompra);
+
+                const estiloLinea = "display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color: rgba(240,230,210,0.7);";
+                let lineasTotales = `
                     <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin:10px 0;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color: rgba(240,230,210,0.7);">
-                        <span>Subtotal</span><span>$${subtotalCompra.toFixed(2)} MXN</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem; color: rgba(240,230,210,0.7);">
-                        <span>Impuestos (IVA 16%)</span><span>$${impuestoCompra.toFixed(2)} MXN</span>
-                    </div>
+                    <div style="${estiloLinea}"><span>Subtotal</span><span>${formatoMXN(subtotalCompra)}</span></div>
                 `;
+                if (descuento > 0) {
+                    lineasTotales += `<div style="${estiloLinea} color:#4ade80;"><span>Descuento (cupón ${cupon.codigo})</span><span>-${formatoMXN(descuento)}</span></div>`;
+                }
+                if (impuestosDetalle.length === 0) {
+                    lineasTotales += `<div style="${estiloLinea}"><span>Impuestos</span><span>${formatoMXN(0)}</span></div>`;
+                }
+                impuestosDetalle.forEach(t => {
+                    lineasTotales += `<div style="${estiloLinea}"><span>${t.nombre} (${t.porcentaje}%)</span><span>${formatoMXN(t.monto)}</span></div>`;
+                });
 
-                const totalFinalEl = document.getElementById("totalFinal");
-                if (totalFinalEl) totalFinalEl.textContent = `$${totalCompraFinal.toFixed(2)} MXN`;
+                ["resumenCompra", "resumenPago"].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = lineasProductos + lineasTotales;
+                });
+                ["totalFinal", "totalPago"].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = formatoMXN(totalCompraFinal);
+                });
 
                 actualizarCalculosWallet();
-                return { carrito, subtotal: subtotalCompra, impuesto: impuestoCompra, totalCompraFinal };
+                return { carrito, subtotal: subtotalCompra, descuento, cupon: cupon.codigo, impuestosDetalle, impuesto: impuestoCompra, totalCompraFinal };
             }
 
             // PROCESAR COMPRA FINAL (PASO 2 -> PASO 3)
@@ -828,19 +959,29 @@
                     e.preventDefault();
                     const btnPagar = document.getElementById("btnPagar");
 
-                    if (metodoSeleccionado === "wallet" && saldoMonedero < totalCompraFinal) {
-                        alert("No dispones de suficiente saldo en tu Monedero Arcana.");
-                        return;
-                    }
+                    const restaurarBoton = () => {
+                        btnPagar.dataset.procesando = "0";
+                        btnPagar.disabled = false;
+                        btnPagar.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Confirmar Compra`;
+                    };
 
+                    btnPagar.dataset.procesando = "1";
                     btnPagar.disabled = true;
                     btnPagar.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Invocando hechizo...`;
 
+                    // Asegurar que los impuestos configurados ya se cargaron antes de cobrar
+                    await impuestosListos;
                     const datosCompra = cargarResumenConImpuestos();
+
                     if (!datosCompra.carrito || datosCompra.carrito.length === 0) {
-                        alert("Tu carrito está vacío. Agrega productos antes de realizar la compra.");
-                        btnPagar.disabled = false;
-                        btnPagar.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Confirmar Compra`;
+                        avisar("Tu carrito está vacío. Agrega productos antes de realizar la compra.", "aviso");
+                        restaurarBoton();
+                        return;
+                    }
+
+                    if (metodoSeleccionado === "wallet" && saldoMonedero < totalCompraFinal) {
+                        avisar("No dispones de suficiente saldo en tu Monedero Arcana.", "error");
+                        restaurarBoton();
                         return;
                     }
 
@@ -848,6 +989,35 @@
                     const folio = "WZ-" + Math.floor(100000 + Math.random() * 900000);
                     const uidCliente = clienteLogueado ? clienteLogueado.uid : "invitado";
                     const nombreClienteForm = document.getElementById("nombreCompleto")?.value.trim() || (clienteLogueado ? clienteLogueado.displayName || clienteLogueado.email : "") || "Cliente Wizardly";
+                    const inputCorreoFisico = document.getElementById("correoContacto")?.value.trim();
+                    const correoCliente = inputCorreoFisico || (clienteLogueado ? clienteLogueado.email : "") || "";
+
+                    // VALIDAR STOCK ANTES DEL PAGO (Módulo 4.1.2): no se cobra nada si falta existencia
+                    try {
+                        const faltantes = [];
+                        for (const prod of datosCompra.carrito) {
+                            if (!prod || !prod.id) continue;
+                            const snapStock = await getDoc(doc(db, "productos", String(prod.id)));
+                            if (!snapStock.exists()) {
+                                faltantes.push(`${prod.nombre || "Un artefacto"} ya no está disponible`);
+                            } else {
+                                const disponible = Number(snapStock.data().existencia || 0);
+                                if (disponible < Number(prod.cantidad || 1)) {
+                                    faltantes.push(`${prod.nombre}: solo quedan ${disponible} pieza(s)`);
+                                }
+                            }
+                        }
+                        if (faltantes.length > 0) {
+                            avisar(`No hay existencia suficiente. ${faltantes.join(". ")}. Ajusta tu carrito para continuar.`, "error", 7000);
+                            restaurarBoton();
+                            return;
+                        }
+                    } catch (errStock) {
+                        console.error("Error al validar existencias:", errStock);
+                        avisar("No pudimos verificar las existencias. Intenta de nuevo en un momento.", "error");
+                        restaurarBoton();
+                        return;
+                    }
 
                     try {
                         let tarjetaUsadaId = null;
@@ -939,41 +1109,99 @@
                             folio: folio,
                             cliente: nombreClienteForm,
                             cliente_uid: uidCliente,
+                            correo: correoCliente,
                             direccion: direccionGuardadaHTML,
                             direccionObjeto: direccionObjeto || {},
                             metodoPago: metodoSeleccionado,
                             tarjeta_usada_id: tarjetaUsadaId,
                             productos: datosCompra.carrito,
                             subtotal: datosCompra.subtotal,
+                            cupon: datosCompra.cupon || null,
+                            descuento: datosCompra.descuento || 0,
+                            impuestos_detalle: datosCompra.impuestosDetalle || [],
                             impuesto: datosCompra.impuesto,
                             total: datosCompra.totalCompraFinal,
                             estado: "Completado",
                             estado_seguimiento: "Pendiente", // NUEVO CAMPO LOGÍSTICO INCORPORADO
+                            // Bitácora de movimientos que se muestra en seguimiento.html
+                            historial_seguimiento: [
+                                { estado: "Pendiente", fecha: Timestamp.now(), nota: "Pedido registrado y pago aprobado" }
+                            ],
                             pasos_completados: [true, true, true, false, false],
                             fecha: serverTimestamp()
                         };
 
-                        await addDoc(collection(db, "ordenes"), pedidoGuardado);
-                        
+                        const ordenRef = await addDoc(collection(db, "ordenes"), pedidoGuardado);
+
+                        // REGISTRO DEL PAGO (Módulo 4.1.2 — relación pedido → pago)
+                        try {
+                            await addDoc(collection(db, "pagos"), {
+                                pedido_id: ordenRef.id,
+                                folio: folio,
+                                cliente_uid: uidCliente,
+                                monto: datosCompra.totalCompraFinal,
+                                metodo_pago: metodoSeleccionado,
+                                estado: "Aprobado",
+                                fecha: serverTimestamp()
+                            });
+                        } catch (errorPago) {
+                            console.error("No se pudo registrar el pago en la colección pagos:", errorPago);
+                        }
+
+                        // DETALLE DEL PEDIDO (Módulo 4.2 — un pedido tiene muchos detalles)
+                        try {
+                            await Promise.all(datosCompra.carrito.map(prod => addDoc(collection(db, "pedido_detalle"), {
+                                pedido_id: ordenRef.id,
+                                folio: folio,
+                                producto_id: String(prod.id),
+                                nombre: prod.nombre || "",
+                                cantidad: Number(prod.cantidad) || 1,
+                                precio_unitario: Number(prod.precio) || 0,
+                                subtotal: redondear((Number(prod.precio) || 0) * (Number(prod.cantidad) || 1))
+                            })));
+                        } catch (errorDetalle) {
+                            console.error("No se pudo registrar el detalle del pedido:", errorDetalle);
+                        }
+
                         // ---------------------------------------------------------
                         // ENVÍO DE CORREO 100% GRATIS CON EMAILJS
+                        // La plantilla en EmailJS debe tener "To Email" = {{correo_destino}}
                         // ---------------------------------------------------------
-                        const inputCorreoFisico = document.getElementById("correoContacto")?.value.trim();
-                        const correoCliente = inputCorreoFisico ? inputCorreoFisico : (clienteLogueado ? clienteLogueado.email : "correo@pordefecto.com"); 
-
                         const templateParams = {
                             correo_destino: correoCliente,
                             nombre_cliente: nombreClienteForm,
                             folio_pedido: folio,
-                            total_pagado: "$" + datosCompra.totalCompraFinal.toLocaleString('es-MX', {minimumFractionDigits: 2}) + " MXN",
-                            link_rastreo: `https://jontrix.github.io/Wizardly_Nextstage/pages/seguimiento.html?folio=${folio}` 
+                            total_pagado: "$" + datosCompra.totalCompraFinal.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " MXN",
+                            link_rastreo: construirLinkRastreo(folio),
+                            lista_productos: datosCompra.carrito.map(p => `${p.nombre} x${p.cantidad}`).join(", ")
                         };
 
-                        try {
-                            await emailjs.send("service_nnj5thl", "template_51jedkm", templateParams);
-                            console.log("¡Correo de confirmación enviado con éxito a través de EmailJS al correo:", correoCliente);
-                        } catch (errorCorreo) {
-                            console.error("Error al enviar el correo con EmailJS:", errorCorreo);
+                        let correoEnviado = false;
+                        if (!correoCliente) {
+                            console.warn("No hay correo de destino; no se envió la confirmación.");
+                        } else if (typeof emailjs === "undefined") {
+                            console.error("EmailJS no se cargó (revisa la conexión o el bloqueador de anuncios).");
+                        } else {
+                            try {
+                                await emailjs.send("service_nnj5thl", "template_51jedkm", templateParams);
+                                correoEnviado = true;
+                                console.log("¡Correo de confirmación enviado con éxito a través de EmailJS al correo:", correoCliente);
+                            } catch (errorCorreo) {
+                                // status/text explican la causa: 400 llave inválida, 412 servicio Gmail desconectado,
+                                // 422 plantilla sin destinatario, 426 cuota agotada
+                                console.error("Error al enviar el correo con EmailJS:", errorCorreo?.status, errorCorreo?.text || errorCorreo);
+                            }
+                        }
+
+                        const mensajeCorreoEl = document.getElementById("mensajeCorreo");
+                        if (mensajeCorreoEl) {
+                            if (correoEnviado) {
+                                mensajeCorreoEl.textContent = `Enviamos la confirmación a ${correoCliente}. Guarda el número de pedido para rastrear tu paquete.`;
+                                mensajeCorreoEl.style.color = "var(--gold, #d4af37)";
+                            } else {
+                                mensajeCorreoEl.textContent = "Tu compra quedó registrada, pero no pudimos enviar el correo de confirmación. Guarda el número de pedido para rastrear tu paquete.";
+                                mensajeCorreoEl.style.color = "#fbbf24";
+                            }
                         }
                         // ---------------------------------------------------------
 
@@ -1001,6 +1229,8 @@
                         } else {
                             localStorage.removeItem("wizardly_carrito");
                         }
+                        // El cupón ya se usó en esta compra
+                        localStorage.removeItem("codigo_promocional");
                         if (typeof actualizarContadorCarrito === "function") {
                             actualizarContadorCarrito();
                         }
@@ -1014,12 +1244,16 @@
                         }
 
                         window.scrollTo({ top: 0, behavior: "smooth" });
+                        avisar(
+                            correoEnviado ? "¡Compra realizada! Revisa tu correo." : "¡Compra realizada! No se pudo enviar el correo de confirmación.",
+                            correoEnviado ? "exito" : "aviso",
+                            5000
+                        );
 
                     } catch (error) {
                         console.error("Error al procesar la compra:", error);
-                        alert("Ocurrió un error en Firebase al registrar el pago: " + error.message);
-                        btnPagar.disabled = false;
-                        btnPagar.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Confirmar Compra`;
+                        avisar("Ocurrió un error al registrar el pago. Intenta de nuevo en un momento.", "error", 6000);
+                        restaurarBoton();
                     }
                 });
             }
@@ -1059,9 +1293,10 @@
                             <tbody>${productosHtml}</tbody>
                         </table>
                         <div class="comprobante-grid">
-                            <div class="comprobante-row"><span>Subtotal</span><strong>$${Number(pedido.subtotal).toFixed(2)} MXN</strong></div>
-                            <div class="comprobante-row"><span>IVA (16%)</span><strong>$${Number(pedido.impuesto).toFixed(2)} MXN</strong></div>
-                            <div class="comprobante-row"><span>Total Final</span><strong class="comprobante-total">$${Number(pedido.total).toFixed(2)} MXN</strong></div>
+                            <div class="comprobante-row"><span>Subtotal</span><strong>${formatoMXN(pedido.subtotal)}</strong></div>
+                            ${Number(pedido.descuento) > 0 ? `<div class="comprobante-row"><span>Descuento (${pedido.cupon})</span><strong>-${formatoMXN(pedido.descuento)}</strong></div>` : ""}
+                            ${(pedido.impuestos_detalle || []).map(t => `<div class="comprobante-row"><span>${t.nombre} (${t.porcentaje}%)</span><strong>${formatoMXN(t.monto)}</strong></div>`).join("") || `<div class="comprobante-row"><span>Impuestos</span><strong>${formatoMXN(pedido.impuesto)}</strong></div>`}
+                            <div class="comprobante-row"><span>Total Final</span><strong class="comprobante-total">${formatoMXN(pedido.total)}</strong></div>
                         </div>
                     </div>
                 `;
@@ -1130,15 +1365,9 @@
                 showCheckoutToast("Factura descargada en formato PDF");
             });
 
-            function showCheckoutToast(message) {
-                const toast = document.getElementById("toastContainerCheckout");
-                if (!toast) return;
-                toast.textContent = message;
-                toast.style.display = "block";
-                clearTimeout(toast.hideTimeout);
-                toast.hideTimeout = setTimeout(() => {
-                    toast.style.display = "none";
-                }, 3000);
+            // Usa el sistema de avisos compartido (js/notificaciones.js)
+            function showCheckoutToast(message, tipo = "exito") {
+                avisar(message, tipo, 3000);
             }
         });
     </script>

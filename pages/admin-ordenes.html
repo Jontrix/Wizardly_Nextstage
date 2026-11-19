@@ -121,6 +121,8 @@
                 <a href="admin.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard CRM</a>
                 <a href="admin-promociones.html" class="nav-item"><i class="fa-solid fa-wand-sparkles"></i> Promociones</a>
                 <a href="admin-clientes.html" class="nav-item"><i class="fa-solid fa-users"></i> Clientes</a>
+                <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+                <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
                 <a href="admin-actividad.html" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i> Actividad</a>
                 <a href="admin-historial.html" class="nav-item"><i class="fa-solid fa-book-skull"></i> Historial</a>
                 <a href="admin-configuracion.html" class="nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
@@ -309,7 +311,7 @@
     <!-- ── LÓGICA DE FIREBASE Y JAVASCRIPT ── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, Timestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -465,7 +467,12 @@
             const id = selectElement.getAttribute('data-id');
             const nuevoEstado = selectElement.value;
             try {
-                await updateDoc(doc(db, "ordenes", id), { estado_seguimiento: nuevoEstado });
+                // Se guarda el estado actual y se agrega el movimiento a la bitácora que ve el cliente en seguimiento.html
+                const movimiento = { estado: nuevoEstado, fecha: Timestamp.now(), nota: `Estado actualizado a ${nuevoEstado}` };
+                await updateDoc(doc(db, "ordenes", id), {
+                    estado_seguimiento: nuevoEstado,
+                    historial_seguimiento: arrayUnion(movimiento)
+                });
                 window.mostrarToast(`Estado de seguimiento actualizado a: ${nuevoEstado}`, "exito");
                 const ord = window.ordenesGlobales.find(o => o.id === id);
                 if (ord) ord.estado_seguimiento = nuevoEstado;
