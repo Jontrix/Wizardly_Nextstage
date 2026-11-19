@@ -4,6 +4,11 @@
 
 const CLAVE = 'wizardly_carrito';
 
+// Avisar a carrito-firestore.js que el carrito cambió (para guardarlo en la nube)
+function notificarCambioCarrito() {
+    document.dispatchEvent(new CustomEvent('carritoActualizado'));
+}
+
 // ── Obtener carrito ──────────────────────────────────────────
 function obtenerCarrito() {
     return JSON.parse(localStorage.getItem(CLAVE)) || [];
@@ -13,12 +18,13 @@ function obtenerCarrito() {
 function guardarCarrito(carrito) {
     localStorage.setItem(CLAVE, JSON.stringify(carrito));
     actualizarContador();
+    notificarCambioCarrito();
 }
 
 // ── Agregar producto ─────────────────────────────────────────
 function agregarAlCarrito(producto, cantidad = 1) {
     const carrito = obtenerCarrito();
-    const idx = carrito.findIndex(p => p.id === producto.id);
+    const idx = carrito.findIndex(p => String(p.id) === String(producto.id));
 
     if (idx >= 0) {
         carrito[idx].cantidad += cantidad;
@@ -33,7 +39,7 @@ function agregarAlCarrito(producto, cantidad = 1) {
 // ── Cambiar cantidad ─────────────────────────────────────────
 function cambiarCantidad(id, delta) {
     const carrito = obtenerCarrito();
-    const idx = carrito.findIndex(p => p.id === id);
+    const idx = carrito.findIndex(p => String(p.id) === String(id));
     if (idx < 0) return;
 
     carrito[idx].cantidad += delta;
@@ -44,7 +50,7 @@ function cambiarCantidad(id, delta) {
 
 // ── Eliminar producto ────────────────────────────────────────
 function eliminarDelCarrito(id) {
-    let carrito = obtenerCarrito().filter(p => p.id !== id);
+    let carrito = obtenerCarrito().filter(p => String(p.id) !== String(id));
     guardarCarrito(carrito);
 }
 
@@ -52,6 +58,7 @@ function eliminarDelCarrito(id) {
 function vaciarCarrito() {
     localStorage.removeItem(CLAVE);
     actualizarContador();
+    notificarCambioCarrito();
 }
 
 // ── Contador en el navbar ────────────────────────────────────
@@ -154,8 +161,15 @@ function validarCupon(codigo, carrito) {
         return { valido: false, mensaje: 'Tu carrito está vacío, agrega productos primero', promo: null };
     }
 
+    // Promociones administradas en Firestore (las carga carrito-firestore.js)
+    const promoNube = (window.PROMOCIONES_NUBE || []).find(p => String(p.codigo || '').toUpperCase() === codigo);
+    if (promoNube && !promocionVigente(promoNube)) {
+        return { valido: false, mensaje: 'Este cupón no está vigente.', promo: null };
+    }
+
     const promo = PROMOCIONES.find(p => p.codigo === codigo);
     if (!promo) {
+        if (promoNube) return validarPromoNube(promoNube, carrito);
         return { valido: false, mensaje: 'Código no válido.', promo: null };
     }
 
@@ -202,9 +216,44 @@ function validarCupon(codigo, carrito) {
     return { valido: false, mensaje: 'Código no válido.', promo: null };
 }
 
+// ── Promociones de Firestore: vigencia y reglas genéricas ────
+function promocionVigente(promo) {
+    if (String(promo.estado || '') !== 'Activa') return false;
+    const hoy = new Date().toISOString().slice(0, 10);
+    if (promo.fecha_inicio && hoy < promo.fecha_inicio) return false;
+    if (promo.fecha_fin && hoy > promo.fecha_fin) return false;
+    return true;
+}
+
+function baseDescuentoNube(carrito, promo) {
+    return carrito
+        .filter(item => !promo.categoria || item.categoria === promo.categoria)
+        .reduce((sum, item) => sum + (Number(item.precio) || 0) * (Number(item.cantidad) || 0), 0);
+}
+
+function validarPromoNube(promo, carrito) {
+    const total = carrito.reduce((sum, item) => sum + (Number(item.precio) || 0) * (Number(item.cantidad) || 0), 0);
+    if (promo.categoria && baseDescuentoNube(carrito, promo) <= 0) {
+        return { valido: false, mensaje: `Este cupón aplica solo en ${promo.categoria}.`, promo: null };
+    }
+    if (Number(promo.monto_minimo) > 0 && total < Number(promo.monto_minimo)) {
+        const faltante = (Number(promo.monto_minimo) - total).toFixed(2);
+        return { valido: false, mensaje: `Necesitas $${faltante} más para aplicar este cupón`, promo: null };
+    }
+    return { valido: true, mensaje: 'Código aplicado correctamente.', promo: { ...promo, origen: 'nube' } };
+}
+
 // ── Calcular descuento ────────────────────────────────────────
 function calcularDescuento(carrito, promo) {
     let descuento = 0;
+
+    if (promo.origen === 'nube') {
+        const base = baseDescuentoNube(carrito, promo);
+        descuento = promo.tipo_descuento === 'monto'
+            ? Math.min(Number(promo.valor) || 0, base)
+            : base * (Number(promo.valor) || 0) / 100;
+        return Math.round(descuento * 100) / 100;
+    }
 
     if (promo.tipo === 'porcentaje') {
         const total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
@@ -374,16 +423,16 @@ function renderCarrito() {
         </div>
 
         <div class="item-cantidad">
-            <button onclick="accionCarrito(${item.id}, -1)">−</button>
+            <button onclick="accionCarrito('${item.id}', -1)">−</button>
             <span>${cantidad}</span>
-            <button onclick="accionCarrito(${item.id}, 1)">+</button>
+            <button onclick="accionCarrito('${item.id}', 1)">+</button>
         </div>
 
         <p class="item-subtotal">
             $${(precio * cantidad).toFixed(2)}
         </p>
 
-        <button class="item-eliminar" onclick="eliminarItem(${item.id})" title="Eliminar">
+        <button class="item-eliminar" onclick="eliminarItem('${item.id}')" title="Eliminar">
             <i class="fa-solid fa-xmark"></i>
         </button>
     `;
@@ -433,3 +482,17 @@ function renderCarrito() {
         }
     }
 }
+
+// ============================================================
+//  PERSISTENCIA EN FIRESTORE (carrito / carrito_detalle)
+//  Se carga como módulo para no tener que agregarlo en cada página.
+// ============================================================
+(function cargarCarritoEnLaNube() {
+    try {
+        const base = (document.currentScript && document.currentScript.src) || window.location.href;
+        import(new URL('carrito-firestore.js', base).href)
+            .catch(err => console.error('No se pudo cargar la persistencia del carrito:', err));
+    } catch (err) {
+        console.error('No se pudo cargar la persistencia del carrito:', err);
+    }
+})();
