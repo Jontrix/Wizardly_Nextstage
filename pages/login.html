@@ -209,6 +209,17 @@
                     return; 
                 }
 
+                // Luego en la tabla de VENDEDORES (rol empresarial "Ventas")
+                const vendedorSnap = await getDoc(doc(db, "vendedores", user.uid));
+                if (vendedorSnap.exists()) {
+                    mensaje.textContent = "✨ Bienvenido al Panel de Ventas ✨";
+                    mensaje.classList.add("mostrar");
+                    localStorage.setItem("usuarioLogueado", "true");
+                    localStorage.setItem("usuarioDatos", JSON.stringify({ ...vendedorSnap.data(), rol: "Ventas" }));
+                    setTimeout(() => { window.location.href = "admin.html"; }, 1200);
+                    return;
+                }
+
                 // Si no es admin, buscamos en la tabla de CLIENTES
                 const clienteRef = doc(db, "clientes", user.uid);
                 const clienteSnap = await getDoc(clienteRef);

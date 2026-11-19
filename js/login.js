@@ -17,6 +17,17 @@ const formulario = document.getElementById("loginForm");
 
 const mensaje = document.getElementById("mensaje-login");
 
+// Aviso dentro de la página (en lugar de alert)
+function mostrarMensajeLogin(texto) {
+    if (mensaje) {
+        mensaje.textContent = texto;
+        mensaje.classList.add("mostrar");
+        setTimeout(() => mensaje.classList.remove("mostrar"), 3000);
+    } else if (typeof window.mostrarNotificacion === "function") {
+        window.mostrarNotificacion(texto, "error");
+    }
+}
+
 
 formulario.addEventListener("submit", async function (e) {
 
@@ -44,7 +55,7 @@ formulario.addEventListener("submit", async function (e) {
 
     if (!correo || !password) {
 
-        alert("Por favor completa todos los campos.");
+        mostrarMensajeLogin("Por favor completa todos los campos.");
 
         return;
     }
@@ -281,7 +292,7 @@ formulario.addEventListener("submit", async function (e) {
         }
 
 
-        alert(mensajeError);
+        mostrarMensajeLogin(mensajeError);
 
     }
 

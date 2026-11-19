@@ -74,9 +74,14 @@ document.addEventListener('submit', (evento) => {
     formulario.removeAttribute('novalidate');
     formulario.querySelectorAll('input, select, textarea').forEach((campo) => {
         const estilos = window.getComputedStyle(campo);
-        const visible = estilos.display !== 'none' && estilos.visibility !== 'hidden';
+        // getClientRects() es 0 cuando el campo o CUALQUIER contenedor padre está oculto (display:none).
+        // Antes solo se revisaba el propio campo, y los campos de tarjeta ocultos (al pagar con
+        // monedero o transferencia) quedaban obligatorios y bloqueaban el envío sin mostrar nada.
+        const visible = campo.getClientRects().length > 0 && estilos.visibility !== 'hidden';
         const tipoOpcional = ['hidden', 'button', 'submit', 'reset', 'checkbox', 'radio'].includes(campo.type);
-        campo.required = visible && !tipoOpcional;
+        // Campos marcados como opcionales (data-opcional o "opcional" en el placeholder)
+        const marcadoOpcional = campo.hasAttribute('data-opcional') || /opcional/i.test(campo.getAttribute('placeholder') || '');
+        campo.required = visible && !tipoOpcional && !marcadoOpcional;
     });
 
     if (!formulario.checkValidity()) {
@@ -118,6 +123,17 @@ function actualizarNavbarUsuario() {
 // ========================================================
 // 🛡️ GUARDIÁN DE SEGURIDAD UNIVERSAL 🛡️
 // ========================================================
+// Roles que pueden entrar al Panel Arcano (Módulo 3.5: administrador, ventas, logística).
+// Los permisos por página de cada rol los aplica js/sidebar.js.
+function esRolEmpresarial(rol) {
+    const normalizado = String(rol || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+    return ["administrador", "admin", "admin_supremo", "ventas", "logistica"].includes(normalizado);
+}
+
 function verificarAccesoMagico() {
     const paginaActual = window.location.pathname.toLowerCase();
     const estaLogueado = localStorage.getItem('usuarioLogueado') === 'true';
@@ -135,7 +151,7 @@ function verificarAccesoMagico() {
             // No ha iniciado sesión, se va al login
             window.location.href = "login.html"; 
             return;
-        } else if (usuario.rol !== "Administrador" && usuario.rol !== "admin" && usuario.rol !== "Admin_Supremo") {
+        } else if (!esRolEmpresarial(usuario.rol)) {
             // Inició sesión pero ES CLIENTE, lo mandamos a su perfil para que no vea la base de datos
             window.location.href = "perfil.html"; 
             return;
