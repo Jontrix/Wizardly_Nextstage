@@ -321,6 +321,7 @@
     </footer>
 
     <script src="../js/carrito.js"></script>
+    <script src="../js/notificaciones.js"></script>
     <script src="../js/cargar-navbar.js"></script>
     <script src="../js/script.js"></script>
     <script>
@@ -442,7 +443,7 @@
                 agregarAlCarrito(itemCarrito, 1);
                 mostrarToast(`✦ ${producto.nombre} agregado al carrito.`, 'ok');
             } else {
-                alert('Error: función agregarAlCarrito no disponible.');
+                window.mostrarNotificacion?.('No se pudo agregar al carrito. Recarga la página e intenta de nuevo.', 'error');
             }
         }
 

@@ -40,6 +40,8 @@
         <a href="admin-clientes.html" class="nav-item">
             <i class="fa-solid fa-users"></i> Clientes
         </a>
+        <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+        <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
         <a href="admin-actividad.html" class="nav-item">
             <i class="fa-solid fa-clock-rotate-left"></i> Actividad
         </a>
@@ -248,14 +250,26 @@
                         </select>
                     </div>
                     <div class="campo-modal">
-                        <label>Costo unitario</label>
+                        <label>Precio de venta</label>
                         <input type="number" id="m-precio" placeholder="0.00" min="0" step="0.01" />
                     </div>
                 </div>
 
                 <div class="campo-modal">
+                    <label>Costo unitario (lo que se paga al proveedor)</label>
+                    <input type="number" id="m-costo" placeholder="0.00" min="0" step="0.01" />
+                </div>
+
+                <div class="campo-modal">
                     <label>URL de imagen (Opcional)</label>
                     <input type="text" id="m-imagen" placeholder="../images/mi-producto.jpg" />
+                </div>
+
+                <div class="campo-modal">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="m-destacado" style="width: auto; accent-color: var(--gold);" />
+                        Mostrar en "Reliquias destacadas" del catálogo
+                    </label>
                 </div>
             </div>
             <div class="modal-footer" style="justify-content: flex-end; gap: 15px;">
@@ -362,11 +376,14 @@
         var mDescripcion = document.getElementById('m-descripcion');
         var mCategoria = document.getElementById('m-categoria');
         var mProveedor = document.getElementById('m-proveedor');
+        var mCosto = document.getElementById('m-costo');
+        window.proveedoresLista = [];
         var mExistencia = document.getElementById('m-existencia');
         var mStockMin = document.getElementById('m-stock-min');
         var mEstrategia = document.getElementById('m-estrategia');
         var mPrecio = document.getElementById('m-precio');
         var mImagen = document.getElementById('m-imagen');
+        var mDestacado = document.getElementById('m-destacado');
         
         var confirmOverlay = document.getElementById('confirm-overlay');
         var confirmNombre = document.getElementById('confirm-nombre');
@@ -378,10 +395,13 @@
                 const querySnapshot = await getDocs(collection(db, "proveedores"));
                 mProveedor.innerHTML = '<option value="">Selecciona un proveedor</option>';
                 
+                window.proveedoresLista = [];
                 querySnapshot.forEach((doc) => {
                     let prov = doc.data();
                     if (prov.nombre) {
-                        mProveedor.innerHTML += `<option value="${prov.nombre}">${prov.nombre}</option>`;
+                        // El valor es el ID del proveedor (relación producto → proveedor_id)
+                        window.proveedoresLista.push({ id: doc.id, nombre: prov.nombre });
+                        mProveedor.innerHTML += `<option value="${doc.id}">${prov.nombre}</option>`;
                     }
                 });
             } catch (error) {
@@ -486,13 +506,20 @@
             
             mNombre.value = p.nombre;
             mDescripcion.value = p.descripcion || '';
+            if (p.categoria && ![...mCategoria.options].some(function(o) { return o.value === p.categoria; })) {
+                mCategoria.add(new Option(p.categoria, p.categoria));
+            }
             mCategoria.value = p.categoria;
-            mProveedor.value = p.proveedor || '';
+            // Productos nuevos guardan proveedor_id; los anteriores solo tenían el nombre
+            var provPorNombre = (window.proveedoresLista || []).find(function(x) { return x.nombre === p.proveedor; });
+            mProveedor.value = p.proveedor_id || (provPorNombre ? provPorNombre.id : '');
+            if (mCosto) mCosto.value = p.costo_unitario != null ? p.costo_unitario : '';
             mExistencia.value = p.existencia || 0;
             mStockMin.value = p.stock_min || 10;
             mEstrategia.value = p.estrategia || 'PUSH';
             mPrecio.value = p.precio;
             mImagen.value = p.imagen || '';
+            if (mDestacado) mDestacado.checked = p.destacado === true;
             
             modalOverlay.classList.add('visible');
         };
@@ -502,11 +529,13 @@
             mDescripcion.value = '';
             mCategoria.value = '';
             mProveedor.value = '';
+            if (mCosto) mCosto.value = '';
             mExistencia.value = 0;
             mStockMin.value = 10;
             mEstrategia.value = 'PUSH';
             mPrecio.value = '';
             mImagen.value = '';
+            if (mDestacado) mDestacado.checked = false;
         };
 
         window.cerrarModal = function() {
@@ -518,15 +547,23 @@
             var nombre = mNombre.value.trim();
             var descripcion = mDescripcion.value.trim();
             var categoria = mCategoria.value;
-            var proveedor = mProveedor.value;
+            var proveedor_id = mProveedor.value;
+            var provSel = (window.proveedoresLista || []).find(function(x) { return x.id === proveedor_id; });
+            var proveedor = provSel ? provSel.nombre : '';
+            var costo_unitario = mCosto && mCosto.value !== '' ? parseFloat(mCosto.value) : null;
             var existencia = parseInt(mExistencia.value) || 0;
             var stock_min = parseInt(mStockMin.value) || 0;
             var estrategia = mEstrategia.value;
             var precio = parseFloat(mPrecio.value);
             var imagen = mImagen.value.trim();
+            var destacado = mDestacado ? mDestacado.checked : false;
 
             if (!nombre || isNaN(precio) || !categoria) {
-                window.mostrarToast('⚠️ Completa nombre, costo unitario y categoría.', 'error');
+                window.mostrarToast('⚠️ Completa nombre, precio de venta y categoría.', 'error');
+                return;
+            }
+            if (costo_unitario !== null && (isNaN(costo_unitario) || costo_unitario < 0)) {
+                window.mostrarToast('⚠️ El costo unitario no es válido.', 'error');
                 return;
             }
 
@@ -536,8 +573,10 @@
                     const productoRef = doc(db, "productos", window.editandoId);
                     await updateDoc(productoRef, {
                         nombre: nombre, descripcion: descripcion, categoria: categoria,
-                        proveedor: proveedor, existencia: existencia, stock_min: stock_min,
-                        estrategia: estrategia, precio: precio, imagen: imagen
+                        proveedor: proveedor, proveedor_id: proveedor_id, costo_unitario: costo_unitario,
+                        existencia: existencia, stock_min: stock_min,
+                        estrategia: estrategia, precio: precio, imagen: imagen,
+                        destacado: destacado
                     });
                     
                     await registrarHistorialLocal("productos", "actualizar", "Se actualizó el producto: " + nombre);
@@ -546,8 +585,10 @@
                     // MODO CREACIÓN
                     await addDoc(collection(db, "productos"), {
                         nombre: nombre, descripcion: descripcion, categoria: categoria,
-                        proveedor: proveedor, existencia: existencia, stock_min: stock_min,
+                        proveedor: proveedor, proveedor_id: proveedor_id, costo_unitario: costo_unitario,
+                        existencia: existencia, stock_min: stock_min,
                         estrategia: estrategia, precio: precio, imagen: imagen,
+                        destacado: destacado,
                         fecha_registro: Timestamp.now()
                     });
                     
@@ -613,6 +654,19 @@
         });
 
         // 🔥 Ejecutar funciones de carga al iniciar 🔥
+        // Categorías administradas en Configuración (colección "categorias")
+        window.cargarCategoriasFirebase = async function() {
+            try {
+                const snap = await getDocs(collection(db, "categorias"));
+                const activas = snap.docs.map(d => d.data()).filter(c => c.estado !== "inactivo" && c.nombre).map(c => c.nombre).sort();
+                if (activas.length === 0) return; // sin registros: se quedan las opciones originales
+                mCategoria.innerHTML = '<option value="">Selecciona una categoría</option>' + activas.map(n => `<option>${n}</option>`).join('');
+            } catch (error) {
+                console.error("Error al cargar categorías:", error);
+            }
+        };
+
+        window.cargarCategoriasFirebase();
         window.cargarProveedoresFirebase();
         window.cargarProductosFirebase();
     </script>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wizardly â€” Promociones</title>
+    <title>Wizardly — Promociones</title>
 
     <link rel="icon" href="../images/favicon/favicon.jpeg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,6 +42,8 @@
         <a href="admin-clientes.html" class="nav-item">
             <i class="fa-solid fa-users"></i> Clientes
         </a>
+        <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
+        <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
         <a href="admin-actividad.html" class="nav-item">
             <i class="fa-solid fa-clock-rotate-left"></i> Actividad
         </a>
@@ -128,7 +130,7 @@
     <main class="admin-main">
 
         <div class="admin-topbar">
-            <h1>GestiÃ³n de Promociones</h1>
+            <h1>Gestión de Promociones</h1>
             <div class="topbar-usuario">
                 <i class="fa-solid fa-circle-user"></i>
                 <span>Archimaga Seraphina</span>
@@ -143,7 +145,7 @@
                     <span class="count-badge" id="promos-count">0 promociones</span>
                 </h2>
                 <button class="btn-admin" onclick="abrirModalPromo()">
-                    <i class="fa-solid fa-plus"></i> Agregar promociÃ³n
+                    <i class="fa-solid fa-plus"></i> Agregar promoción
                 </button>
             </div>
 
@@ -167,7 +169,7 @@
                 <table class="admin-tabla" id="tabla-promos">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Código</th>
                             <th>Nombre</th>
                             <th>Descuento</th>
                             <th>Fecha Inicio</th>
@@ -193,23 +195,56 @@
 
     </main>
 
-    <!-- MODAL: AGREGAR / EDITAR PROMOCIÃ“N -->
+    <!-- MODAL: AGREGAR / EDITAR PROMOCIÓN -->
     <div class="modal-overlay" id="modal-promo-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <h3 id="modal-promo-titulo">Agregar PromociÃ³n</h3>
+                <h3 id="modal-promo-titulo">Agregar Promoción</h3>
                 <button class="modal-cerrar" onclick="cerrarModalPromo()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="campo-modal">
-                    <label>Nombre de la promociÃ³n</label>
+                    <label>Nombre de la promoción</label>
                     <input type="text" id="mp-nombre" placeholder="Ej. Descuento de Verano" />
                 </div>
+                <div class="campo-modal-fila">
+                    <div class="campo-modal">
+                        <label>Código de cupón</label>
+                        <input type="text" id="mp-codigo" placeholder="Ej. VERANO10" maxlength="20" style="text-transform: uppercase;" />
+                    </div>
+                    <div class="campo-modal">
+                        <label>Tipo de descuento</label>
+                        <select id="mp-tipo">
+                            <option value="porcentaje">Porcentaje (%)</option>
+                            <option value="monto">Monto fijo ($)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="campo-modal-fila">
+                    <div class="campo-modal">
+                        <label id="mp-descuento-label">Valor del descuento (%)</label>
+                        <input type="number" id="mp-descuento" placeholder="15" min="0" step="1" />
+                    </div>
+                    <div class="campo-modal">
+                        <label>Compra mínima ($)</label>
+                        <input type="number" id="mp-minimo" placeholder="0" min="0" step="1" />
+                    </div>
+                </div>
                 <div class="campo-modal">
-                    <label>Descuento (%)</label>
-                    <input type="number" id="mp-descuento" placeholder="15" min="0" max="100" step="1" />
+                    <label>Categoría (opcional)</label>
+                    <select id="mp-categoria">
+                        <option value="">Todas las categorías</option>
+                        <option value="Varitas">Varitas</option>
+                        <option value="Pociones">Pociones</option>
+                        <option value="Libros">Libros</option>
+                        <option value="Cristales">Cristales</option>
+                        <option value="Amuletos">Amuletos</option>
+                        <option value="Calderos">Calderos</option>
+                        <option value="Pergaminos">Pergaminos</option>
+                        <option value="Reliquias">Reliquias</option>
+                    </select>
                 </div>
                 <div class="campo-modal-fila">
                     <div class="campo-modal">
@@ -229,8 +264,8 @@
                     </select>
                 </div>
                 <div class="campo-modal">
-                    <label>DescripciÃ³n (opcional)</label>
-                    <textarea id="mp-descripcion" rows="2" placeholder="Detalles de la promociÃ³n..."></textarea>
+                    <label>Descripción (opcional)</label>
+                    <textarea id="mp-descripcion" rows="2" placeholder="Detalles de la promoción..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -242,25 +277,25 @@
         </div>
     </div>
 
-    <!-- CONFIRM: ELIMINAR PROMOCIÃ“N -->
+    <!-- CONFIRM: ELIMINAR PROMOCIÓN -->
     <div class="modal-overlay" id="confirm-promo-overlay">
         <div class="modal-card confirm-card">
             <div class="modal-header">
-                <h3>Â¿Eliminar promociÃ³n?</h3>
+                <h3>¿Eliminar promoción?</h3>
                 <button class="modal-cerrar" onclick="cerrarConfirmPromo()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <p class="confirm-texto">
-                    Esta acciÃ³n no se puede deshacer.<br />
-                    Â¿Seguro que deseas eliminar <strong id="confirm-promo-nombre"></strong>?
+                    Esta acción no se puede deshacer.<br />
+                    ¿Seguro que deseas eliminar <strong id="confirm-promo-nombre"></strong>?
                 </p>
             </div>
             <div class="modal-footer">
                 <button class="btn-modal-cancelar" onclick="cerrarConfirmPromo()">Cancelar</button>
                 <button class="btn-modal-eliminar" onclick="confirmarEliminarPromo()">
-                    <i class="fa-solid fa-trash"></i> SÃ­, eliminar
+                    <i class="fa-solid fa-trash"></i> Sí, eliminar
                 </button>
             </div>
         </div>
@@ -269,103 +304,129 @@
     <!-- TOAST -->
     <div class="toast-admin" id="toast-promo"></div>
 
-    <!-- ====== SCRIPT ====== -->
-    <script>
-        // â”€â”€ Datos de promociones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        var promociones = [
-            { id: 1, nombre: "Descuento de Luna Nueva", descuento: 20, fechaInicio: "2026-07-01", fechaFin: "2026-07-31", estado: "Activa", descripcion: "20% en todas las pociones" },
-            { id: 2, nombre: "Kit del Mago Principiante", descuento: 15, fechaInicio: "2026-06-01", fechaFin: "2026-12-31", estado: "Activa", descripcion: "Varita + Amuleto con 15% OFF" },
-            { id: 3, nombre: "Oferta de Verano", descuento: 10, fechaInicio: "2026-07-15", fechaFin: "2026-08-15", estado: "Inactiva", descripcion: "10% en artÃ­culos seleccionados" }
-        ];
+    <!-- ====== SCRIPT (Módulo 4.1.4 — colección promociones en Firestore) ====== -->
+    <script type="module">
+        import { db } from "../js/firebase-config.js";
+        import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-        var editandoPromoId = null;
-        var eliminandoPromoId = null;
-        var chartInstance = null;
+        // Modelo: { nombre, descripcion, codigo, tipo_descuento, valor, monto_minimo, categoria, fecha_inicio, fecha_fin, estado }
+        let promociones = [];
+        let editandoPromoId = null;
+        let eliminandoPromoId = null;
+        let chartInstance = null;
 
-        // â”€â”€ Referencias DOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        var tbodyPromos = document.getElementById('tbody-promos');
-        var inputBuscarPromo = document.getElementById('buscar-promo');
-        var filtroEstadoPromo = document.getElementById('filtro-estado-promo');
-        var modalPromoOverlay = document.getElementById('modal-promo-overlay');
-        var modalPromoTitulo = document.getElementById('modal-promo-titulo');
-        var mpNombre = document.getElementById('mp-nombre');
-        var mpDescuento = document.getElementById('mp-descuento');
-        var mpFechaInicio = document.getElementById('mp-fecha-inicio');
-        var mpFechaFin = document.getElementById('mp-fecha-fin');
-        var mpEstado = document.getElementById('mp-estado');
-        var mpDescripcion = document.getElementById('mp-descripcion');
-        var confirmPromoOverlay = document.getElementById('confirm-promo-overlay');
-        var confirmPromoNombre = document.getElementById('confirm-promo-nombre');
-        var toastPromo = document.getElementById('toast-promo');
-        var countBadgePromo = document.getElementById('promos-count');
+        // ── Referencias DOM ──────────────────────────────────────
+        const tbodyPromos = document.getElementById('tbody-promos');
+        const inputBuscarPromo = document.getElementById('buscar-promo');
+        const filtroEstadoPromo = document.getElementById('filtro-estado-promo');
+        const modalPromoOverlay = document.getElementById('modal-promo-overlay');
+        const modalPromoTitulo = document.getElementById('modal-promo-titulo');
+        const mpNombre = document.getElementById('mp-nombre');
+        const mpCodigo = document.getElementById('mp-codigo');
+        const mpTipo = document.getElementById('mp-tipo');
+        const mpDescuento = document.getElementById('mp-descuento');
+        const mpDescuentoLabel = document.getElementById('mp-descuento-label');
+        const mpMinimo = document.getElementById('mp-minimo');
+        const mpCategoria = document.getElementById('mp-categoria');
+        const mpFechaInicio = document.getElementById('mp-fecha-inicio');
+        const mpFechaFin = document.getElementById('mp-fecha-fin');
+        const mpEstado = document.getElementById('mp-estado');
+        const mpDescripcion = document.getElementById('mp-descripcion');
+        const confirmPromoOverlay = document.getElementById('confirm-promo-overlay');
+        const confirmPromoNombre = document.getElementById('confirm-promo-nombre');
+        const toastPromo = document.getElementById('toast-promo');
+        const countBadgePromo = document.getElementById('promos-count');
 
-        // â”€â”€ Renderizar tabla de promociones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        const escaparHTML = (t) => String(t ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const textoDescuento = (p) => p.tipo_descuento === 'monto' ? `$${Number(p.valor || 0).toFixed(2)}` : `${Number(p.valor || 0)}%`;
+
+        mpTipo.addEventListener('change', () => {
+            mpDescuentoLabel.textContent = mpTipo.value === 'monto' ? 'Valor del descuento ($)' : 'Valor del descuento (%)';
+        });
+
+        // ── Cargar desde Firestore ───────────────────────────────
+        async function cargarPromociones() {
+            try {
+                const snap = await getDocs(collection(db, "promociones"));
+                promociones = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => String(b.fecha_inicio || "").localeCompare(String(a.fecha_inicio || "")));
+                aplicarFiltrosPromo();
+            } catch (error) {
+                console.error("Error al cargar promociones:", error);
+                tbodyPromos.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#f87171;">No se pudieron cargar las promociones.</td></tr>';
+            }
+        }
+
+        // ── Renderizar tabla de promociones ────────────────────
         function renderTablaPromos(lista) {
             lista = lista || promociones;
-            tbodyPromos.innerHTML = '';
-            lista.forEach(function(p) {
-                var estadoClase = (p.estado === 'Activa') ? 'estado-entregado' : 'estado-pendiente';
-                var tr = document.createElement('tr');
-                tr.innerHTML =
-                    '<td class="td-id">#' + p.id + '</td>' +
-                    '<td class="td-nombre">' + p.nombre + '</td>' +
-                    '<td>' + p.descuento + '%</td>' +
-                    '<td>' + p.fechaInicio + '</td>' +
-                    '<td>' + p.fechaFin + '</td>' +
-                    '<td><span class="estado ' + estadoClase + '">' + p.estado + '</span></td>' +
-                    '<td><div class="acciones-wrap">' +
-                        '<button class="btn-icono editar" onclick="abrirEditarPromo(' + p.id + ')"><i class="fa-solid fa-pen"></i></button>' +
-                        '<button class="btn-icono eliminar" onclick="abrirConfirmPromo(' + p.id + ')"><i class="fa-solid fa-trash"></i></button>' +
-                    '</div></td>';
-                tbodyPromos.appendChild(tr);
-            });
+            if (lista.length === 0) {
+                tbodyPromos.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No hay promociones registradas.</td></tr>';
+            } else {
+                tbodyPromos.innerHTML = lista.map(p => {
+                    const estadoClase = (p.estado === 'Activa') ? 'estado-entregado' : 'estado-pendiente';
+                    const detalle = [p.categoria ? `Solo ${escaparHTML(p.categoria)}` : '', Number(p.monto_minimo) > 0 ? `Mín. $${Number(p.monto_minimo)}` : ''].filter(Boolean).join(' · ');
+                    return `
+                        <tr>
+                            <td class="td-id">${escaparHTML(p.codigo || '—')}</td>
+                            <td class="td-nombre">${escaparHTML(p.nombre)}${detalle ? `<br><small style="color: var(--text-muted);">${detalle}</small>` : ''}</td>
+                            <td>${textoDescuento(p)}</td>
+                            <td>${escaparHTML(p.fecha_inicio || '')}</td>
+                            <td>${escaparHTML(p.fecha_fin || '')}</td>
+                            <td><span class="estado ${estadoClase}">${escaparHTML(p.estado)}</span></td>
+                            <td><div class="acciones-wrap">
+                                <button class="btn-icono editar" onclick="abrirEditarPromo('${p.id}')"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn-icono eliminar" onclick="abrirConfirmPromo('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+                            </div></td>
+                        </tr>`;
+                }).join('');
+            }
             actualizarContadorPromo();
             actualizarGrafica();
         }
 
-        // â”€â”€ Actualizar contador â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function actualizarContadorPromo() {
-            var total = promociones.length;
-            countBadgePromo.textContent = total + ' promociÃ³n' + (total !== 1 ? 'es' : '');
+            const total = promociones.length;
+            countBadgePromo.textContent = total + ' promoción' + (total !== 1 ? 'es' : '');
         }
 
-        // â”€â”€ Filtros â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Filtros ──────────────────────────────────────────────
         function aplicarFiltrosPromo() {
-            var texto = inputBuscarPromo.value.toLowerCase();
-            var est = filtroEstadoPromo.value;
-            var filtrados = promociones.filter(function(p) {
-                var coincideNombre = p.nombre.toLowerCase().includes(texto);
-                var coincideEst = (est === '' || p.estado === est);
-                return coincideNombre && coincideEst;
-            });
-            renderTablaPromos(filtrados);
+            const texto = inputBuscarPromo.value.toLowerCase();
+            const est = filtroEstadoPromo.value;
+            renderTablaPromos(promociones.filter(p =>
+                (`${p.nombre} ${p.codigo || ''}`.toLowerCase().includes(texto)) && (est === '' || p.estado === est)
+            ));
         }
 
-        // â”€â”€ Modal AGREGAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Modal AGREGAR / EDITAR ──────────────────────────────
+        function llenarModal(p) {
+            mpNombre.value = p?.nombre || '';
+            mpCodigo.value = p?.codigo || '';
+            mpTipo.value = p?.tipo_descuento === 'monto' ? 'monto' : 'porcentaje';
+            mpTipo.dispatchEvent(new Event('change'));
+            mpDescuento.value = p ? Number(p.valor || 0) : '';
+            mpMinimo.value = p ? Number(p.monto_minimo || 0) : '';
+            mpCategoria.value = p?.categoria || '';
+            mpFechaInicio.value = p?.fecha_inicio || '';
+            mpFechaFin.value = p?.fecha_fin || '';
+            mpEstado.value = p?.estado || 'Activa';
+            mpDescripcion.value = p?.descripcion || '';
+        }
+
         function abrirModalPromo() {
             editandoPromoId = null;
-            modalPromoTitulo.textContent = 'Agregar PromociÃ³n';
-            mpNombre.value = '';
-            mpDescuento.value = '';
-            mpFechaInicio.value = '';
-            mpFechaFin.value = '';
-            mpEstado.value = 'Activa';
-            mpDescripcion.value = '';
+            modalPromoTitulo.textContent = 'Agregar Promoción';
+            llenarModal(null);
             modalPromoOverlay.classList.add('visible');
         }
 
-        // â”€â”€ Modal EDITAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function abrirEditarPromo(id) {
-            var p = promociones.find(function(x) { return x.id === id; });
+            const p = promociones.find(x => x.id === id);
             if (!p) return;
             editandoPromoId = id;
-            modalPromoTitulo.textContent = 'Editar PromociÃ³n';
-            mpNombre.value = p.nombre;
-            mpDescuento.value = p.descuento;
-            mpFechaInicio.value = p.fechaInicio;
-            mpFechaFin.value = p.fechaFin;
-            mpEstado.value = p.estado;
-            mpDescripcion.value = p.descripcion || '';
+            modalPromoTitulo.textContent = 'Editar Promoción';
+            llenarModal(p);
             modalPromoOverlay.classList.add('visible');
         }
 
@@ -373,59 +434,57 @@
             modalPromoOverlay.classList.remove('visible');
         }
 
-        // â”€â”€ Guardar promociÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        function guardarPromocion() {
-            var nombre = mpNombre.value.trim();
-            var descuento = parseInt(mpDescuento.value);
-            var fechaInicio = mpFechaInicio.value;
-            var fechaFin = mpFechaFin.value;
-            var estado = mpEstado.value;
-            var descripcion = mpDescripcion.value.trim();
+        // ── Guardar promoción (POST / PUT) ──────────────────────
+        async function guardarPromocion() {
+            const datos = {
+                nombre: mpNombre.value.trim(),
+                codigo: mpCodigo.value.trim().toUpperCase().replace(/\s+/g, ''),
+                tipo_descuento: mpTipo.value,
+                valor: Number(mpDescuento.value),
+                monto_minimo: Number(mpMinimo.value) || 0,
+                categoria: mpCategoria.value,
+                fecha_inicio: mpFechaInicio.value,
+                fecha_fin: mpFechaFin.value,
+                estado: mpEstado.value,
+                descripcion: mpDescripcion.value.trim()
+            };
 
-            if (!nombre || isNaN(descuento) || !fechaInicio || !fechaFin) {
-                mostrarToastPromo('âš ï¸ Completa todos los campos obligatorios.', 'error');
+            if (!datos.nombre || isNaN(datos.valor) || !datos.fecha_inicio || !datos.fecha_fin) {
+                mostrarToastPromo('⚠️ Completa todos los campos obligatorios.', 'error');
                 return;
             }
-            if (descuento < 0 || descuento > 100) {
-                mostrarToastPromo('âš ï¸ El descuento debe ser entre 0 y 100.', 'error');
+            if (datos.valor <= 0 || (datos.tipo_descuento === 'porcentaje' && datos.valor > 100)) {
+                mostrarToastPromo('⚠️ El porcentaje debe estar entre 1 y 100.', 'error');
+                return;
+            }
+            if (datos.fecha_fin < datos.fecha_inicio) {
+                mostrarToastPromo('⚠️ La fecha fin no puede ser anterior a la fecha de inicio.', 'error');
+                return;
+            }
+            if (datos.codigo && promociones.some(p => p.id !== editandoPromoId && String(p.codigo || '').toUpperCase() === datos.codigo)) {
+                mostrarToastPromo('⚠️ Ya existe una promoción con ese código.', 'error');
                 return;
             }
 
-            if (editandoPromoId !== null) {
-                var idx = promociones.findIndex(function(p) { return p.id === editandoPromoId; });
-                promociones[idx] = {
-                    id: editandoPromoId,
-                    nombre: nombre,
-                    descuento: descuento,
-                    fechaInicio: fechaInicio,
-                    fechaFin: fechaFin,
-                    estado: estado,
-                    descripcion: descripcion
-                };
-                mostrarToastPromo('âœ¦ PromociÃ³n actualizada.', 'ok');
-            } else {
-                var maxId = 0;
-                promociones.forEach(function(p) { if (p.id > maxId) maxId = p.id; });
-                var nuevoId = maxId + 1;
-                promociones.push({
-                    id: nuevoId,
-                    nombre: nombre,
-                    descuento: descuento,
-                    fechaInicio: fechaInicio,
-                    fechaFin: fechaFin,
-                    estado: estado,
-                    descripcion: descripcion
-                });
-                mostrarToastPromo('âœ¦ PromociÃ³n agregada.', 'ok');
+            try {
+                if (editandoPromoId) {
+                    await updateDoc(doc(db, "promociones", editandoPromoId), { ...datos, fecha_actualizacion: Timestamp.now() });
+                    mostrarToastPromo('✦ Promoción actualizada.', 'ok');
+                } else {
+                    await addDoc(collection(db, "promociones"), { ...datos, fecha_registro: Timestamp.now() });
+                    mostrarToastPromo('✦ Promoción agregada.', 'ok');
+                }
+                cerrarModalPromo();
+                await cargarPromociones();
+            } catch (error) {
+                console.error("Error al guardar promoción:", error);
+                mostrarToastPromo('⚠️ No se pudo guardar la promoción.', 'error');
             }
-
-            cerrarModalPromo();
-            aplicarFiltrosPromo();
         }
 
-        // â”€â”€ Confirmar ELIMINAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Confirmar ELIMINAR ──────────────────────────────────
         function abrirConfirmPromo(id) {
-            var p = promociones.find(function(x) { return x.id === id; });
+            const p = promociones.find(x => x.id === id);
             if (!p) return;
             eliminandoPromoId = id;
             confirmPromoNombre.textContent = p.nombre;
@@ -437,72 +496,52 @@
             eliminandoPromoId = null;
         }
 
-        function confirmarEliminarPromo() {
-            if (eliminandoPromoId === null) return;
-            promociones = promociones.filter(function(p) { return p.id !== eliminandoPromoId; });
-            cerrarConfirmPromo();
-            aplicarFiltrosPromo();
-            mostrarToastPromo('ðŸ—‘ PromociÃ³n eliminada.', 'error');
+        async function confirmarEliminarPromo() {
+            if (!eliminandoPromoId) return;
+            try {
+                await deleteDoc(doc(db, "promociones", eliminandoPromoId));
+                cerrarConfirmPromo();
+                mostrarToastPromo('🗑 Promoción eliminada.', 'error');
+                await cargarPromociones();
+            } catch (error) {
+                console.error("Error al eliminar promoción:", error);
+                mostrarToastPromo('⚠️ No se pudo eliminar la promoción.', 'error');
+            }
         }
 
-        // â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Toast ─────────────────────────────────────────────────
         function mostrarToastPromo(msg, tipo) {
             tipo = tipo || 'ok';
             toastPromo.textContent = msg;
             toastPromo.className = 'toast-admin visible ' + tipo;
             clearTimeout(toastPromo._t);
-            toastPromo._t = setTimeout(function() {
-                toastPromo.classList.remove('visible');
-            }, 3000);
+            toastPromo._t = setTimeout(() => toastPromo.classList.remove('visible'), 3000);
         }
 
-        // â”€â”€ GrÃ¡fica (Chart.js) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Gráfica (Chart.js) ──────────────────────────────────
         function actualizarGrafica() {
-            var activas = promociones.filter(function(p) { return p.estado === 'Activa'; }).length;
-            var inactivas = promociones.length - activas;
-            var ctx = document.getElementById('chart-promos').getContext('2d');
-
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
+            if (typeof Chart === 'undefined') return;
+            const activas = promociones.filter(p => p.estado === 'Activa').length;
+            const inactivas = promociones.length - activas;
+            const ctx = document.getElementById('chart-promos').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Activas', 'Inactivas'],
-                    datasets: [{
-                        data: [activas, inactivas],
-                        backgroundColor: ['#4ade80', '#f87171'],
-                        borderColor: '#0a0412',
-                        borderWidth: 2
-                    }]
+                    datasets: [{ data: [activas, inactivas], backgroundColor: ['#4ade80', '#f87171'], borderColor: '#0a0412', borderWidth: 2 }]
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#ddd',
-                                font: {
-                                    family: 'Cinzel'
-                                }
-                            }
-                        }
-                    }
-                }
+                options: { responsive: true, plugins: { legend: { labels: { color: '#ddd', font: { family: 'Cinzel' } } } } }
             });
         }
 
-        // â”€â”€ Inicializar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        aplicarFiltrosPromo();
+        // Funciones que usan los botones del HTML (onclick)
+        Object.assign(window, { abrirModalPromo, abrirEditarPromo, cerrarModalPromo, guardarPromocion, abrirConfirmPromo, cerrarConfirmPromo, confirmarEliminarPromo, aplicarFiltrosPromo });
 
-        // Cerrar modales al hacer clic fuera
-        modalPromoOverlay.addEventListener('click', function(e) {
-            if (e.target === modalPromoOverlay) cerrarModalPromo();
-        });
-        confirmPromoOverlay.addEventListener('click', function(e) {
-            if (e.target === confirmPromoOverlay) cerrarConfirmPromo();
-        });
+        modalPromoOverlay.addEventListener('click', (e) => { if (e.target === modalPromoOverlay) cerrarModalPromo(); });
+        confirmPromoOverlay.addEventListener('click', (e) => { if (e.target === confirmPromoOverlay) cerrarConfirmPromo(); });
+
+        cargarPromociones();
     </script>
 
     <!-- Estilos adicionales para estados -->

@@ -17,6 +17,37 @@
 
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/catalogo.css">
+    <style>
+        /* Banner de promociones */
+        .promo-banner {
+            max-width: 1100px; margin: 30px auto 10px; padding: 0 20px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .promo-banner[hidden], .seccion-extra[hidden] { display: none; }
+        .promo-contenido {
+            flex: 1; text-align: center; padding: 22px 28px; border-radius: 16px;
+            background: linear-gradient(120deg, rgba(126, 34, 206, 0.35), rgba(212, 175, 55, 0.22));
+            border: 1px solid rgba(212, 175, 55, 0.45); box-shadow: 0 0 25px rgba(212, 175, 55, 0.15);
+            font-family: 'Lato', sans-serif; color: #f0e6d2; min-height: 96px;
+        }
+        .promo-contenido h3 { font-family: 'Cinzel', serif; color: var(--gold, #d4af37); font-size: 1.35rem; margin-bottom: 6px; }
+        .promo-codigo {
+            display: inline-block; margin-top: 8px; padding: 4px 14px; border-radius: 20px;
+            border: 1px dashed var(--gold, #d4af37); color: var(--gold, #d4af37); font-weight: bold; letter-spacing: 1px;
+        }
+        .promo-flecha {
+            background: rgba(0,0,0,0.35); border: 1px solid rgba(212,175,55,0.4); color: var(--gold, #d4af37);
+            width: 38px; height: 38px; border-radius: 50%; cursor: pointer; flex-shrink: 0;
+        }
+        .promo-flecha:hover { background: rgba(212,175,55,0.2); }
+        .seccion-extra { padding-bottom: 0; }
+        /* Descuento visible en la tarjeta */
+        .descuento-tarjeta {
+            display: inline-block; margin: 2px 0 8px; padding: 3px 10px; border-radius: 12px; font-size: 0.78rem;
+            background: rgba(74, 222, 128, 0.12); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.35);
+            font-family: 'Lato', sans-serif; font-weight: 700;
+        }
+    </style>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     
@@ -355,19 +386,17 @@
         </div>
     </section>
 
+    <!-- BANNER DE PROMOCIONES (colección promociones, Módulo 4.1.4) -->
+    <section class="promo-banner" id="promo-banner" hidden>
+        <button type="button" class="promo-flecha" id="promo-anterior" aria-label="Promoción anterior"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="promo-contenido" id="promo-contenido"></div>
+        <button type="button" class="promo-flecha" id="promo-siguiente" aria-label="Promoción siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+    </section>
+
     <!-- FILTROS -->
     <section class="catalogo-filtros">
         <input type="text" id="buscador" list="listaProductos" placeholder="Buscar artefacto...">
-        <datalist id="listaProductos">
-            <option value="Varita de Saúco">
-            <option value="Poción de Invisibilidad">
-            <option value="Grimorio de Hechizos Antiguos">
-            <option value="Cristal de Adivinación">
-            <option value="Amuleto de Protección">
-            <option value="Caldero de Cobre">
-            <option value="Mapa del Tesoro Escondido">
-            <option value="Pluma de Fénix">
-        </datalist>
+        <datalist id="listaProductos"></datalist>
         <select id="filtroCategoria">
             <option value="Todos">Todas las categorías</option>
             <option value="Varitas">Varitas</option>
@@ -387,8 +416,30 @@
         </select>
     </section>
 
+    <!-- DESTACADOS (productos con destacado = true o con etiqueta) -->
+    <section class="catalogo-section seccion-extra" id="seccion-destacados" hidden>
+        <div class="section-header">
+            <span class="section-eyebrow">✦ Destacados ✦</span>
+            <h2>Reliquias destacadas</h2>
+        </div>
+        <div class="catalogo-grid" id="destacados-container"></div>
+    </section>
+
+    <!-- NOVEDADES (los productos registrados más recientemente) -->
+    <section class="catalogo-section seccion-extra" id="seccion-novedades" hidden>
+        <div class="section-header">
+            <span class="section-eyebrow">✦ Recién llegados ✦</span>
+            <h2>Novedades</h2>
+        </div>
+        <div class="catalogo-grid" id="novedades-container"></div>
+    </section>
+
     <!-- CATÁLOGO -->
     <section class="catalogo-section">
+        <div class="section-header">
+            <span class="section-eyebrow">✦ Todo el arsenal ✦</span>
+            <h2>Catálogo completo</h2>
+        </div>
         <div class="catalogo-grid" id="productos-container"></div>
     </section>
 
@@ -466,6 +517,7 @@
 
     <!-- ===== SCRIPTS ===== -->
     <script src="../js/carrito.js"></script>
+    <script src="../js/notificaciones.js"></script>
     <script src="../js/cargar-navbar.js"></script>
     <script src="../js/script.js"></script>
 
@@ -493,6 +545,47 @@
         const categoria = document.getElementById("filtroCategoria");
         const precio = document.getElementById("filtroPrecio");
 
+        let promocionesActivas = [];
+        const escaparHTML = (t) => String(t ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        // Promoción vigente que aplica a la categoría del producto (para mostrar el descuento)
+        function promoParaProducto(prod) {
+            return promocionesActivas.find(p => !p.categoria || p.categoria === prod.categoria);
+        }
+
+        function crearTarjeta(prod) {
+            const tieneEtiqueta = prod.etiqueta && prod.etiqueta.trim() !== "";
+            const imagenSegura = prod.imagen ? prod.imagen : "../images/logo/Logo.png";
+            const precioSeguro = parseFloat(prod.precio) || 0;
+
+            // CONTROL DE STOCK EN TIEMPO REAL
+            const existencia = parseInt(prod.existencia) || 0;
+            const stockHtml = existencia > 0 
+                ? `<p style="color: #4ade80; font-size: 0.85rem; margin: 6px 0 12px; font-weight: 600;"><i class="fa-solid fa-box-open"></i> En stock (${existencia} pzas)</p>` 
+                : `<p style="color: #f87171; font-size: 0.85rem; margin: 6px 0 12px; font-weight: 600;"><i class="fa-solid fa-ban"></i> Agotado</p>`;
+
+            // DESCUENTO VISIBLE (si hay una promoción activa para su categoría)
+            const promo = promoParaProducto(prod);
+            let descuentoHtml = "";
+            if (promo) {
+                const texto = promo.tipo_descuento === 'monto' ? `-$${Number(promo.valor).toFixed(0)}` : `-${Number(promo.valor)}%`;
+                descuentoHtml = `<span class="descuento-tarjeta"><i class="fa-solid fa-tag"></i> ${texto}${promo.codigo ? ` con ${escaparHTML(promo.codigo)}` : ''}</span>`;
+            }
+
+            const card = document.createElement("div");
+            card.className = "producto-card";
+            card.innerHTML = `
+                ${tieneEtiqueta ? `<span class="etiqueta ${escaparHTML(prod.etiqueta.toLowerCase())}">${escaparHTML(prod.etiqueta)}</span>` : ""}
+                <img src="${imagenSegura}" alt="${escaparHTML(prod.nombre)}">
+                <h3>${escaparHTML(prod.nombre)}</h3>
+                <p class="producto-precio">$${precioSeguro.toFixed(2)} MXN</p>
+                ${descuentoHtml}
+                ${stockHtml}
+                <a href="detalle.html?id=${encodeURIComponent(prod.id)}" class="btn-detalle">Ver detalle</a>
+            `;
+            return card;
+        }
+
         function mostrarProductos(lista) {
             container.innerHTML = "";
             
@@ -501,29 +594,86 @@
                 return;
             }
 
-            lista.forEach(prod => {
-                const tieneEtiqueta = prod.etiqueta && prod.etiqueta.trim() !== "";
-                const imagenSegura = prod.imagen ? prod.imagen : "../images/logo/Logo.png";
-                const precioSeguro = parseFloat(prod.precio) || 0;
-                
-                // CONTROL DE STOCK EN TIEMPO REAL
-                const existencia = parseInt(prod.existencia) || 0;
-                const stockHtml = existencia > 0 
-                    ? `<p style="color: #4ade80; font-size: 0.85rem; margin: 6px 0 12px; font-weight: 600;"><i class="fa-solid fa-box-open"></i> En stock (${existencia} pzas)</p>` 
-                    : `<p style="color: #f87171; font-size: 0.85rem; margin: 6px 0 12px; font-weight: 600;"><i class="fa-solid fa-ban"></i> Agotado</p>`;
+            lista.forEach(prod => container.appendChild(crearTarjeta(prod)));
+        }
 
-                const card = document.createElement("div");
-                card.className = "producto-card";
-                card.innerHTML = `
-                    ${tieneEtiqueta ? `<span class="etiqueta ${prod.etiqueta.toLowerCase()}">${prod.etiqueta}</span>` : ""}
-                    <img src="${imagenSegura}" alt="${prod.nombre}">
-                    <h3>${prod.nombre}</h3>
-                    <p class="producto-precio">$${precioSeguro.toFixed(2)} MXN</p>
-                    ${stockHtml}
-                    <a href="detalle.html?id=${prod.id}" class="btn-detalle">Ver detalle</a>
-                `;
-                container.appendChild(card);
+        // DESTACADOS Y NOVEDADES
+        function mostrarSecciones() {
+            const destacados = productos.filter(p => p.destacado === true || (p.etiqueta && p.etiqueta.trim() !== "")).slice(0, 4);
+            const fechaDe = (p) => (p.fecha_registro && typeof p.fecha_registro.toDate === "function") ? p.fecha_registro.toDate().getTime() : (p.fecha_registro ? new Date(p.fecha_registro).getTime() || 0 : 0);
+            const conFecha = productos.filter(p => fechaDe(p) > 0);
+            const novedades = [...conFecha].sort((a, b) => fechaDe(b) - fechaDe(a)).slice(0, 4);
+
+            const pintar = (idSeccion, idContenedor, lista) => {
+                const seccion = document.getElementById(idSeccion);
+                const cont = document.getElementById(idContenedor);
+                if (!seccion || !cont) return;
+                cont.innerHTML = "";
+                lista.forEach(p => cont.appendChild(crearTarjeta(p)));
+                seccion.hidden = lista.length === 0;
+            };
+            pintar("seccion-destacados", "destacados-container", destacados);
+            pintar("seccion-novedades", "novedades-container", novedades);
+        }
+
+        // OPCIONES DE BÚSQUEDA Y CATEGORÍAS A PARTIR DE LOS PRODUCTOS REALES
+        function llenarOpcionesFiltros() {
+            const datalist = document.getElementById("listaProductos");
+            if (datalist) datalist.innerHTML = productos.map(p => `<option value="${escaparHTML(p.nombre)}">`).join("");
+            const existentes = new Set([...categoria.options].map(o => o.value));
+            [...new Set(productos.map(p => p.categoria).filter(Boolean))].forEach(cat => {
+                if (!existentes.has(cat)) { categoria.add(new Option(cat, cat)); existentes.add(cat); }
             });
+            // Categorías activas registradas por el administrador (colección "categorias")
+            getDocs(collection(db, "categorias")).then(snap => {
+                snap.forEach(d => {
+                    const c = d.data();
+                    if (c.nombre && c.estado !== "inactivo" && !existentes.has(c.nombre)) {
+                        categoria.add(new Option(c.nombre, c.nombre));
+                        existentes.add(c.nombre);
+                    }
+                });
+            }).catch(err => console.error("No se pudieron cargar las categorías:", err));
+        }
+
+        // BANNER DE PROMOCIONES VIGENTES
+        async function cargarPromociones() {
+            try {
+                const hoy = new Date().toISOString().slice(0, 10);
+                const snap = await getDocs(collection(db, "promociones"));
+                promocionesActivas = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                    .filter(p => p.estado === "Activa" && (!p.fecha_inicio || p.fecha_inicio <= hoy) && (!p.fecha_fin || p.fecha_fin >= hoy));
+            } catch (error) {
+                console.error("No se pudieron cargar las promociones:", error);
+                promocionesActivas = [];
+            }
+
+            const banner = document.getElementById("promo-banner");
+            const contenido = document.getElementById("promo-contenido");
+            if (!banner || promocionesActivas.length === 0) return;
+
+            let indice = 0;
+            const pintar = () => {
+                const p = promocionesActivas[indice];
+                const valor = p.tipo_descuento === 'monto' ? `$${Number(p.valor).toFixed(0)} de descuento` : `${Number(p.valor)}% de descuento`;
+                const alcance = p.categoria ? ` en ${escaparHTML(p.categoria)}` : "";
+                const minimo = Number(p.monto_minimo) > 0 ? ` · compra mínima $${Number(p.monto_minimo)}` : "";
+                contenido.innerHTML = `
+                    <h3><i class="fa-solid fa-wand-sparkles"></i> ${escaparHTML(p.nombre)}</h3>
+                    <p>${valor}${alcance}${minimo}${p.fecha_fin ? ` · válido hasta ${escaparHTML(p.fecha_fin)}` : ""}</p>
+                    ${p.descripcion ? `<p style="opacity:0.8; font-size:0.9rem; margin-top:4px;">${escaparHTML(p.descripcion)}</p>` : ""}
+                    ${p.codigo ? `<span class="promo-codigo">Cupón: ${escaparHTML(p.codigo)}</span>` : ""}
+                `;
+            };
+            const mover = (paso) => { indice = (indice + paso + promocionesActivas.length) % promocionesActivas.length; pintar(); };
+            const varias = promocionesActivas.length > 1;
+            document.getElementById("promo-anterior").style.visibility = varias ? "visible" : "hidden";
+            document.getElementById("promo-siguiente").style.visibility = varias ? "visible" : "hidden";
+            document.getElementById("promo-anterior").addEventListener("click", () => mover(-1));
+            document.getElementById("promo-siguiente").addEventListener("click", () => mover(1));
+            if (varias) setInterval(() => mover(1), 6000);
+            pintar();
+            banner.hidden = false;
         }
 
         function filtrar() {
@@ -566,6 +716,10 @@
                     }
                 });
                 
+                // Primero las promociones para que las tarjetas muestren su descuento
+                await cargarPromociones();
+                llenarOpcionesFiltros();
+                mostrarSecciones();
                 mostrarProductos(productos);
             } catch (error) {
                 console.error("Error oscuro al obtener los productos:", error);
@@ -742,7 +896,7 @@
                         btnCarrito.innerHTML = '<i class="fa-solid fa-cart-plus"></i> Agregar al carrito';
                     }, 3000);
                 } else {
-                    alert('Error: la función agregarAlCarrito no está disponible.');
+                    window.mostrarNotificacion?.('No se pudo agregar al carrito. Recarga la página e intenta de nuevo.', 'error');
                 }
             });
 
