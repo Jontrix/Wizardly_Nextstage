@@ -71,6 +71,11 @@
             margin-top: 12px;
         }
 
+        .select-factura {
+            width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(0,0,0,0.3); color: #fff; outline: none;
+        }
+        .select-factura option { background: #1a1325; }
         .dato-guardado {
             border: 1px solid rgba(212,175,55,0.18); background: rgba(0,0,0,0.22);
             border-radius: 12px; padding: 12px; margin-bottom: 10px; font-size: 0.86rem; line-height: 1.45;
@@ -295,6 +300,7 @@
 
     <script src="../js/carrito.js"></script>
     <script src="../js/notificaciones.js"></script>
+    <script src="../js/factura-pdf.js"></script>
     <script src="../js/cargar-navbar.js"></script>
     <script src="../js/script.js"></script>
     <script>
@@ -502,6 +508,7 @@
                         <button class="btn-compra" data-accion="detalle" data-folio="${escaparHTML(p.folio)}">Ver detalle</button>
                         <a class="btn-compra" href="seguimiento.html?folio=${encodeURIComponent(p.folio)}" style="text-decoration:none;">Rastrear</a>
                         <button class="btn-compra" data-accion="factura" data-folio="${escaparHTML(p.folio)}">${p.factura?.solicitada ? 'Ver factura' : 'Solicitar factura'}</button>
+                        <button class="btn-compra" data-accion="pdf" data-folio="${escaparHTML(p.folio)}" title="Descargar en PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
                     </div>
                 </div>
             `).join('');
@@ -512,7 +519,25 @@
             if (!btn) return;
             if (btn.dataset.accion === 'detalle') verDetallePedido(btn.dataset.folio);
             if (btn.dataset.accion === 'factura') verFacturaPedido(btn.dataset.folio);
+            if (btn.dataset.accion === 'pdf') descargarPdfPedido(btn.dataset.folio, btn);
         });
+
+        // Descarga el PDF del pedido: factura si ya se solicitó, si no comprobante de compra
+        async function descargarPdfPedido(folio, boton) {
+            const p = pedidos.find(x => x.folio === folio);
+            if (!p || !window.WizardlyPDF) return avisar("No se pudo preparar el PDF.", "error");
+            const original = boton ? boton.innerHTML : "";
+            if (boton) { boton.disabled = true; boton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...'; }
+            try {
+                const nombre = await window.WizardlyPDF.descargar(p);
+                avisar(`Se descargó ${nombre}`, "exito");
+            } catch (error) {
+                console.error("Error al generar el PDF:", error);
+                avisar("No se pudo generar el PDF. Revisa tu conexión a internet.", "error");
+            } finally {
+                if (boton) { boton.disabled = false; boton.innerHTML = original; }
+            }
+        }
 
         function abrirModal(html) {
             document.getElementById('detallePedidoContenido').innerHTML = html;
@@ -545,7 +570,9 @@
                     <strong>Total</strong><strong style="color:var(--gold);">${mxn(p.total)}</strong>
                 </div>
                 <p style="margin-top:16px;"><a href="seguimiento.html?folio=${encodeURIComponent(p.folio)}" style="color:var(--gold);"><i class="fa-solid fa-truck-fast"></i> Ver movimientos del envío</a></p>
+                <button class="btn-compra" id="btnPdfDetalle" style="margin-top:10px;"><i class="fa-solid fa-file-pdf"></i> Descargar ${p.factura?.solicitada ? "factura" : "comprobante"} en PDF</button>
             `);
+            document.getElementById('btnPdfDetalle').addEventListener('click', (e) => descargarPdfPedido(p.folio, e.currentTarget));
         }
 
         function verFacturaPedido(folio) {
@@ -561,10 +588,13 @@
                         <h4>Factura solicitada</h4>
                         <p style="margin:0 0 12px; color:var(--text-muted);">Total facturado: ${mxn(p.total)}</p>
                         <div class="factura-grid">${filas}</div>
+                        <button class="btn-compra" id="btnPdfFactura" style="margin-top:14px;"><i class="fa-solid fa-file-pdf"></i> Descargar factura en PDF</button>
                     </div>`);
+                document.getElementById('btnPdfFactura').addEventListener('click', (e) => descargarPdfPedido(p.folio, e.currentTarget));
                 return;
             }
             const campo = (id, ph, tipo = "text") => `<div class="input-group" style="flex:1; min-width:220px;"><input type="${tipo}" id="${id}" placeholder="${ph}"></div>`;
+            const lista = (id, ph, opciones) => `<div class="input-group" style="flex:1; min-width:220px;"><select id="${id}" class="select-factura"><option value="">${ph}</option>${opciones.map(o => `<option>${o}</option>`).join("")}</select></div>`;
             abrirModal(`
                 <h3 style="color:var(--gold); font-family:'Cinzel', serif;">${escaparHTML(p.folio)}</h3>
                 <div class="factura-preview">
@@ -574,8 +604,8 @@
                         ${campo('razonFacturaPerfil', 'Razón social')}
                         ${campo('rfcFacturaPerfil', 'RFC')}
                         ${campo('codigoPostalFacturaPerfil', 'Código Postal')}
-                        ${campo('regimenFacturaPerfil', 'Régimen Fiscal')}
-                        ${campo('usoFacturaPerfil', 'Uso CFDI (Ej: G03)')}
+                        ${lista('regimenFacturaPerfil', 'Régimen fiscal', window.WizardlyPDF?.REGIMENES || [])}
+                        ${lista('usoFacturaPerfil', 'Uso del CFDI', window.WizardlyPDF?.USOS_CFDI || [])}
                         ${campo('correoFacturaPerfil', 'Correo electrónico', 'email')}
                         ${campo('nombreReceptorFacturaPerfil', 'Nombre del receptor')}
                         <button class="btn-compra" id="btnGuardarFacturaPerfil">Guardar factura</button>
@@ -591,6 +621,8 @@
                 avisar("Escribe la razón social y un RFC válido (12 o 13 caracteres).", "aviso");
                 return;
             }
+            if (!/^\d{5}$/.test(valor('codigoPostalFacturaPerfil'))) return avisar("El código postal fiscal debe tener 5 dígitos.", "aviso");
+            if (!valor('regimenFacturaPerfil') || !valor('usoFacturaPerfil')) return avisar("Selecciona el régimen fiscal y el uso del CFDI.", "aviso");
             const factura = {
                 solicitada: true,
                 razonSocial: valor('razonFacturaPerfil'),
@@ -603,8 +635,12 @@
             };
             try {
                 await updateDoc(doc(db, "ordenes", p.idDoc), { factura });
+                await addDoc(collection(db, "facturas"), {
+                    pedido_id: p.idDoc, folio: p.folio, cliente_uid: usuarioActual.uid,
+                    ...factura, total: p.total, fecha: serverTimestamp()
+                });
                 p.factura = factura;
-                avisar("Factura solicitada correctamente.", "exito");
+                avisar("Factura registrada. Ya puedes descargarla en PDF.", "exito");
                 renderHistorialCompras();
                 verFacturaPedido(p.folio);
             } catch (error) {

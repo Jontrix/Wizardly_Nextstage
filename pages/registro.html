@@ -173,8 +173,11 @@
 
             <div class="input-group">
                 <i class="fa-solid fa-lock"></i>
-                <input type="password" id="password" required placeholder="Contraseña secreta (mínimo 6 letras)">
+                <input type="password" id="password" required autocomplete="new-password" placeholder="Contraseña secreta (mínimo 6 letras)">
             </div>
+
+            <!-- CAPTCHA (js/captcha.js) -->
+            <div id="captcha-registro"></div>
 
             <button type="submit" class="btn btn-registro" id="btn-registro">
                 Registrarme
@@ -200,10 +203,13 @@
     <script src="../js/script.js"></script>
 
     <!-- MAGIA DE FIREBASE -->
+    <script src="../js/captcha.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const captchaRegistro = window.WizardlyCaptcha.crear("captcha-registro");
 
         // Tus credenciales maestras
         const firebaseConfig = {
@@ -234,6 +240,14 @@
             // Validaciones
             if (!nombre || !correo || !password || !formulario.querySelector('#correo').checkValidity()) {
                 mensaje.textContent = 'Completa todos los pergaminos con datos válidos.';
+                mensaje.classList.add('mostrar');
+                setTimeout(() => mensaje.classList.remove('mostrar'), 3000);
+                return;
+            }
+
+            // CAPTCHA
+            if (captchaRegistro.estaVacio() || !captchaRegistro.validar()) {
+                mensaje.textContent = 'El código de verificación no coincide. Intenta con el nuevo código.';
                 mensaje.classList.add('mostrar');
                 setTimeout(() => mensaje.classList.remove('mostrar'), 3000);
                 return;

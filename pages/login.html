@@ -70,6 +70,10 @@
 
         .mensaje-login { position: fixed; top: 100px; right: 20px; background: rgba(35, 10, 60, 0.95); color: #f4d58d; padding: 20px 35px; border: 2px solid #d4a017; border-radius: 15px; font-size: 1.1rem; box-shadow: 0 0 20px rgba(212, 160, 23, .5); opacity: 0; visibility: hidden; transition: .5s; z-index: 9999; }
         .mensaje-login.mostrar { opacity: 1; visibility: visible; }
+        .input-group { position: relative; }
+        .btn-ver-password { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; }
+        .btn-ver-password:hover { color: var(--gold); }
+        .recordar-label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
     </style>
 </head>
 
@@ -82,15 +86,20 @@
         <form id="loginForm">
             <div class="input-group">
                 <i class="fa-solid fa-envelope"></i>
-                <input type="email" id="correo" required placeholder="Correo Electrónico">
+                <input type="email" id="correo" name="username" autocomplete="username" required placeholder="Correo Electrónico">
             </div>
             <div class="input-group">
                 <i class="fa-solid fa-key"></i>
-                <input type="password" id="password" required placeholder="Contraseña Secreta">
+                <input type="password" id="password" name="password" autocomplete="current-password" required placeholder="Contraseña Secreta">
+                <button type="button" id="btnVerPassword" class="btn-ver-password" title="Mostrar contraseña" aria-label="Mostrar contraseña"><i class="fa-solid fa-eye"></i></button>
             </div>
+
+            <!-- CAPTCHA (js/captcha.js) -->
+            <div id="captcha-login"></div>
             <div class="recordar-grupo">
                 <label class="recordar-label" style="color: var(--text-muted); font-family: 'Lato', sans-serif; font-size: 0.85rem;">
-                    <input type="checkbox" id="recordar"> Recordar
+                    <input type="checkbox" id="recordar">
+                    <span class="checkmark"></span> Recordarme
                 </label>
                 <a href="recuperar-contrasena.html" class="link-recuperar">¿Olvidaste tu contraseña?</a>
             </div>
@@ -109,6 +118,7 @@
     </div>
 
     <!-- MAGIA DE FIREBASE Y LOGIN -->
+    <script src="../js/captcha.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -131,6 +141,43 @@
 
         const formulario = document.getElementById("loginForm");
 
+        // ==========================================================
+        // CAPTCHA Y "RECORDARME"
+        // ==========================================================
+        const captcha = window.WizardlyCaptcha.crear("captcha-login");
+        const chkRecordar = document.getElementById("recordar");
+
+        // Si eligió "Recordarme" la última vez, se rellena su correo
+        const correoRecordado = localStorage.getItem("wz_correo_recordado");
+        if (localStorage.getItem("wz_recordar") === "si") chkRecordar.checked = true;
+        if (correoRecordado) document.getElementById("correo").value = correoRecordado;
+
+        document.getElementById("btnVerPassword").addEventListener("click", (e) => {
+            const input = document.getElementById("password");
+            const visible = input.type === "text";
+            input.type = visible ? "password" : "text";
+            e.currentTarget.innerHTML = `<i class="fa-solid ${visible ? "fa-eye" : "fa-eye-slash"}"></i>`;
+            e.currentTarget.title = visible ? "Mostrar contraseña" : "Ocultar contraseña";
+        });
+
+        // Se llama justo después de un inicio de sesión correcto
+        function aplicarRecordar(correo, password) {
+            const recordar = chkRecordar.checked;
+            localStorage.setItem("wz_recordar", recordar ? "si" : "no");
+            // Cookie de sesión: el navegador la borra al cerrarse (ver js/sesion.js)
+            document.cookie = "wz_sesion=1; path=/; SameSite=Lax";
+            if (recordar) {
+                localStorage.setItem("wz_correo_recordado", correo);
+                // La contraseña la guarda el gestor de contraseñas del navegador (cifrado), no la página
+                if (window.PasswordCredential && navigator.credentials && password) {
+                    navigator.credentials.store(new PasswordCredential({ id: correo, password, name: correo }))
+                        .catch(err => console.warn("El navegador no guardó la contraseña:", err));
+                }
+            } else {
+                localStorage.removeItem("wz_correo_recordado");
+            }
+        }
+
         formulario.addEventListener("submit", async function (e) {
             e.preventDefault();
             
@@ -143,6 +190,15 @@
                 mensaje.textContent = "Escribe tus credenciales arcanas completas.";
                 mensaje.classList.add("mostrar");
                 setTimeout(() => mensaje.classList.remove("mostrar"), 3000);
+                return;
+            }
+
+            // CAPTCHA: se valida antes de consultar cualquier credencial
+            if (captcha.estaVacio() || !captcha.validar()) {
+                mensaje.textContent = "El código de verificación no coincide. Intenta con el nuevo código.";
+                mensaje.classList.add("mostrar");
+                setTimeout(() => mensaje.classList.remove("mostrar"), 3000);
+                if (captcha.estaVacio()) captcha.refrescar();
                 return;
             }
 
@@ -159,6 +215,7 @@
                 
                 // 🔑 ENTREGAMOS LA LLAVE Y LOS DATOS DE PERFIL PARA NO SER RECHAZADOS
                 localStorage.setItem("usuarioLogueado", "true");
+                aplicarRecordar(correoInput, passwordInput);
                 localStorage.setItem("usuarioDatos", JSON.stringify({
                     nombre: "Archimago Seraphina",
                     correo: adminCorreo,
@@ -183,6 +240,7 @@
                     mensaje.textContent = "✨ Bienvenido Archimago. Abriendo el Panel... ✨";
                     mensaje.classList.add("mostrar");
                     localStorage.setItem("usuarioLogueado", "true");
+                aplicarRecordar(correoInput, passwordInput);
                     localStorage.setItem("usuarioDatos", JSON.stringify({
                         nombre: "Archimago Seraphina",
                         correo: correoInput,
@@ -203,6 +261,7 @@
                     
                     // 🔑 ENTREGAMOS LA LLAVE Y LOS DATOS QUE ENCONTRÓ FIREBASE
                     localStorage.setItem("usuarioLogueado", "true");
+                aplicarRecordar(correoInput, passwordInput);
                     localStorage.setItem("usuarioDatos", JSON.stringify(adminSnap.data()));
 
                     // Cada rol entra directo a su panel de inicio
@@ -222,6 +281,7 @@
                     mensaje.textContent = "✨ Bienvenido al Panel de Ventas ✨";
                     mensaje.classList.add("mostrar");
                     localStorage.setItem("usuarioLogueado", "true");
+                aplicarRecordar(correoInput, passwordInput);
                     localStorage.setItem("usuarioDatos", JSON.stringify({ ...vendedorSnap.data(), rol: "Ventas" }));
                     setTimeout(() => { window.location.href = "admin.html"; }, 1200);
                     return;
@@ -237,6 +297,7 @@
                     
                     // 🔑 ENTREGAMOS LA LLAVE Y LOS DATOS QUE ENCONTRÓ FIREBASE
                     localStorage.setItem("usuarioLogueado", "true");
+                aplicarRecordar(correoInput, passwordInput);
                     localStorage.setItem("usuarioDatos", JSON.stringify(clienteSnap.data()));
                     
                     setTimeout(() => { window.location.href = "perfil.html"; }, 1200);
@@ -248,6 +309,8 @@
 
             } catch (error) {
                 console.error("Error en login:", error);
+                // Cada intento fallido pide un captcha nuevo
+                captcha.refrescar();
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                     mensaje.textContent = "El correo o la contraseña son incorrectos.";
                 } else {

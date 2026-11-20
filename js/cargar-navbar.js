@@ -34,6 +34,9 @@ fetch('/components/navbar.html')
     }
     import(new URL('soporte-widget.js', base).href)
       .catch(err => console.error('No se pudo cargar el soporte técnico:', err));
+    // "Recordarme": cierra la sesión si no se marcó y el navegador se cerró
+    import(new URL('sesion.js', base).href)
+      .catch(err => console.error('No se pudo revisar la sesión:', err));
   } catch (err) {
     console.error('No se pudo cargar el soporte técnico:', err);
   }

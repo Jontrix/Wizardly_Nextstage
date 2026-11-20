@@ -1,3 +1,6 @@
+// "Recordarme": cierra la sesión del panel si no se marcó y el navegador se cerró
+import "./sesion.js";
+
 const PERMISOS = {
     administrador: {
         inicio: "admin.html",

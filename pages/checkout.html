@@ -60,6 +60,12 @@
             color: #120e1c;
         }
 
+        .factura-form select {
+            width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3); color: #fff; font-family: 'Lato', sans-serif; font-size: 0.95rem; outline: none;
+        }
+        .factura-form select option { background: #1a1325; }
+        .factura-form select:focus { border-color: var(--gold, #d4af37); }
         .factura-form {
             display: none;
             gap: 12px;
@@ -148,6 +154,8 @@
     </script>
     <!-- AVISOS DENTRO DE LA PÁGINA (REEMPLAZA alert()) -->
     <script src="../js/notificaciones.js"></script>
+    <!-- PDF real del comprobante y la factura (jsPDF) -->
+    <script src="../js/factura-pdf.js"></script>
 </head>
 
 <body data-page="checkout">
@@ -500,6 +508,8 @@
         let listaDireccionesGuardadas = [];
         let listaTarjetasGuardadas = [];
         let direccionObjeto = null;
+        // Pedido recién comprado (para el PDF y la factura de la pantalla de confirmación)
+        let pedidoConfirmado = null;
 
         // ==========================================================
         // IMPUESTOS DINÁMICOS (Módulo 4.1.5) — colección "impuestos"
@@ -1138,6 +1148,7 @@
                         };
 
                         const ordenRef = await addDoc(collection(db, "ordenes"), pedidoGuardado);
+                        pedidoConfirmado = { ...pedidoGuardado, idDoc: ordenRef.id, fecha: hoy };
 
                         // REGISTRO DEL PAGO (Módulo 4.1.2 — relación pedido → pago)
                         try {
@@ -1311,25 +1322,27 @@
             function renderFacturaResumen(pedido) {
                 const contenedor = document.getElementById("facturaAccionContainer");
                 if (!contenedor) return;
+                const opciones = (lista) => lista.map(o => `<option value="${o}">${o}</option>`).join("");
 
                 contenedor.innerHTML = `
                     <div class="factura-opciones" style="margin:0;">
                         <h4><i class="fa-solid fa-receipt"></i> Solicitar Factura Electrónica</h4>
-                        <p style="font-size:0.9rem;">Si requieres CFDI fiscal, ingresa tus datos RFC a continuación.</p>
+                        <p style="font-size:0.9rem;">Si requieres factura, ingresa tus datos fiscales y descárgala en PDF.</p>
                         <button type="button" class="btn" id="btnSolicitarFacturaResumen">Ingresar Datos Fiscales</button>
-                        <div class="factura-form" id="formFacturaResumen" style="display:none; margin-top:15px;">
-                            <div class="input-group" style="flex:1; min-width:220px;">
-                                <input type="text" id="razonSocialFactura" placeholder="Razón Social">
+                        <div class="factura-form" id="formFacturaResumen" style="display:none; margin-top:15px; flex-wrap:wrap; gap:10px;">
+                            <div class="input-group" style="flex:1 1 100%;"><input type="text" id="razonSocialFactura" maxlength="120" placeholder="Razón social o nombre completo"></div>
+                            <div class="input-group" style="flex:1; min-width:200px;"><input type="text" id="rfcFactura" maxlength="13" placeholder="RFC (12 o 13 caracteres)" style="text-transform:uppercase;"></div>
+                            <div class="input-group" style="flex:1; min-width:160px;"><input type="text" id="cpFactura" maxlength="5" inputmode="numeric" placeholder="C.P. fiscal"></div>
+                            <div class="input-group" style="flex:1 1 100%;"><select id="regimenFactura" style="width:100%;"><option value="">Régimen fiscal</option>${opciones(window.WizardlyPDF?.REGIMENES || [])}</select></div>
+                            <div class="input-group" style="flex:1; min-width:220px;"><select id="usoCfdiFactura" style="width:100%;"><option value="">Uso del CFDI</option>${opciones(window.WizardlyPDF?.USOS_CFDI || [])}</select></div>
+                            <div class="input-group" style="flex:1; min-width:220px;"><input type="email" id="correoFactura" maxlength="80" placeholder="Correo para la factura" value="${pedido.correo || ""}"></div>
+                            <div style="display:flex; gap:10px; width:100%; margin-top:10px; flex-wrap:wrap;">
+                                <button type="button" class="btn" id="btnGuardarFactura"><i class="fa-solid fa-file-invoice"></i> Generar Factura</button>
                             </div>
-                            <div class="input-group" style="flex:1; min-width:220px;">
-                                <input type="text" id="rfcFactura" placeholder="RFC (Ej: WIZ2026001A)">
-                            </div>
-                            <div class="input-group" style="flex:1; min-width:220px;">
-                                <input type="text" id="usoCfdiFactura" placeholder="Uso CFDI (Ej: G03)">
-                            </div>
-                            <div style="display:flex; gap-10px; width:100%; margin-top:10px;">
-                                <button type="button" class="btn" id="btnGuardarFactura">Registrar Factura</button>
-                            </div>
+                        </div>
+                        <div id="facturaLista" style="display:none; margin-top:15px;">
+                            <p style="color:#4ade80;"><i class="fa-solid fa-circle-check"></i> Factura registrada para el pedido ${pedido.folio}.</p>
+                            <button type="button" class="btn" id="btnDescargarFacturaFiscal"><i class="fa-solid fa-file-pdf"></i> Descargar Factura PDF</button>
                         </div>
                     </div>
                 `;
@@ -1339,11 +1352,74 @@
                     if (f) f.style.display = "flex";
                 });
 
-                document.getElementById("btnGuardarFactura")?.addEventListener("click", () => {
-                    showCheckoutToast("Factura registrada exitosamente.");
-                    const f = document.getElementById("formFacturaResumen");
-                    if (f) f.style.display = "none";
+                document.getElementById("btnGuardarFactura")?.addEventListener("click", async () => {
+                    const valor = (id) => document.getElementById(id)?.value.trim() || "";
+                    const rfc = valor("rfcFactura").toUpperCase();
+                    const factura = {
+                        solicitada: true,
+                        razonSocial: valor("razonSocialFactura"),
+                        rfc,
+                        codigoPostal: valor("cpFactura"),
+                        regimenFiscal: valor("regimenFactura"),
+                        usoCFDI: valor("usoCfdiFactura"),
+                        correoElectronico: valor("correoFactura"),
+                        nombreReceptor: valor("razonSocialFactura")
+                    };
+                    if (factura.razonSocial.length < 3) return avisar("Escribe la razón social o tu nombre completo.", "aviso");
+                    if (!(window.WizardlyPDF?.RFC_VALIDO || /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/).test(rfc)) return avisar("El RFC no es válido. Debe tener 12 (empresa) o 13 (persona) caracteres.", "aviso");
+                    if (!/^\d{5}$/.test(factura.codigoPostal)) return avisar("El código postal fiscal debe tener 5 dígitos.", "aviso");
+                    if (!factura.regimenFiscal || !factura.usoCFDI) return avisar("Selecciona el régimen fiscal y el uso del CFDI.", "aviso");
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(factura.correoElectronico)) return avisar("Escribe un correo válido para la factura.", "aviso");
+
+                    const btn = document.getElementById("btnGuardarFactura");
+                    btn.disabled = true;
+                    try {
+                        if (pedidoConfirmado?.idDoc) {
+                            await updateDoc(doc(db, "ordenes", pedidoConfirmado.idDoc), { factura });
+                            await addDoc(collection(db, "facturas"), {
+                                pedido_id: pedidoConfirmado.idDoc,
+                                folio: pedidoConfirmado.folio,
+                                cliente_uid: pedidoConfirmado.cliente_uid || "invitado",
+                                ...factura,
+                                total: pedidoConfirmado.total,
+                                fecha: serverTimestamp()
+                            });
+                            pedidoConfirmado.factura = factura;
+                        }
+                        document.getElementById("formFacturaResumen").style.display = "none";
+                        document.getElementById("btnSolicitarFacturaResumen").style.display = "none";
+                        document.getElementById("facturaLista").style.display = "block";
+                        avisar("Factura registrada. Ya puedes descargarla en PDF.", "exito");
+                        descargarPdfConfirmacion();
+                    } catch (error) {
+                        console.error("Error al registrar la factura:", error);
+                        avisar("No se pudo registrar la factura. Intenta de nuevo.", "error");
+                    } finally {
+                        btn.disabled = false;
+                    }
                 });
+
+                document.getElementById("btnDescargarFacturaFiscal")?.addEventListener("click", descargarPdfConfirmacion);
+            }
+
+            // Descarga el PDF del pedido recién comprado (factura si ya se registró, si no comprobante)
+            async function descargarPdfConfirmacion() {
+                if (!pedidoConfirmado || !window.WizardlyPDF) {
+                    avisar("No se encontró el pedido para generar el PDF.", "error");
+                    return;
+                }
+                const btn = document.getElementById("btnDescargarFactura");
+                const original = btn ? btn.innerHTML : "";
+                if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando PDF...'; }
+                try {
+                    const nombre = await window.WizardlyPDF.descargar(pedidoConfirmado, { fecha: pedidoConfirmado.fecha });
+                    avisar(`Se descargó ${nombre}`, "exito");
+                } catch (error) {
+                    console.error("Error al generar el PDF:", error);
+                    avisar("No se pudo generar el PDF. Revisa tu conexión a internet.", "error");
+                } finally {
+                    if (btn) { btn.disabled = false; btn.innerHTML = original; }
+                }
             }
 
             const inputCardNumber = document.getElementById("cardNumber");
@@ -1368,8 +1444,10 @@
 
             document.getElementById("btnDescargarFactura")?.addEventListener("click", (e) => {
                 e.preventDefault();
-                showCheckoutToast("Factura descargada en formato PDF");
+                descargarPdfConfirmacion();
             });
+            // Se cargan las librerías del PDF con anticipación para que la descarga sea inmediata
+            window.WizardlyPDF?.precargar();
 
             // Usa el sistema de avisos compartido (js/notificaciones.js)
             function showCheckoutToast(message, tipo = "exito") {

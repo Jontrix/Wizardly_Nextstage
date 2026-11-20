@@ -78,6 +78,11 @@ service cloud.firestore {
       allow delete: if esPersonal();
     }
     match /pagos/{id}          { allow create: if true; allow read, update, delete: if esPersonal(); }
+    match /facturas/{id} {
+      allow create: if true;
+      allow read: if esPersonal() || (logueado() && resource.data.cliente_uid == request.auth.uid);
+      allow update, delete: if esPersonal();
+    }
     match /pedido_detalle/{id} { allow create: if true; allow read, update, delete: if esPersonal(); }
     match /movimientos/{id}    { allow create: if true; allow read, update, delete: if esPersonal(); }
     match /pedidos/{id}        { allow create: if true; allow read, update, delete: if esPersonal(); }
