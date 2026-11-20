@@ -15,7 +15,7 @@
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
-    collection, doc, getDocs, query, where, writeBatch, serverTimestamp
+    collection, doc, getDoc, getDocs, query, where, writeBatch, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const CLAVE_LOCAL = "wizardly_carrito";
@@ -109,6 +109,7 @@ async function recuperarCarrito(uid) {
             if (typeof actualizarContador === "function") actualizarContador();
             if (typeof renderCarrito === "function" && document.getElementById("carrito-lista")) renderCarrito();
         }
+        await refrescarExistencias();
         // Deja la nube igual que el carrito unido
         await subirCarrito();
     } catch (error) {
@@ -132,6 +133,42 @@ async function cargarPromocionesNube() {
     }
 }
 cargarPromocionesNube();
+
+// ============================================================
+//  EXISTENCIAS ACTUALIZADAS: al abrir cualquier página se revisa el
+//  stock real de lo que hay en el carrito y se ajusta si ya no alcanza.
+// ============================================================
+async function refrescarExistencias() {
+    const carrito = leerLocal();
+    if (carrito.length === 0) return;
+    let cambio = false;
+    const avisos = [];
+    await Promise.all(carrito.map(async (item) => {
+        try {
+            const snap = await getDoc(doc(db, "productos", String(item.id)));
+            if (!snap.exists()) return; // p. ej. la subasta de la Pluma de Fénix
+            const disponible = Math.max(0, parseInt(snap.data().existencia ?? snap.data().stock, 10) || 0);
+            if (item.existencia !== disponible) { item.existencia = disponible; cambio = true; }
+            if ((Number(item.cantidad) || 0) > disponible) {
+                avisos.push(disponible > 0
+                    ? `${item.nombre}: solo quedan ${disponible} pieza(s), ajustamos tu carrito.`
+                    : `${item.nombre} se agotó y se quitó de tu carrito.`);
+                item.cantidad = disponible;
+                cambio = true;
+            }
+        } catch (error) {
+            console.error("No se pudo revisar la existencia de", item.nombre, error);
+        }
+    }));
+    if (!cambio) return;
+    const ajustado = carrito.filter(p => (Number(p.cantidad) || 0) > 0);
+    localStorage.setItem(CLAVE_LOCAL, JSON.stringify(ajustado));
+    if (typeof actualizarContador === "function") actualizarContador();
+    if (typeof renderCarrito === "function" && document.getElementById("carrito-lista")) renderCarrito();
+    avisos.forEach(m => window.mostrarNotificacion ? window.mostrarNotificacion(m, "aviso", 6000) : console.warn(m));
+    if (uidActual) programarSubida();
+}
+refrescarExistencias();
 
 onAuthStateChanged(auth, (user) => {
     uidActual = user ? user.uid : null;

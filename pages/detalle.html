@@ -113,15 +113,65 @@
         let productoActualGlobal = null;
 
         // Exponemos las funciones al entorno global para que los botones HTML "onclick" las encuentren
+        // Piezas que todavía se pueden agregar (existencia menos lo que ya está en el carrito)
+        function maximoAgregable() {
+            if (!productoActualGlobal) return 1;
+            const existencia = Math.max(0, parseInt(productoActualGlobal.existencia, 10) || 0);
+            const enCarrito = (typeof obtenerCarrito === "function" ? obtenerCarrito() : [])
+                .filter(p => String(p.id) === String(productoActualGlobal.id))
+                .reduce((s, p) => s + (Number(p.cantidad) || 0), 0);
+            return Math.max(0, existencia - enCarrito);
+        }
+
+        function actualizarSelectorCantidad() {
+            const maximo = maximoAgregable();
+            if (cantidadLocal > maximo) cantidadLocal = Math.max(1, maximo);
+            const valor = document.getElementById('cantidad-valor');
+            const btnMas = document.getElementById('btn-mas');
+            const btnMenos = document.getElementById('btn-menos');
+            const btnAgregar = document.getElementById('btn-agregar');
+            const info = document.getElementById('info-disponible');
+            if (!valor) return;
+            valor.textContent = maximo > 0 ? cantidadLocal : 0;
+            if (btnMas) btnMas.disabled = cantidadLocal >= maximo;
+            if (btnMenos) btnMenos.disabled = cantidadLocal <= 1;
+            if (btnAgregar) {
+                btnAgregar.disabled = maximo <= 0;
+                btnAgregar.style.opacity = maximo <= 0 ? "0.5" : "";
+                btnAgregar.style.cursor = maximo <= 0 ? "not-allowed" : "";
+            }
+            if (info) {
+                const existencia = Math.max(0, parseInt(productoActualGlobal.existencia, 10) || 0);
+                info.innerHTML = existencia <= 0
+                    ? '<span style="color:#f87171;"><i class="fa-solid fa-ban"></i> Agotado</span>'
+                    : maximo <= 0
+                        ? `<span style="color:#fbbf24;"><i class="fa-solid fa-cart-shopping"></i> Ya tienes en tu carrito las ${existencia} pieza(s) disponibles</span>`
+                        : `<span style="color:#4ade80;"><i class="fa-solid fa-box-open"></i> ${existencia} pieza(s) disponibles${existencia !== maximo ? ` · puedes agregar ${maximo} más` : ""}</span>`;
+            }
+        }
+
         window.cambiarCantidadLocal = (delta) => {
-            cantidadLocal = Math.max(1, cantidadLocal + delta);
-            document.getElementById('cantidad-valor').textContent = cantidadLocal;
+            const maximo = maximoAgregable();
+            const nuevo = cantidadLocal + delta;
+            if (delta > 0 && nuevo > maximo) {
+                window.mostrarNotificacion?.(`Solo hay ${productoActualGlobal?.existencia ?? 0} pieza(s) disponibles.`, "aviso");
+                return;
+            }
+            cantidadLocal = Math.max(1, nuevo);
+            actualizarSelectorCantidad();
         };
 
         window.agregarEsteProducto = () => {
             if (productoActualGlobal) {
-                // agregarAlCarrito viene de tu script carrito.js
-                agregarAlCarrito(productoActualGlobal, cantidadLocal);
+                if (maximoAgregable() <= 0) {
+                    actualizarSelectorCantidad();
+                    return;
+                }
+                // agregarAlCarrito viene de tu script carrito.js (también valida la existencia)
+                const agregado = agregarAlCarrito(productoActualGlobal, cantidadLocal);
+                cantidadLocal = 1;
+                actualizarSelectorCantidad();
+                if (agregado === false) return;
                 
                 // Efecto visual en el botón
                 const btn = document.getElementById('btn-agregar');
@@ -192,6 +242,7 @@
                                     <button class="cantidad-btn" id="btn-mas" onclick="cambiarCantidadLocal(1)">+</button>
                                 </div>
                             </div>
+                            <p id="info-disponible" style="margin: -6px 0 18px; font-size: 0.9rem; font-weight: 600;"></p>
 
                             <!-- Botones -->
                             <div class="detalle-btns">
@@ -210,6 +261,10 @@
                         </div>
                     </div>
                 `;
+
+                // Límite de cantidad según la existencia real
+                cantidadLocal = 1;
+                actualizarSelectorCantidad();
 
                 // Mandamos llamar los relacionados pasando la categoría
                 cargarRelacionados(producto.categoria, producto.id);

@@ -94,6 +94,9 @@ service cloud.firestore {
     match /tarjetas/{id} {
       allow read, delete: if logueado() && resource.data.cliente_uid == request.auth.uid;
       allow create: if logueado() && request.resource.data.cliente_uid == request.auth.uid;
+      // Editar titular y vencimiento desde el perfil (no se puede pasar la tarjeta a otro cliente)
+      allow update: if logueado() && resource.data.cliente_uid == request.auth.uid
+        && request.resource.data.cliente_uid == request.auth.uid;
     }
     match /monedero_movimientos/{id} {
       allow read: if esPersonal() || (logueado() && resource.data.cliente_uid == request.auth.uid);

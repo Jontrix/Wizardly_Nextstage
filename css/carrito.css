@@ -169,6 +169,7 @@
     transition: background 0.2s;
 }
 .cantidad-btn:hover { background: rgba(246,213,122,0.1); }
+.cantidad-btn:disabled { opacity: 0.35; cursor: not-allowed; background: transparent; }
 .cantidad-valor {
     min-width: 46px;
     text-align: center;

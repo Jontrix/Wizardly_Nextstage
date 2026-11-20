@@ -71,6 +71,26 @@
             margin-top: 12px;
         }
 
+        .dato-guardado {
+            border: 1px solid rgba(212,175,55,0.18); background: rgba(0,0,0,0.22);
+            border-radius: 12px; padding: 12px; margin-bottom: 10px; font-size: 0.86rem; line-height: 1.45;
+        }
+        .dato-guardado h4 { margin: 0 0 4px; color: #fff; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .dato-guardado p { margin: 0; color: var(--text-muted); }
+        .dato-guardado .acciones-dato { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .etiqueta-predet { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.35); }
+        .etiqueta-vencida { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.35); }
+        .form-dato { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+        .form-dato .completo { grid-column: 1 / -1; }
+        .form-dato label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+        .form-dato input, .form-dato select {
+            width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.3); color: #fff; outline: none;
+        }
+        .form-dato input:focus, .form-dato select:focus { border-color: var(--gold, #d4af37); }
+        .form-dato input[readonly] { opacity: 0.6; cursor: not-allowed; }
+        @media (max-width: 520px) { .form-dato { grid-template-columns: 1fr; } }
+        .btn-compra.peligro { border-color: rgba(248,113,113,0.4); color: #f87171; }
         .btn-compra {
             border: 1px solid rgba(212,175,55,0.28);
             background: transparent;
@@ -205,6 +225,24 @@
                 <div id="historialCompras" class="compras-lista">
                     <p style="color:var(--text-muted);font-size:0.85rem;">Cargando tus pedidos...</p>
                 </div>
+            </div>
+
+            <!-- MIS DIRECCIONES (guardadas en clientes.direcciones) -->
+            <div class="info-card" style="flex:1 1 300px;max-width:400px;" id="mis-direcciones">
+                <h3>Mis Direcciones</h3>
+                <div id="listaDirecciones" class="compras-lista">
+                    <p style="color:var(--text-muted);font-size:0.85rem;">Cargando direcciones...</p>
+                </div>
+                <button type="button" class="btn-compra" id="btnNuevaDireccion" style="margin-top:12px;"><i class="fa-solid fa-plus"></i> Agregar dirección</button>
+            </div>
+
+            <!-- MIS TARJETAS (colección tarjetas) -->
+            <div class="info-card" style="flex:1 1 300px;max-width:400px;" id="mis-tarjetas">
+                <h3>Mis Tarjetas</h3>
+                <div id="listaTarjetas" class="compras-lista">
+                    <p style="color:var(--text-muted);font-size:0.85rem;">Cargando tarjetas...</p>
+                </div>
+                <button type="button" class="btn-compra" id="btnNuevaTarjeta" style="margin-top:12px;"><i class="fa-solid fa-plus"></i> Agregar tarjeta</button>
             </div>
 
             <div class="info-card" style="flex:1 1 300px;max-width:400px;">
@@ -348,7 +386,7 @@
     <script type="module">
         import { auth, db } from "../js/firebase-config.js";
         import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-        import { collection, query, where, getDocs, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+        import { collection, query, where, getDocs, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
         let usuarioActual = null;
         let pedidos = [];
@@ -372,7 +410,7 @@
             }
             usuarioActual = user;
             await cargarDatosCliente();
-            await cargarPedidos();
+            await Promise.all([cargarPedidos(), cargarDirecciones(), cargarTarjetas()]);
         });
 
         // ===== DATOS DEL CLIENTE Y SALDO =====
@@ -574,6 +612,260 @@
                 avisar("No se pudo guardar la factura.", "error");
             }
         }
+
+        // =====================================================================
+        // MIS DIRECCIONES — arreglo "direcciones" del documento clientes/{uid}
+        // (el mismo que usa el checkout para "direcciones guardadas")
+        // =====================================================================
+        let direcciones = [];
+        const ESTADOS_MX = ["Aguascalientes","Baja California","Baja California Sur","Campeche","Chiapas","Chihuahua","Ciudad de México","Coahuila","Colima","Durango","Estado de México","Guanajuato","Guerrero","Hidalgo","Jalisco","Michoacán","Morelos","Nayarit","Nuevo León","Oaxaca","Puebla","Querétaro","Quintana Roo","San Luis Potosí","Sinaloa","Sonora","Tabasco","Tamaulipas","Tlaxcala","Veracruz","Yucatán","Zacatecas"];
+
+        async function cargarDirecciones() {
+            try {
+                const snap = await getDoc(doc(db, "clientes", usuarioActual.uid));
+                direcciones = (snap.exists() && Array.isArray(snap.data().direcciones)) ? snap.data().direcciones : [];
+                // Direcciones antiguas sin id: se les asigna uno para poder editarlas
+                direcciones = direcciones.map((d, i) => ({ ...d, id: d.id || `dir_${Date.now()}_${i}` }));
+                renderDirecciones();
+            } catch (error) {
+                console.error("No se pudieron cargar las direcciones:", error);
+                document.getElementById("listaDirecciones").innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No pudimos cargar tus direcciones.</p>';
+            }
+        }
+
+        function renderDirecciones() {
+            const cont = document.getElementById("listaDirecciones");
+            if (!direcciones.length) {
+                cont.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No tienes direcciones guardadas.</p>';
+                return;
+            }
+            cont.innerHTML = direcciones.map(d => `
+                <div class="dato-guardado">
+                    <h4><i class="fa-solid fa-location-dot" style="color:var(--gold);"></i> ${escaparHTML(d.alias || "Dirección")}${d.predeterminada ? '<span class="etiqueta-predet">Predeterminada</span>' : ""}</h4>
+                    <p>${escaparHTML(d.nombre || "")}${d.telefono ? " · " + escaparHTML(d.telefono) : ""}</p>
+                    <p>${escaparHTML([d.calle, d.ciudad, d.estado, d.codigoPostal ? "C.P. " + d.codigoPostal : ""].filter(Boolean).join(", "))}</p>
+                    ${d.referencias ? `<p><small>Ref: ${escaparHTML(d.referencias)}</small></p>` : ""}
+                    <div class="acciones-dato">
+                        <button class="btn-compra" data-dir-editar="${d.id}"><i class="fa-solid fa-pen"></i> Editar</button>
+                        ${d.predeterminada ? "" : `<button class="btn-compra" data-dir-predet="${d.id}"><i class="fa-solid fa-star"></i> Predeterminada</button>`}
+                        <button class="btn-compra peligro" data-dir-borrar="${d.id}"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                    </div>
+                </div>`).join("");
+        }
+
+        async function guardarDirecciones(mensaje) {
+            await updateDoc(doc(db, "clientes", usuarioActual.uid), { direcciones });
+            renderDirecciones();
+            if (mensaje) avisar(mensaje, "exito");
+        }
+
+        function formularioDireccion(d) {
+            const v = (campo) => escaparHTML(d ? (d[campo] || "") : "");
+            abrirModal(`
+                <h3 style="color:var(--gold); font-family:'Cinzel', serif;">${d ? "Editar dirección" : "Nueva dirección"}</h3>
+                <form id="formDireccion" class="form-dato" novalidate>
+                    <div class="completo"><label>Alias (ej. Casa, Trabajo)</label><input id="dirAlias" maxlength="30" value="${v("alias")}"></div>
+                    <div><label>Nombre de quien recibe</label><input id="dirNombre" maxlength="60" value="${v("nombre")}"></div>
+                    <div><label>Teléfono (10 dígitos)</label><input id="dirTelefono" maxlength="10" inputmode="numeric" value="${v("telefono")}"></div>
+                    <div class="completo"><label>Calle y número</label><input id="dirCalle" maxlength="100" value="${v("calle")}"></div>
+                    <div><label>Ciudad / Municipio</label><input id="dirCiudad" maxlength="60" value="${v("ciudad")}"></div>
+                    <div><label>Estado</label><select id="dirEstado"><option value="">Selecciona</option>${ESTADOS_MX.map(e => `<option ${d && d.estado === e ? "selected" : ""}>${e}</option>`).join("")}${d && d.estado && !ESTADOS_MX.includes(d.estado) ? `<option selected>${escaparHTML(d.estado)}</option>` : ""}</select></div>
+                    <div><label>Código postal</label><input id="dirCP" maxlength="5" inputmode="numeric" value="${v("codigoPostal")}"></div>
+                    <div><label>Referencias (opcional)</label><input id="dirRef" maxlength="120" value="${v("referencias")}"></div>
+                    <label class="completo" style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="dirPredet" style="width:auto;" ${d && d.predeterminada ? "checked" : ""}> Usar como dirección predeterminada</label>
+                    <div class="completo" style="display:flex;gap:10px;"><button type="submit" class="btn-compra"><i class="fa-solid fa-floppy-disk"></i> Guardar dirección</button></div>
+                </form>`);
+
+            document.getElementById("formDireccion").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const val = (id) => document.getElementById(id).value.trim();
+                const nueva = {
+                    id: d ? d.id : "dir_" + Date.now(),
+                    alias: val("dirAlias") || "Mi dirección",
+                    nombre: val("dirNombre"),
+                    telefono: val("dirTelefono"),
+                    calle: val("dirCalle"),
+                    ciudad: val("dirCiudad"),
+                    estado: val("dirEstado"),
+                    codigoPostal: val("dirCP"),
+                    referencias: val("dirRef"),
+                    predeterminada: document.getElementById("dirPredet").checked
+                };
+                if (nueva.nombre.length < 3) return avisar("Escribe el nombre de quien recibe.", "aviso");
+                if (!/^\d{10}$/.test(nueva.telefono)) return avisar("El teléfono debe tener 10 dígitos.", "aviso");
+                if (nueva.calle.length < 5) return avisar("Escribe la calle y el número.", "aviso");
+                if (!nueva.ciudad || !nueva.estado) return avisar("Completa la ciudad y el estado.", "aviso");
+                if (!/^\d{5}$/.test(nueva.codigoPostal)) return avisar("El código postal debe tener 5 dígitos.", "aviso");
+
+                if (nueva.predeterminada || direcciones.length === 0) {
+                    nueva.predeterminada = true;
+                    direcciones.forEach(x => { x.predeterminada = false; });
+                }
+                const idx = direcciones.findIndex(x => x.id === nueva.id);
+                if (idx >= 0) direcciones[idx] = nueva; else direcciones.push(nueva);
+                try {
+                    await guardarDirecciones(d ? "Dirección actualizada." : "Dirección agregada.");
+                    document.getElementById("modalPedido").classList.remove("activo");
+                } catch (error) {
+                    console.error("Error al guardar la dirección:", error);
+                    avisar("No se pudo guardar la dirección.", "error");
+                }
+            });
+        }
+
+        document.getElementById("btnNuevaDireccion").addEventListener("click", () => formularioDireccion(null));
+        document.getElementById("listaDirecciones").addEventListener("click", async (e) => {
+            const editar = e.target.closest("[data-dir-editar]");
+            const predet = e.target.closest("[data-dir-predet]");
+            const borrar = e.target.closest("[data-dir-borrar]");
+            try {
+                if (editar) formularioDireccion(direcciones.find(d => d.id === editar.dataset.dirEditar));
+                if (predet) {
+                    direcciones.forEach(d => { d.predeterminada = d.id === predet.dataset.dirPredet; });
+                    await guardarDirecciones("Dirección predeterminada actualizada.");
+                }
+                if (borrar) {
+                    const d = direcciones.find(x => x.id === borrar.dataset.dirBorrar);
+                    if (!d || !confirmarEnPagina(borrar, `¿Eliminar "${d.alias || "esta dirección"}"?`)) return;
+                    direcciones = direcciones.filter(x => x.id !== d.id);
+                    if (d.predeterminada && direcciones.length) direcciones[0].predeterminada = true;
+                    await guardarDirecciones("Dirección eliminada.");
+                }
+            } catch (error) {
+                console.error("Error con la dirección:", error);
+                avisar("No se pudo completar la acción.", "error");
+            }
+        });
+
+        // Confirmación sin ventana del navegador: el botón pide un segundo clic
+        function confirmarEnPagina(boton, mensaje) {
+            if (boton.dataset.confirmando === "1") return true;
+            boton.dataset.confirmando = "1";
+            const original = boton.innerHTML;
+            boton.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ¿Seguro? Toca otra vez';
+            avisar(mensaje + " Toca de nuevo el botón para confirmar.", "aviso");
+            setTimeout(() => { boton.dataset.confirmando = ""; boton.innerHTML = original; }, 4000);
+            return false;
+        }
+
+        // =====================================================================
+        // MIS TARJETAS — colección "tarjetas" (solo se guardan los últimos 4 dígitos)
+        // =====================================================================
+        let tarjetas = [];
+
+        const tarjetaVencida = (exp) => {
+            const m = String(exp || "").match(/^(\d{2})\/(\d{2})$/);
+            if (!m) return false;
+            return new Date(2000 + Number(m[2]), Number(m[1]), 0, 23, 59) < new Date();
+        };
+        const marcaDe = (numero) => /^4/.test(numero) ? "Visa" : /^(5[1-5]|2[2-7])/.test(numero) ? "Mastercard" : /^3[47]/.test(numero) ? "American Express" : "Tarjeta";
+
+        async function cargarTarjetas() {
+            try {
+                const snap = await getDocs(query(collection(db, "tarjetas"), where("cliente_uid", "==", usuarioActual.uid)));
+                tarjetas = snap.docs.map(d => ({ idDoc: d.id, ...d.data() }));
+                renderTarjetas();
+            } catch (error) {
+                console.error("No se pudieron cargar las tarjetas:", error);
+                document.getElementById("listaTarjetas").innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No pudimos cargar tus tarjetas.</p>';
+            }
+        }
+
+        function renderTarjetas() {
+            const cont = document.getElementById("listaTarjetas");
+            if (!tarjetas.length) {
+                cont.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No tienes tarjetas guardadas.</p>';
+                return;
+            }
+            cont.innerHTML = tarjetas.map(t => `
+                <div class="dato-guardado">
+                    <h4><i class="fa-solid fa-credit-card" style="color:var(--gold);"></i> ${escaparHTML(t.marca || "Tarjeta")} •••• ${escaparHTML(t.ultimos4 || "----")}${tarjetaVencida(t.expiracion) ? '<span class="etiqueta-vencida">Vencida</span>' : ""}</h4>
+                    <p>${escaparHTML(t.nombre_titular || "Titular")} · Vence ${escaparHTML(t.expiracion || "--/--")}</p>
+                    <div class="acciones-dato">
+                        <button class="btn-compra" data-tar-editar="${t.idDoc}"><i class="fa-solid fa-pen"></i> Editar</button>
+                        <button class="btn-compra peligro" data-tar-borrar="${t.idDoc}"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                    </div>
+                </div>`).join("");
+        }
+
+        function formularioTarjeta(t) {
+            abrirModal(`
+                <h3 style="color:var(--gold); font-family:'Cinzel', serif;">${t ? "Editar tarjeta" : "Nueva tarjeta"}</h3>
+                <form id="formTarjeta" class="form-dato" novalidate>
+                    <div class="completo"><label>Nombre del titular</label><input id="tarTitular" maxlength="40" value="${escaparHTML(t ? t.nombre_titular || "" : "")}"></div>
+                    ${t
+                        ? `<div class="completo"><label>Número de tarjeta</label><input value="${escaparHTML(t.marca || "Tarjeta")} •••• ${escaparHTML(t.ultimos4 || "")}" readonly><small style="color:var(--text-muted);">Por seguridad el número no se puede cambiar. Si cambió tu tarjeta, elimínala y agrega la nueva.</small></div>`
+                        : `<div class="completo"><label>Número de tarjeta</label><input id="tarNumero" maxlength="19" inputmode="numeric" placeholder="0000 0000 0000 0000"></div>`}
+                    <div><label>Vencimiento (MM/AA)</label><input id="tarExp" maxlength="5" inputmode="numeric" placeholder="MM/AA" value="${escaparHTML(t ? t.expiracion || "" : "")}"></div>
+                    ${t ? "" : '<div><label>CVV (no se guarda)</label><input id="tarCvv" type="password" maxlength="4" inputmode="numeric"></div>'}
+                    <div class="completo"><button type="submit" class="btn-compra"><i class="fa-solid fa-floppy-disk"></i> Guardar tarjeta</button></div>
+                    <p class="completo" style="color:var(--text-muted);font-size:0.75rem;margin:0;">Pago simulado con fines académicos: solo se guardan los últimos 4 dígitos.</p>
+                </form>`);
+
+            const numero = document.getElementById("tarNumero");
+            if (numero) numero.addEventListener("input", (e) => { e.target.value = e.target.value.replace(/\D/g, "").substring(0, 16).replace(/(.{4})/g, "$1 ").trim(); });
+            document.getElementById("tarExp").addEventListener("input", (e) => {
+                let v = e.target.value.replace(/\D/g, "").substring(0, 4);
+                if (v.length >= 3) v = v.substring(0, 2) + "/" + v.substring(2);
+                e.target.value = v;
+            });
+
+            document.getElementById("formTarjeta").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const titular = document.getElementById("tarTitular").value.trim();
+                const exp = document.getElementById("tarExp").value.trim();
+                const m = exp.match(/^(\d{2})\/(\d{2})$/);
+                if (titular.length < 3) return avisar("Escribe el nombre del titular.", "aviso");
+                if (!m || Number(m[1]) < 1 || Number(m[1]) > 12) return avisar("El vencimiento debe tener el formato MM/AA.", "aviso");
+                if (tarjetaVencida(exp)) return avisar("Esa fecha de vencimiento ya pasó.", "aviso");
+
+                try {
+                    if (t) {
+                        await updateDoc(doc(db, "tarjetas", t.idDoc), { nombre_titular: titular, expiracion: exp, fecha_actualizacion: serverTimestamp() });
+                        avisar("Tarjeta actualizada.", "exito");
+                    } else {
+                        const num = numero.value.replace(/\s+/g, "");
+                        const cvv = document.getElementById("tarCvv").value.trim();
+                        if (!/^\d{15,16}$/.test(num)) return avisar("El número de tarjeta debe tener 16 dígitos.", "aviso");
+                        if (!/^\d{3,4}$/.test(cvv)) return avisar("El CVV debe tener 3 o 4 dígitos.", "aviso");
+                        if (tarjetas.some(x => x.ultimos4 === num.slice(-4) && x.marca === marcaDe(num))) return avisar("Esa tarjeta ya está guardada.", "aviso");
+                        await addDoc(collection(db, "tarjetas"), {
+                            cliente_uid: usuarioActual.uid,
+                            nombre_titular: titular,
+                            ultimos4: num.slice(-4),
+                            marca: marcaDe(num),
+                            expiracion: exp,
+                            fecha_registro: serverTimestamp()
+                        });
+                        avisar("Tarjeta agregada.", "exito");
+                    }
+                    document.getElementById("modalPedido").classList.remove("activo");
+                    await cargarTarjetas();
+                } catch (error) {
+                    console.error("Error al guardar la tarjeta:", error);
+                    avisar("No se pudo guardar la tarjeta.", "error");
+                }
+            });
+        }
+
+        document.getElementById("btnNuevaTarjeta").addEventListener("click", () => formularioTarjeta(null));
+        document.getElementById("listaTarjetas").addEventListener("click", async (e) => {
+            const editar = e.target.closest("[data-tar-editar]");
+            const borrar = e.target.closest("[data-tar-borrar]");
+            if (editar) formularioTarjeta(tarjetas.find(t => t.idDoc === editar.dataset.tarEditar));
+            if (borrar) {
+                const t = tarjetas.find(x => x.idDoc === borrar.dataset.tarBorrar);
+                if (!t || !confirmarEnPagina(borrar, `¿Eliminar la tarjeta •••• ${t.ultimos4}?`)) return;
+                try {
+                    await deleteDoc(doc(db, "tarjetas", t.idDoc));
+                    avisar("Tarjeta eliminada.", "exito");
+                    await cargarTarjetas();
+                } catch (error) {
+                    console.error("Error al eliminar la tarjeta:", error);
+                    avisar("No se pudo eliminar la tarjeta.", "error");
+                }
+            }
+        });
     </script>
 </body>
 

@@ -22,18 +22,54 @@ function guardarCarrito(carrito) {
 }
 
 // ── Agregar producto ─────────────────────────────────────────
+// ── Límite de existencias ─────────────────────────────────────
+// Devuelve las piezas disponibles del producto (null si no se conoce, p. ej. subastas)
+function existenciaDe(producto) {
+    const valor = producto ? (producto.existencia ?? producto.stock) : undefined;
+    if (valor === undefined || valor === null || valor === '') return null;
+    const n = parseInt(valor, 10);
+    return Number.isFinite(n) ? Math.max(0, n) : null;
+}
+
+function avisoCarrito(mensaje, tipo = 'aviso') {
+    if (typeof window.mostrarNotificacion === 'function') {
+        window.mostrarNotificacion(mensaje, tipo, 4000);
+    } else {
+        console.warn(mensaje);
+    }
+}
+
+// Devuelve true si se agregó; false si se rebasaba la existencia
 function agregarAlCarrito(producto, cantidad = 1) {
     const carrito = obtenerCarrito();
     const idx = carrito.findIndex(p => String(p.id) === String(producto.id));
+    const enCarrito = idx >= 0 ? (Number(carrito[idx].cantidad) || 0) : 0;
+    const disponible = existenciaDe(producto) ?? (idx >= 0 ? existenciaDe(carrito[idx]) : null);
+
+    if (disponible !== null) {
+        if (disponible <= 0) {
+            avisoCarrito(`${producto.nombre} está agotado.`, 'error');
+            return false;
+        }
+        if (enCarrito + cantidad > disponible) {
+            const restante = Math.max(0, disponible - enCarrito);
+            avisoCarrito(restante > 0
+                ? `Solo hay ${disponible} pieza(s) de ${producto.nombre}. Puedes agregar ${restante} más.`
+                : `Ya tienes en tu carrito todas las piezas disponibles de ${producto.nombre} (${disponible}).`);
+            return false;
+        }
+    }
 
     if (idx >= 0) {
-        carrito[idx].cantidad += cantidad;
+        carrito[idx].cantidad = enCarrito + cantidad;
+        if (disponible !== null) carrito[idx].existencia = disponible;
     } else {
         carrito.push({ ...producto, cantidad });
     }
 
     guardarCarrito(carrito);
     mostrarToastCarrito(producto.nombre);
+    return true;
 }
 
 // ── Cambiar cantidad ─────────────────────────────────────────
@@ -41,6 +77,12 @@ function cambiarCantidad(id, delta) {
     const carrito = obtenerCarrito();
     const idx = carrito.findIndex(p => String(p.id) === String(id));
     if (idx < 0) return;
+
+    const disponible = existenciaDe(carrito[idx]);
+    if (delta > 0 && disponible !== null && carrito[idx].cantidad + delta > disponible) {
+        avisoCarrito(`Solo hay ${disponible} pieza(s) disponibles de ${carrito[idx].nombre}.`);
+        return;
+    }
 
     carrito[idx].cantidad += delta;
     if (carrito[idx].cantidad <= 0) carrito.splice(idx, 1);
@@ -425,8 +467,9 @@ function renderCarrito() {
         <div class="item-cantidad">
             <button onclick="accionCarrito('${item.id}', -1)">−</button>
             <span>${cantidad}</span>
-            <button onclick="accionCarrito('${item.id}', 1)">+</button>
+            <button onclick="accionCarrito('${item.id}', 1)" ${existenciaDe(item) !== null && cantidad >= existenciaDe(item) ? 'disabled title="Ya no hay más piezas disponibles" style="opacity:0.35;cursor:not-allowed;"' : ''}>+</button>
         </div>
+        ${existenciaDe(item) !== null ? `<small class="item-disponible" style="display:block;width:100%;color:rgba(240,230,210,0.55);font-size:0.75rem;">Disponibles: ${existenciaDe(item)}</small>` : ''}
 
         <p class="item-subtotal">
             $${(precio * cantidad).toFixed(2)}

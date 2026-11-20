@@ -660,8 +660,14 @@
                 secDir.style.display = "block";
                 selectDir.innerHTML = '<option value="nueva">-- Ingresar una nueva dirección --</option>';
                 listaDireccionesGuardadas.forEach((dir, index) => {
-                    selectDir.innerHTML += `<option value="${index}">${dir.alias || ('Dirección ' + (index + 1))} — ${dir.calle || ''}, ${dir.ciudad || ''}</option>`;
+                    selectDir.innerHTML += `<option value="${index}">${dir.alias || ('Dirección ' + (index + 1))}${dir.predeterminada ? ' ★' : ''} — ${dir.calle || ''}, ${dir.ciudad || ''}</option>`;
                 });
+                // Preseleccionar la dirección predeterminada elegida en el perfil
+                const idxPredet = listaDireccionesGuardadas.findIndex(d => d.predeterminada);
+                if (idxPredet >= 0) {
+                    selectDir.value = String(idxPredet);
+                    selectDir.dispatchEvent(new Event("change"));
+                }
             }
         }
 
