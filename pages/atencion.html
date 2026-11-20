@@ -215,7 +215,7 @@
     <script type="module">
         import { db, auth } from "../js/firebase-config.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-        import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+        import { collection, addDoc, getDocs, getDoc, doc, updateDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
         let clienteActual = null;
         let nombreCliente = "";
@@ -287,6 +287,12 @@
                             : '<p class="ticket-sin-respuesta">Esperando respuesta del equipo de atención.</p>'}
                     </div>
                 `).join("");
+
+                // Las respuestas mostradas aquí cuentan como leídas (apaga el aviso del botón de soporte)
+                tickets.filter(t => t.respuesta && t.visto_cliente !== true).forEach(t => {
+                    updateDoc(doc(db, "tickets_atencion", t.id), { visto_cliente: true })
+                        .catch(err => console.error("No se pudo marcar el ticket como leído:", err));
+                });
             } catch (error) {
                 console.error("Error al cargar tickets:", error);
                 lista.innerHTML = '<p class="ticket-sin-respuesta">No pudimos cargar tus tickets. Intenta de nuevo más tarde.</p>';
@@ -326,6 +332,8 @@
                     mensaje,
                     estado: "Abierto",
                     respuesta: "",
+                    visto_cliente: false,
+                    origen: "pagina_atencion",
                     fecha: serverTimestamp()
                 });
 

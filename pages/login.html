@@ -204,8 +204,15 @@
                     // 🔑 ENTREGAMOS LA LLAVE Y LOS DATOS QUE ENCONTRÓ FIREBASE
                     localStorage.setItem("usuarioLogueado", "true");
                     localStorage.setItem("usuarioDatos", JSON.stringify(adminSnap.data()));
-                    
-                    setTimeout(() => { window.location.href = "admin.html"; }, 1200);
+
+                    // Cada rol entra directo a su panel de inicio
+                    const rolAdmin = String(adminSnap.data().rol || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                    let destino = "admin.html";
+                    if (rolAdmin.includes("soporte")) destino = "admin-soporte.html";
+                    else if (rolAdmin.includes("logistica")) destino = "admin-scm.html";
+                    if (rolAdmin.includes("soporte")) mensaje.textContent = "✨ Bienvenido al Panel de Soporte Técnico ✨";
+
+                    setTimeout(() => { window.location.href = destino; }, 1200);
                     return; 
                 }
 
@@ -254,5 +261,8 @@
             }
         });
     </script>
+    <!-- Botón flotante de soporte técnico -->
+    <script src="../js/notificaciones.js"></script>
+    <script type="module" src="../js/soporte-widget.js"></script>
 </body>
 </html>

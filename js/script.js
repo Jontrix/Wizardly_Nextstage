@@ -131,7 +131,7 @@ function esRolEmpresarial(rol) {
         .replace(/[\u0300-\u036f]/g, "")
         .trim()
         .toLowerCase();
-    return ["administrador", "admin", "admin_supremo", "ventas", "logistica"].includes(normalizado);
+    return ["administrador", "admin", "admin_supremo", "ventas", "vendedor", "logistica", "soporte", "soporte tecnico"].includes(normalizado);
 }
 
 function verificarAccesoMagico() {

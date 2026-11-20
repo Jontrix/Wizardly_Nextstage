@@ -10,6 +10,7 @@ const PERMISOS = {
             "admin-promociones.html",
             "admin-clientes.html",
             "admin-cliente-detalle.html",
+            "admin-soporte.html",
             "admin-tickets.html",
             "admin-monedero.html",
             "admin-actividad.html",
@@ -18,6 +19,11 @@ const PERMISOS = {
             "admin-ordenes.html",
             "admin-reporteserp.html"
         ]
+    },
+    // Rol de SOPORTE TÉCNICO: solo atiende las solicitudes del botón de soporte
+    soporte: {
+        inicio: "admin-soporte.html",
+        archivos: ["admin-soporte.html", "admin-tickets.html"]
     },
     logistica: {
         inicio: "admin-scm.html",
@@ -91,7 +97,9 @@ export function aplicarRol() {
 
         const datosGuardados = localStorage.getItem("usuarioDatos");
         const usuario = datosGuardados ? JSON.parse(datosGuardados) : {};
-        const rolNormalizado = normalizar(usuario.rol || "administrador");
+        const ALIAS_ROLES = { "soporte tecnico": "soporte", "vendedor": "ventas", "admin": "administrador", "admin_supremo": "administrador" };
+        const rolLeido = normalizar(usuario.rol || "administrador");
+        const rolNormalizado = ALIAS_ROLES[rolLeido] || rolLeido;
         const permisos = PERMISOS[rolNormalizado];
 
         if (!permisos) {

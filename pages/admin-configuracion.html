@@ -52,8 +52,12 @@
         <a href="admin-clientes.html" class="nav-item">
             <i class="fa-solid fa-users"></i> Clientes
         </a>
-        <a href="admin-tickets.html" class="nav-item"><i class="fa-solid fa-headset"></i> Atención a clientes</a>
-        <a href="admin-monedero.html" class="nav-item"><i class="fa-solid fa-wallet"></i> Monedero</a>
+        <a href="admin-soporte.html" class="nav-item">
+            <i class="fa-solid fa-headset"></i> Soporte técnico
+        </a>
+        <a href="admin-monedero.html" class="nav-item">
+            <i class="fa-solid fa-wallet"></i> Monedero
+        </a>
         <a href="admin-actividad.html" class="nav-item">
             <i class="fa-solid fa-clock-rotate-left"></i> Actividad
         </a>
@@ -217,6 +221,7 @@
                             <option value="Administrador">Administrador</option>
                             <option value="Ventas">Ventas</option>
                             <option value="Logística">Logística</option>
+                            <option value="Soporte técnico">Soporte técnico</option>
                         </select>
                     </div>
 
@@ -371,7 +376,7 @@
     <!-- LÓGICA DE FIREBASE Y FUNCIONAMIENTO -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, Timestamp, collection, getDocs, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         // TUS CREDENCIALES REALES
@@ -388,6 +393,16 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // App secundaria SOLO para crear cuentas nuevas: así el administrador actual
+        // no pierde su sesión (antes había que volver a iniciar sesión tras crear una cuenta)
+        const appCuentas = initializeApp(firebaseConfig, "CreacionDeCuentas");
+        const authCuentas = getAuth(appCuentas);
+        async function crearCuentaFirebase(correo, password) {
+            const credencial = await createUserWithEmailAndPassword(authCuentas, correo, password);
+            await signOut(authCuentas);
+            return credencial.user;
+        }
         const toast = document.getElementById('toast-config');
 
         // FUNCIÓN TOAST
@@ -444,8 +459,7 @@
                 btn.disabled = true;
 
                 // Crear usuario en Auth
-                const userCredential = await createUserWithEmailAndPassword(auth, correo, password);
-                const user = userCredential.user;
+                const user = await crearCuentaFirebase(correo, password);
 
                 // Crear en colección 'administradores'
                 await setDoc(doc(db, "administradores", user.uid), {
@@ -456,13 +470,8 @@
                     fecha_registro: Timestamp.now()
                 });
 
-                mostrarToast("✨ Nuevo Administrador forjado con éxito ✨");
+                mostrarToast(`✨ Cuenta de ${rol} forjada con éxito ✨`);
                 document.getElementById('form-nuevo-admin').reset();
-
-                // Redirige al login para que Firebase cierre la sesión actual e inicie con la nueva
-                setTimeout(() => {
-                    window.location.href = "login.html";
-                }, 2000);
 
             } catch (error) {
                 console.error(error);
@@ -493,8 +502,7 @@
                 btn.textContent = "Forjando vendedor...";
                 btn.disabled = true;
 
-                const userCredential = await createUserWithEmailAndPassword(auth, correo, password);
-                const user = userCredential.user;
+                const user = await crearCuentaFirebase(correo, password);
 
                 await setDoc(doc(db, "vendedores", user.uid), {
                     nombre: nombre,
@@ -506,10 +514,6 @@
 
                 mostrarToast("✨ Nuevo Vendedor forjado con éxito ✨");
                 document.getElementById('form-nuevo-vendedor').reset();
-
-                setTimeout(() => {
-                    window.location.href = "login.html";
-                }, 2000);
 
             } catch (error) {
                 console.error(error);

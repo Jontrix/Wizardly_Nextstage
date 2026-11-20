@@ -1,0 +1,126 @@
+rules_version = '2';
+
+// =====================================================================
+//  WIZARDLY — Reglas de seguridad de Firestore (propuesta para la entrega)
+//
+//  Cómo publicarlas: Consola de Firebase → Firestore Database → Reglas →
+//  pegar este archivo completo → Publicar.
+//
+//  Importante antes de publicar:
+//  - El panel solo puede escribir si el usuario inició sesión con una
+//    cuenta de Firebase registrada en "administradores" o "vendedores".
+//    El acceso de emergencia "Admin Supremo" (solo navegador) ya NO podrá
+//    guardar cambios con estas reglas.
+//  - Si algo deja de funcionar, en la consola del navegador (F12) saldrá
+//    "Missing or insufficient permissions" indicando la colección.
+// =====================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Funciones de apoyo ----------
+    function logueado() {
+      return request.auth != null;
+    }
+    // Personal de la empresa: administrador, ventas, logística o soporte técnico
+    function esPersonal() {
+      return logueado() && (
+        exists(/databases/$(database)/documents/administradores/$(request.auth.uid)) ||
+        exists(/databases/$(database)/documents/vendedores/$(request.auth.uid))
+      );
+    }
+    function esDueno(uid) {
+      return logueado() && request.auth.uid == uid;
+    }
+    function soloCambia(campos) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(campos);
+    }
+
+    // ---------- Catálogo público (lectura libre) ----------
+    match /productos/{id} {
+      allow read: if true;
+      allow create, delete: if esPersonal();
+      // El checkout (incluso como invitado) solo puede DESCONTAR existencia
+      allow update: if esPersonal()
+        || (soloCambia(['existencia'])
+            && request.resource.data.existencia < resource.data.existencia
+            && request.resource.data.existencia >= 0);
+    }
+    match /promociones/{id} { allow read: if true; allow write: if esPersonal(); }
+    match /impuestos/{id}   { allow read: if true; allow write: if esPersonal(); }
+    match /categorias/{id}  { allow read: if true; allow write: if esPersonal(); }
+
+    // ---------- Cuentas del personal ----------
+    match /administradores/{uid} {
+      allow read: if esDueno(uid) || esPersonal();
+      allow write: if esPersonal();
+    }
+    match /vendedores/{uid} {
+      allow read: if esDueno(uid) || esPersonal();
+      allow write: if esPersonal();
+    }
+
+    // ---------- Clientes (CRM) ----------
+    match /clientes/{uid} {
+      allow read, create, update: if esDueno(uid) || esPersonal();
+      allow delete: if esPersonal();
+    }
+    match /interacciones/{id} { allow read, write: if esPersonal(); }
+
+    // ---------- Ventas (ERP / tienda) ----------
+    match /ordenes/{id} {
+      // Lectura libre para el rastreo por folio (seguimiento.html funciona sin sesión)
+      allow read: if true;
+      allow create: if true;
+      // El cliente solo puede agregar la factura a su propio pedido
+      allow update: if esPersonal()
+        || (logueado() && resource.data.cliente_uid == request.auth.uid && soloCambia(['factura']));
+      allow delete: if esPersonal();
+    }
+    match /pagos/{id}          { allow create: if true; allow read, update, delete: if esPersonal(); }
+    match /pedido_detalle/{id} { allow create: if true; allow read, update, delete: if esPersonal(); }
+    match /movimientos/{id}    { allow create: if true; allow read, update, delete: if esPersonal(); }
+    match /pedidos/{id}        { allow create: if true; allow read, update, delete: if esPersonal(); }
+    match /actividad/{id}      { allow create: if true; allow read, update, delete: if esPersonal(); }
+
+    // ---------- Datos personales del cliente ----------
+    match /carrito/{uid} {
+      allow read, write: if esDueno(uid);
+    }
+    match /carrito_detalle/{id} {
+      allow read, delete: if logueado() && resource.data.carrito_id == request.auth.uid;
+      allow create, update: if logueado() && request.resource.data.carrito_id == request.auth.uid;
+    }
+    match /tarjetas/{id} {
+      allow read, delete: if logueado() && resource.data.cliente_uid == request.auth.uid;
+      allow create: if logueado() && request.resource.data.cliente_uid == request.auth.uid;
+    }
+    match /monedero_movimientos/{id} {
+      allow read: if esPersonal() || (logueado() && resource.data.cliente_uid == request.auth.uid);
+      allow create: if esPersonal() || (logueado() && request.resource.data.cliente_uid == request.auth.uid);
+      allow update, delete: if esPersonal();
+    }
+
+    // ---------- Soporte técnico / atención a clientes ----------
+    match /tickets_atencion/{id} {
+      // Cualquiera puede enviar una solicitud (también invitados)
+      allow create: if true;
+      // El cliente ve sus tickets; los de invitado se leen por su ID guardado en el navegador
+      allow read: if esPersonal()
+        || (logueado() && resource.data.cliente_id == request.auth.uid)
+        || resource.data.cliente_id == null;
+      // El cliente solo puede marcar la respuesta como leída
+      allow update: if esPersonal()
+        || ((resource.data.cliente_id == null || (logueado() && resource.data.cliente_id == request.auth.uid))
+            && soloCambia(['visto_cliente']));
+      allow delete: if esPersonal();
+    }
+
+    // ---------- Solo personal ----------
+    match /proveedores/{id}    { allow read, write: if esPersonal(); }
+    match /inventario/{id}     { allow read, write: if esPersonal(); }
+    match /historial/{id}      { allow read, write: if esPersonal(); }
+    match /estado_sistema/{id} { allow read, write: if esPersonal(); }
+    match /usuarios/{id}       { allow read, write: if esPersonal(); }
+  }
+}
